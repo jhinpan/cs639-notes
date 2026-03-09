@@ -1,0 +1,275 @@
+{
+  "lecture": 13,
+  "title": "Multimodal Architectures II",
+  "totalPages": 32,
+  "slides": [
+    {
+      "page": 1,
+      "explanation": "这是课程标题页，介绍了本次讲座的主题：**Multimodal Models II（多模态模型 第二部分）**。这是 CS 639: Foundation Models 课程的一部分，由 Fred Sala 教授在威斯康星大学麦迪逊分校讲授。日期为2026年3月3日。\n\n本讲座是多模态架构系列的第二讲，承接上一讲（Multimodal Architectures I）的内容，将深入探讨视觉语言模型（VLM）的变体与类型，以及其他模态（如音频、视频、强化学习）的应用。多模态模型是 Foundation Model 领域中极其重要的方向，因为现实世界的信息本质上是多模态的——我们同时处理文本、图像、声音等多种信号。理解如何将这些不同模态融合在一个统一的模型架构中，是构建通用 AI 系统的关键。",
+      "keyPoints": [
+        "本讲座是多模态架构系列的第二部分",
+        "将深入探讨VLM变体、对比训练、CLIP等核心概念"
+      ]
+    },
+    {
+      "page": 2,
+      "explanation": "课程行政信息，跳过。",
+      "keyPoints": []
+    },
+    {
+      "page": 3,
+      "explanation": "这是本讲座的**大纲（Outline）**页面，概览了整个多模态模型讲座系列涵盖的三大部分：\n\n**1. 多模态模型简介 + 单编码器模型（One-Encoder Models）**\n这部分介绍如何将模型适配到多种模态，包括类似 BERT 的视觉语言模型（如 VisualBERT）和 Vision Transformers（ViTs）。核心思想是用一个统一的编码器来同时处理不同模态的输入。\n\n**2. VLM 变体与类型（VLM Variations and Types）**\n这是本讲座的重点内容。涵盖多编码器架构（multi-encoder setups）、对比训练（contrastive training）、CLIP 模型、联合训练（joint training）、少样本模型（few-shot models）以及视觉指令（visual instructions）。这些代表了当前多模态基础模型的主流技术路线。\n\n**3. 其他模态与领域（Other Modalities and Domains）**\n超越视觉和语言的范畴，讨论音频（audio）、视频（video）和强化学习（RL）中的多模态应用。\n\n这三个部分从简单到复杂，从单一模态融合到多种模态协同，构成了理解多模态基础模型的完整知识框架。",
+      "keyPoints": [
+        "讲座分三大部分：单编码器模型、VLM变体与类型、其他模态与领域",
+        "核心技术包括对比训练、CLIP、联合训练、few-shot模型等",
+        "涵盖视觉-语言之外的音频、视频、强化学习等模态"
+      ]
+    },
+    {
+      "page": 4,
+      "explanation": "这是大纲的更新版本，标注了**VLM Variations and Types（VLM 变体与类型）**为当前讲座的重点讨论内容（通过高亮/加粗区分）。\n\n从上一讲（Multimodal Architectures I）中已经覆盖了多模态模型的简介部分（标注为 \"from last time\"），包括如何将模型适配到多种模态、BERT-like 视觉语言模型、ViTs 等基础概念。\n\n本次讲座将从 VLM 的变体和类型开始，这是多模态基础模型研究中最活跃的领域之一。关键话题包括：\n- **Multi-encoder setups**：使用独立的编码器分别处理不同模态（如图像编码器 + 文本编码器），然后通过某种机制融合\n- **Contrastive training**：通过对比学习让不同模态的表示在共享空间中对齐\n- **CLIP**：OpenAI 的对比语言-图像预训练模型，是该领域的里程碑式工作\n- **Joint training**：同时训练多种任务/模态的联合方法\n- **Few-shot models**：在少量示例下就能泛化的多模态模型\n- **Visual instructions**：如 LLaVA 等将视觉指令融入语言模型的方法\n\n之后还会讨论音频、视频和 RL 等其他模态。",
+      "keyPoints": [
+        "本讲重点是VLM变体与类型（从上次的单编码器模型延续）",
+        "将覆盖多编码器架构、对比学习、CLIP、视觉指令等核心内容",
+        "上一讲已完成多模态模型简介和单编码器模型的讲解"
+      ]
+    },
+    {
+      "page": 5,
+      "explanation": "这一页介绍了如何**让 LLM 变成多模态模型**的核心问题，并以 **VisualBERT**（Li et al., 2019）作为第一个具体案例。\n\n**核心问题**：如何使用语言架构来处理多种模态？\n\n这个问题的本质在于：Transformer 原本是为处理 token 序列（文本）设计的，那么如何将图像等非文本信息也融入这个架构中？\n\n**VisualBERT 的解决方案**：\nVisualBERT 的核心思路是\"把 BERT 的所有思想保留，加上图像\"。具体做法是：\n1. 使用一个**目标检测器**（如 Faster R-CNN）从图像中提取**边界框（bounding boxes）**，识别图像中的关键区域/物体\n2. 通过**图像嵌入器（image embedder）**将这些区域转换为向量表示\n3. 将这些图像区域的嵌入与文本 token 的嵌入**拼接在一起**，一起输入 BERT 的 Transformer 架构\n\n这是一种**早期融合（early fusion）**策略：在模型的输入层就将视觉和语言信息合并。这意味着 Transformer 的 self-attention 机制可以在文本 token 和视觉区域之间自由地建立注意力关系，实现跨模态的信息交互。\n\n这种方法的直觉可以理解为：把图像中的物体当作\"视觉词汇\"，和文本中的词语一起组成一个\"多模态句子\"，然后用 BERT 来理解整个\"句子\"。\n\n**局限性**：依赖于预训练的目标检测器（pipeline 式方法），检测器的质量直接影响模型效果；且 bounding box 可能丢失细粒度视觉信息。这些限制推动了后续如 ViT-based 方法和 CLIP 等端到端训练方法的发展。",
+      "keyPoints": [
+        "VisualBERT 将图像区域的嵌入与文本token拼接，一起输入BERT实现早期融合",
+        "使用目标检测器提取bounding boxes，再通过图像嵌入器转为向量表示",
+        "核心思想是将视觉区域当作\"视觉词汇\"，与文本共同参与self-attention交互",
+        "这种pipeline式方法依赖检测器质量，推动了后续端到端方法的发展"
+      ]
+    },
+    {
+      "page": 6,
+      "explanation": "# VisualBERT：让LLM变成多模态\n\n这张幻灯片介绍了**VisualBERT**（Li et al., 2019），它是将BERT扩展到多模态（语言+视觉）的早期重要工作。核心思路非常直觉：既然BERT在NLP领域表现优异，那能不能把图像信息也\"塞进\"BERT的框架中？\n\n## 架构思路\n\nVisualBERT的做法是将图像的视觉特征（通常通过预训练的目标检测模型如Faster R-CNN提取的区域特征）作为额外的token，与文本token一起输入到BERT的Transformer编码器中。这样，自注意力机制就能同时在文本token和视觉token之间建立联系。\n\n## 训练策略\n\nVisualBERT的预训练策略直接借鉴BERT的经典方法，并做了多模态适配：\n\n1. **Masked Language Modeling with Image（带图像的掩码语言建模）**：与BERT的MLM类似，随机遮住部分文本token，让模型根据剩余文本**和完整图像**来预测被遮住的词。这迫使模型学习视觉与语言之间的对齐关系——比如看到一张狗的图片，模型需要能预测出被遮住的\"dog\"这个词。\n\n2. **Sentence-Image Prediction（句子-图像预测）**：类似于BERT的Next Sentence Prediction（NSP），这里判断一段文本是否与给定的图像匹配。这帮助模型学习全局的图文对应关系。\n\n## 意义\n\nVisualBERT展示了一个重要范式：**将已有的强大语言模型架构扩展到多模态**，而不是从头设计全新架构。这一思路后来被大量工作继承和发展，成为多模态基础模型的主流路线之一。",
+      "keyPoints": [
+        "VisualBERT将图像区域特征作为额外token输入BERT，实现视觉与语言在同一Transformer中的交互",
+        "训练策略沿用BERT的MLM和NSP，分别适配为带图像的掩码语言建模和句子-图像匹配预测",
+        "体现了\"将成熟NLP模型扩展到多模态\"的重要设计范式"
+      ]
+    },
+    {
+      "page": 7,
+      "explanation": "# 如何获取图像嵌入？Vision Transformer (ViT)\n\n这张幻灯片提出了一个关键问题：在多模态模型中，我们如何将图像转换为嵌入向量（embeddings）？\n\n## 从CNN到Transformer\n\n传统方法是使用**ResNet**等卷积神经网络（CNN）来提取图像特征。例如VisualBERT使用Faster R-CNN提取区域特征。但幻灯片提出了一个自然的思考：既然Transformer在文本领域带来了巨大突破，**能否也用于视觉？**\n\n## ViT（Vision Transformer）\n\nDosovitskiy et al.（2021）提出的**ViT**给出了肯定的答案。其核心思想极其简洁优雅：\n\n1. 将图像分割成固定大小的**patches**（图像块），例如将 $224 \\times 224$ 的图像分成 $16 \\times 16$ 大小的patches，得到 $14 \\times 14 = 196$ 个patch\n2. 将每个patch线性投影为一个向量（类比为NLP中的一个\"token\"）\n3. 加上位置编码（position embedding），送入标准的Transformer编码器\n\n这个类比非常漂亮：**patch之于图像，就如同token之于文本**。这样我们就可以用完全相同的Transformer架构处理视觉数据。\n\n## 对多模态的意义\n\nViT的出现意义重大：当文本和图像都使用Transformer编码时，两个模态的表示空间更加统一，这为构建更简洁、更强大的多模态模型铺平了道路。不再需要混合CNN+Transformer的异构架构。",
+      "keyPoints": [
+        "ViT将图像分割为patches，每个patch类比为一个token，使用标准Transformer处理图像",
+        "统一了文本和视觉的编码架构（都用Transformer），为多模态融合提供了更自然的基础",
+        "ViT的出现标志着视觉领域从CNN主导向Transformer主导的范式转变"
+      ]
+    },
+    {
+      "page": 8,
+      "explanation": "# ViLT：将语言和视觉Transformer整合在一起\n\n这张幻灯片介绍了**ViLT**（Vision-and-Language Transformer，Kim et al., 2021），它是将前面介绍的思路\"组合在一起\"的自然结果。\n\n## 核心理念\n\n既然：\n- 文本可以用Transformer编码（如BERT）\n- 图像也可以用Transformer编码（如ViT）\n- 多模态模型需要让两种模态交互\n\n那么最简洁的方案就是：**用一个统一的Transformer同时处理文本token和图像patch token**，这正是ViLT的设计。\n\n## ViLT的架构特点\n\nViLT的最大亮点在于其**极简设计**：\n\n1. **图像侧**：不使用预训练的CNN或目标检测器来提取特征，而是直接将图像patches通过一个简单的线性投影层转换为嵌入向量\n2. **文本侧**：使用标准的词嵌入\n3. **融合**：将文本嵌入和图像patch嵌入拼接在一起，送入单个Transformer编码器\n\n这意味着ViLT在视觉侧的计算开销极低（没有重量级的视觉骨干网络），模型的大部分计算都集中在多模态Transformer的交互上。\n\n## 意义\n\nViLT代表了多模态架构设计的一个重要趋势：**追求架构简洁性**。之前的方法（如VisualBERT、ViLBERT等）通常依赖于预训练的重量级视觉特征提取器，而ViLT证明了可以用更轻量的方式达到相当的性能。这也呼应了基础模型领域\"less is more\"的设计哲学。",
+      "keyPoints": [
+        "ViLT将文本token和图像patch token直接输入同一个Transformer，实现极简的多模态架构",
+        "不依赖预训练的重量级视觉特征提取器（如Faster R-CNN），大幅减少计算开销",
+        "体现了多模态架构从复杂异构设计向统一简洁设计演进的趋势"
+      ]
+    },
+    {
+      "page": 9,
+      "explanation": "# 多模态架构的多种变体\n\n这张幻灯片指出，在视觉-语言预训练模型领域，存在**大量不同的架构变体**。幻灯片引用了Du et al.（2022）的综述论文\"A Survey of Vision-Language Pre-Trained Models\"。\n\n## 架构设计空间\n\n多模态架构的设计存在多个关键维度，不同工作在这些维度上做出了不同选择：\n\n1. **视觉编码器的选择**：CNN（如ResNet、ResNeXt）、目标检测器（如Faster R-CNN）、ViT等\n2. **融合方式**：\n   - **单流（Single-stream）**：文本和视觉token送入同一个Transformer（如ViLT、VisualBERT）\n   - **双流（Dual-stream）**：文本和视觉分别有独立的Transformer编码器，通过交叉注意力交互（如ViLBERT、LXMERT）\n3. **预训练任务**：MLM、图文匹配（ITM）、图文对比学习（ITC）、图像文本生成等\n4. **预训练数据规模和来源**：从几百万到数十亿的图文对\n\n## 为什么变体这么多？\n\n这反映了该领域在2019-2022年间的快速探索期。每种设计选择都有其trade-off：例如双流模型可以更灵活地分别处理单模态任务，但单流模型在跨模态交互上更直接。哪种架构最优取决于下游任务、数据规模、计算预算等多种因素。\n\n综述论文帮助我们系统性地理解这些变体之间的关系和差异，对于考试复习来说，理解主要设计维度比记住每个具体模型更重要。",
+      "keyPoints": [
+        "视觉-语言预训练模型存在大量架构变体，主要在视觉编码器、融合方式、预训练任务等维度上有不同选择",
+        "单流（统一Transformer）和双流（分离后交叉注意力）是两种主要融合范式",
+        "理解设计空间的关键维度比记忆具体模型更重要"
+      ]
+    },
+    {
+      "page": 10,
+      "explanation": "# 多模态预训练数据集\n\n这张幻灯片讨论了多模态模型的训练数据来源：**图像-文本对（image-text pairs）数据集**。引用了Zhang et al.（2023）的工作。\n\n## 为什么数据集如此重要？\n\n多模态基础模型的强大能力很大程度上依赖于大规模、高质量的图文对数据。模型通过这些配对数据学习**视觉概念与语言描述之间的对应关系**。\n\n## 典型的图文对数据集\n\n多模态领域使用的主要数据集包括：\n\n1. **人工标注数据集**：如MS-COCO（约60万图文对）、Visual Genome（约540万区域描述），质量高但规模有限\n2. **网络爬取数据集**：如LAION-400M/5B、WIT（Wikipedia-based Image Text）、CC3M/CC12M（Conceptual Captions），从互联网自动收集，规模大但噪声多\n3. **混合数据集**：结合多种来源\n\n## 数据规模的演进\n\n从早期的几百万级别到后来的数十亿级别，数据规模经历了指数级增长。这类似于NLP领域从BookCorpus到Common Crawl的发展。CLIP使用了4亿图文对（WebImageText），而LAION-5B包含50亿对——这种规模的扩展是推动模型性能提升的关键因素之一。\n\n## 数据质量与挑战\n\n大规模网络爬取数据存在噪声（图文不匹配）、偏见、有害内容等问题。如何在保持大规模的同时提高数据质量，是多模态基础模型面临的重要挑战。数据的curation（筛选和整理）本身已经成为一个独立的研究方向。",
+      "keyPoints": [
+        "多模态模型依赖大规模图像-文本对数据集进行预训练，数据集规模从百万级到数十亿级不等",
+        "数据来源包括人工标注（高质量小规模）和网络爬取（低质量大规模）两大类",
+        "数据规模的扩展是推动多模态模型性能提升的关键因素，但同时面临噪声和偏见等质量挑战"
+      ]
+    },
+    {
+      "page": 11,
+      "explanation": "课程行政信息，跳过。",
+      "keyPoints": []
+    },
+    {
+      "page": 12,
+      "explanation": "这是课程大纲/提纲幻灯片，概述了多模态架构第二部分的三大主题：\n\n**1. 多模态模型介绍 + 单编码器模型**\n介绍如何将模型适配以融合多种模态，包括类BERT的视觉-语言模型（Vision-Language Models）以及Vision Transformers (ViTs)。这部分延续上一讲的内容，重点是将图像和文本作为输入一起送进同一个Transformer。\n\n**2. VLM的变体和类型**\n这是本讲的核心部分，涵盖多编码器架构（multi-encoder setups）、对比学习训练（contrastive training）、CLIP模型、联合训练（joint training）、少样本模型（few-shot models）以及视觉指令（visual instructions）。这里的关键转变是：从\"早期融合\"（early fusion，即把所有模态输入同一模型）转向\"晚期融合\"（late fusion，即各模态有独立编码器，后续再对齐）。\n\n**3. 其他模态和领域**\n扩展到音频（audio）、视频（video）和强化学习（RL）等其他模态，展示基础模型的多模态能力不仅限于图文。\n\n从课程整体来看，这一讲从单编码器过渡到多编码器，从融合式架构过渡到对比式架构，体现了多模态基础模型设计思路的演进。",
+      "keyPoints": [
+        "本讲三大主题：单编码器模型、多编码器/对比训练（CLIP等）、其他模态（音频/视频/RL）",
+        "核心转变：从早期融合（fusion）到晚期融合（contrastive），即各模态独立编码后再对齐",
+        "CLIP和对比训练是本讲重点内容"
+      ]
+    },
+    {
+      "page": 13,
+      "explanation": "这张幻灯片引入了**对比式视觉-语言模型（Contrastive Vision-Language Models）**，标志着从\"融合\"（fusion）架构到\"对比\"（contrastive）架构的重要转变。\n\n**之前的方法：早期融合（Early Fusion）**\n在之前讨论的模型（如VisualBERT、ViLBERT等）中，文本和图像都作为输入被送入同一个Transformer。这种方式将两种模态在模型内部\"融合\"在一起。优点是模态之间可以深度交互，但缺点是两种模态必须同时存在才能计算表征。\n\n**新方法：晚期融合 / 对比方法（Late Fusion / Contrastive Approach）**\n核心思想是：先用**两个独立的编码器**分别为文本和图像生成各自的表征（representation），然后再通过某种方式将两个表征空间连接/对齐起来。这种\"晚期融合\"的方式更灵活——你可以独立地对文本或图像进行编码。\n\n**对比学习的直觉**：想象你有一个图像和对应的文字描述（正样本对），以及一些不匹配的图文组合（负样本对）。对比学习的目标是：让匹配的图文对在表征空间中靠近，不匹配的对远离。就像在一个派对上，让认识的人站在一起，不认识的人分开。\n\n这一方向由Li et al. 2019的工作引领，后来催生了CLIP等里程碑式的模型。对比方法的一个巨大优势是**可扩展性（scalability）**：不需要精细标注的数据，只需要大量图文配对数据即可训练。",
+      "keyPoints": [
+        "从早期融合（文本和图像共同输入一个Transformer）转向晚期融合（独立编码后对齐）",
+        "对比方法：用两个独立编码器分别编码图像和文本，然后通过对比损失对齐两个表征空间",
+        "对比方法更灵活且更易扩展，是CLIP等模型的基础"
+      ]
+    },
+    {
+      "page": 14,
+      "explanation": "这张幻灯片详细介绍了对比训练的核心损失函数——**InfoNCE损失（Noise Contrastive Estimation）**。\n\n**InfoNCE损失的核心思想**\nInfoNCE是对比学习中最常用的损失函数之一。给定一个正样本对（如匹配的图文对）和多个负样本（不匹配的图文对），InfoNCE本质上是一个softmax分类问题：在所有候选中正确识别出正样本。\n\nInfoNCE的一般形式为：\n$$\\mathcal{L}_{\\text{InfoNCE}} = -\\log \\frac{\\exp(\\text{sim}(z_i, z_j^+) / \\tau)}{\\sum_{k=1}^{N} \\exp(\\text{sim}(z_i, z_k) / \\tau)}$$\n\n其中 $z_i$ 是锚点（anchor）的表征，$z_j^+$ 是正样本的表征，分母包含所有样本（正样本 + 负样本），$\\tau$ 是温度参数（temperature），$\\text{sim}(\\cdot, \\cdot)$ 通常是余弦相似度。\n\n**对称化（Symmetrize）**\n为了同时训练文本编码器和图像编码器，需要将损失\"对称化\"。这意味着：\n- 一个方向：给定图像，在所有文本中找到匹配的文本（image-to-text）\n- 另一个方向：给定文本，在所有图像中找到匹配的图像（text-to-image）\n\n总损失通常是两个方向的平均：\n$$\\mathcal{L} = \\frac{1}{2}(\\mathcal{L}_{\\text{img→text}} + \\mathcal{L}_{\\text{text→img}})$$\n\n这种对称设计确保两个编码器都能学到良好的跨模态对齐表征。在一个batch中，对角线元素是正样本对，非对角线元素是负样本对，batch越大负样本越多，训练效果越好。",
+      "keyPoints": [
+        "InfoNCE损失是对比学习的核心：在所有候选中识别正样本对，本质上是softmax分类",
+        "对称化训练：同时优化image-to-text和text-to-image两个方向的对比损失",
+        "温度参数τ控制分布的锐度，batch size越大提供越多负样本，训练效果越好"
+      ]
+    },
+    {
+      "page": 15,
+      "explanation": "这张幻灯片介绍了**CLIP（Contrastive Language-Image Pre-training）**，由OpenAI提出，是对比式视觉-语言模型的里程碑之作。\n\n**CLIP的核心特点：简单但易于扩展（Simple but Easily Scalable）**\n\nCLIP的设计哲学极其优雅：\n1. **图像编码器**：可以是ResNet或Vision Transformer (ViT)\n2. **文本编码器**：一个Transformer\n3. **训练目标**：对比学习（contrastive learning），即上一张幻灯片介绍的InfoNCE损失的对称版本\n\n**训练数据**：CLIP使用了从互联网收集的约4亿个图文配对（WebImageText数据集）。这些数据不需要人工精细标注，只需要图片与其对应的文字描述（alt-text等）自然配对即可。这种\"弱监督\"的数据获取方式是CLIP能够大规模扩展的关键。\n\n**为什么CLIP如此重要？**\n- **零样本迁移（Zero-shot Transfer）**：训练好后，CLIP可以在不需要额外训练数据的情况下进行图像分类。例如，要分类一张图片是否是\"狗\"，只需计算图像表征与文本\"a photo of a dog\"表征的相似度。\n- **开放词汇（Open Vocabulary）**：不限于预定义的类别集合，可以用自然语言描述任何概念。\n- **可扩展性**：数据量和模型规模可以轻松增大，性能随之提升。\n\nCLIP的成功深刻影响了后续的多模态基础模型发展，包括DALL-E、Stable Diffusion（用CLIP文本编码器引导图像生成）、LLaVA等。它证明了对比学习+大规模数据是构建强大多模态模型的有效范式。",
+      "keyPoints": [
+        "CLIP由OpenAI提出，使用对比学习在4亿图文配对上训练，设计简单但极具扩展性",
+        "核心架构：独立的图像编码器和文本编码器，通过对比损失对齐两个表征空间",
+        "CLIP实现了零样本迁移和开放词汇能力，深刻影响了后续多模态模型（DALL-E、Stable Diffusion等）"
+      ]
+    },
+    {
+      "page": 16,
+      "explanation": "## 如何使用CLIP？\n\n这张幻灯片介绍了CLIP模型在实际推理时的标准使用方式——**提示模板（prompt templates）**。\n\n### 核心思想\n\nCLIP在做zero-shot分类时，需要将类别标签转化为自然语言描述，然后通过文本编码器获得文本嵌入，再与图像嵌入进行相似度匹配。标准做法是使用预定义的模板，例如：\n\n- **\"a photo of a [X]\"**，其中 [X] 是类别名称（如 \"dog\", \"cat\", \"airplane\"）\n\n### 为什么需要模板？\n\n直接使用类别名单词（如 \"dog\"）作为文本输入效果不佳，因为CLIP是在自然语言-图像对上训练的，训练数据中的文本通常是完整的句子或描述，而不是孤立的单词。使用模板可以让输入更接近训练数据的分布，从而获得更好的文本表示。\n\n### 模板工程（Prompt Engineering）\n\nOpenAI在CLIP论文中发现，不同的模板对不同数据集效果差异很大。例如：\n- 对于通用图像分类：\"a photo of a [X]\"\n- 对于卫星图像：\"a satellite photo of [X]\"\n- 对于细粒度分类：\"a photo of a [X], a type of pet\"\n\n有时还会使用**多个模板的集成（ensemble）**，将多个模板生成的文本嵌入取平均，以获得更鲁棒的分类性能。\n\n### 与Foundation Model的联系\n\n这种模板使用方式与NLP中的prompt engineering思想一脉相承——在GPT系列模型中，精心设计的prompt也能显著影响模型输出质量。CLIP将这种思想推广到了视觉-语言的多模态场景中，开创了vision-language模型通过文本prompt进行灵活推理的范式。",
+      "keyPoints": [
+        "CLIP推理时使用预定义模板（如\"a photo of a [X]\"）将类别名转化为自然语言描述",
+        "模板让输入更接近训练数据的文本分布，比直接使用类别名效果更好",
+        "不同任务/数据集可能需要不同的模板，多模板集成可提高鲁棒性"
+      ]
+    },
+    {
+      "page": 17,
+      "explanation": "## VLMs: FLAVA模型\n\n这张幻灯片介绍了**FLAVA（Foundational Language And Vision Alignment Model）**，由Singh等人在2022年提出。FLAVA的核心理念是**\"结合一切\"（Combines everything）**，即整合多种预训练策略。\n\n### 架构设计\n\nFLAVA采用了三个编码器的架构：\n1. **图像编码器（Image Encoder）**：通常基于ViT（Vision Transformer）\n2. **文本编码器（Text Encoder）**：基于Transformer\n3. **多模态融合编码器（Multimodal Encoder）**：将图像和文本表示进行深层融合\n\n### 训练策略：分别与联合\n\nFLAVA的关键创新在于其**混合预训练策略**：\n- **分别预训练（Pretrain separately）**：图像编码器使用图像单模态任务（如Masked Image Modeling, MIM）单独训练；文本编码器使用文本单模态任务（如Masked Language Modeling, MLM）单独训练\n- **联合预训练（Pretrain jointly）**：使用图像-文本对进行多模态联合训练，包括对比学习（类似CLIP）和匹配任务（Image-Text Matching, ITM），以及Masked Multimodal Modeling\n\n### 与其他模型的对比\n\n相比CLIP只做对比学习（双塔架构），FLAVA增加了融合编码器，使其既能做CLIP式的检索任务，又能做需要深度融合的任务（如VQA）。相比纯融合架构（如ViLBERT），FLAVA因为有独立的单模态编码器，也能处理纯图像或纯文本任务。FLAVA试图成为一个**通用的基础模型**，适用于视觉、语言和多模态三类任务。",
+      "keyPoints": [
+        "FLAVA结合了单模态和多模态预训练策略，既分别训练又联合训练",
+        "架构包含图像编码器、文本编码器和多模态融合编码器三个部分",
+        "相比CLIP，FLAVA能处理需要深度融合的任务（如VQA），同时也支持纯单模态任务"
+      ]
+    },
+    {
+      "page": 18,
+      "explanation": "## Few-Shot VLMs：问题动机\n\n这张幻灯片提出了一个重要的研究问题：**VLMs能否像LLMs一样进行few-shot学习？**\n\n### 现有VLMs的局限\n\n之前讨论的VLMs主要有两种使用范式：\n1. **Zero-shot预测**：如CLIP，通过文本prompt直接进行推理，无需任何标注数据。优点是灵活，缺点是性能受限于模板设计和预训练数据覆盖\n2. **Fine-tuning**：在特定任务的标注数据上微调模型。优点是性能好，缺点是需要大量标注数据，且每个任务需要单独训练\n\n### Few-shot学习的需求\n\n在LLMs中（如GPT-3），我们已经看到了强大的**in-context learning**能力——只需在prompt中提供几个示例，模型就能理解新任务。这种能力非常实用：\n- 不需要大量标注数据\n- 不需要梯度更新/微调\n- 可以快速适应新任务\n\n那么，**能否将这种few-shot能力带到视觉-语言模型中？** 这意味着模型需要能够接收少量的图像-文本示例对，并据此完成新的视觉-语言任务。\n\n### 挑战\n\n与纯文本的few-shot不同，视觉-语言的few-shot面临额外挑战：\n- 需要处理**多模态输入**（图像+文本交织）\n- 图像不像文本那样容易拼接在一起\n- 需要模型理解示例之间的模式\n\n这个问题的提出为下一张幻灯片介绍的**Flamingo**模型奠定了基础。",
+      "keyPoints": [
+        "现有VLMs要么做zero-shot预测，要么需要fine-tuning，缺乏few-shot能力",
+        "Few-shot学习的核心优势：只需少量示例即可适应新任务，无需大量标注数据或梯度更新",
+        "视觉-语言的few-shot比纯文本更具挑战性，需要处理多模态交织输入"
+      ]
+    },
+    {
+      "page": 19,
+      "explanation": "## Few-Shot VLMs: Flamingo模型\n\n这张幻灯片介绍了**Flamingo**，由DeepMind的Alayrac等人在2022年提出，是一个具有**800亿参数**的视觉-语言模型，专门为few-shot学习设计。\n\n### 核心特点\n\n1. **基于LLM**：Flamingo构建在一个大型语言模型之上（如Chinchilla 70B），利用LLM强大的in-context learning能力作为基础\n\n2. **多图像支持（Multi-image）**：与CLIP等模型只处理单张图像不同，Flamingo可以同时接收**多张图像**作为输入。这对few-shot至关重要——模型需要看到多个示例图像才能学习模式\n\n3. **交织架构（Interleaved architecture）**：Flamingo使用了更复杂的架构设计，允许图像和文本**交替出现**在输入序列中。例如：\n   - [图像1] \"这是一只猫\" [图像2] \"这是一只狗\" [图像3] \"这是什么？\"\n\n### 架构设计关键组件\n\n- **Vision Encoder**：使用预训练的视觉编码器（如NFNet）提取图像特征，且在训练过程中**冻结**\n- **Perceiver Resampler**：将可变数量的视觉特征压缩为固定数量的visual tokens，解决不同图像分辨率和特征数量的问题\n- **Gated Cross-Attention**：在LLM的Transformer层之间插入交叉注意力层，让语言模型能够\"看到\"图像特征。使用门控机制（gating），初始化时门控值为0，确保训练初期模型行为与原始LLM一致\n- **冻结LLM**：LLM参数在训练过程中保持冻结，只训练新增的视觉相关模块\n\n### 重要意义\n\nFlamingo开创了将LLM的in-context learning能力扩展到多模态领域的范式，为后来的GPT-4V、LLaVA等模型奠定了基础。",
+      "keyPoints": [
+        "Flamingo是80B参数的VLM，基于LLM构建，专为多模态few-shot学习设计",
+        "支持多图像输入和图文交织的序列格式，使in-context learning成为可能",
+        "使用Perceiver Resampler压缩视觉特征，Gated Cross-Attention注入图像信息到冻结的LLM中"
+      ]
+    },
+    {
+      "page": 20,
+      "explanation": "## Few-Shot VLMs: Flamingo（续）\n\n这张幻灯片是对Flamingo模型的继续介绍，内容与前一张相同，可能展示了不同的图示或架构细节。\n\n### 深入理解Flamingo的架构\n\n让我们更详细地理解Flamingo的关键设计：\n\n#### Perceiver Resampler\n这是Flamingo中一个非常巧妙的组件。视觉编码器对不同的图像可能产生不同数量的特征token（特别是处理视频时帧数可变），Perceiver Resampler使用一组**可学习的查询向量（learned queries）**，通过cross-attention从视觉特征中提取固定数量的输出token。这可以类比为一个\"信息压缩器\"。\n\n#### Gated Cross-Attention Dense Layers\n在LLM的每个Transformer block之前，Flamingo插入了一个交叉注意力层：\n$$\\text{output} = \\text{FFN}(\\text{LM\\_output} + \\tanh(\\alpha) \\cdot \\text{CrossAttn}(\\text{LM\\_output}, \\text{visual\\_tokens}))$$\n\n其中 $\\alpha$ 是可学习的门控参数，初始化为0（因此 $\\tanh(0) = 0$）。这意味着训练开始时，新增的视觉注意力层对LLM没有影响，随着训练进行逐渐学习如何整合视觉信息。\n\n#### 训练数据\nFlamingo使用了大规模的图文交织数据进行训练，包括网页中自然出现的图文混合内容，这与CLIP使用的简单图文对不同。\n\n#### 性能表现\nFlamingo在多个VQA、图像描述等基准上，使用few-shot（4-32个示例）就能达到甚至超过许多经过全量fine-tuning的模型的性能，展现了强大的few-shot能力。",
+      "keyPoints": [
+        "Perceiver Resampler将可变数量的视觉特征压缩为固定数量的token",
+        "Gated Cross-Attention通过门控机制（初始化为0）安全地将视觉信息注入冻结的LLM",
+        "Flamingo使用图文交织数据训练，few-shot性能可媲美甚至超越全量微调的模型"
+      ]
+    },
+    {
+      "page": 21,
+      "explanation": "这张幻灯片介绍了 **LLaVA (Large Language and Vision Assistant)**，这是一个通过 **Visual Instruction Tuning（视觉指令微调）** 来实现接近 GPT-4 多模态性能的模型（Liu et al., 2023）。\n\n## 核心思想\n\nLLaVA 的目标非常明确：用一个**简单且可扩展的架构**来逼近 GPT-4 的多模态能力。这里的关键创新在于 \"Visual Instruction Tuning\" 的概念——将视觉理解任务转化为指令跟随（instruction-following）任务，从而利用大语言模型（LLM）强大的推理和对话能力。\n\n## 架构设计\n\nLLaVA 的架构非常简洁：\n1. **视觉编码器**：通常使用预训练的 CLIP 视觉编码器（如 ViT-L/14）来提取图像特征\n2. **投影层（Projection Layer）**：一个简单的线性层（或 MLP），将视觉特征映射到语言模型的嵌入空间\n3. **大语言模型**：如 LLaMA/Vicuna，接收投影后的视觉 token 和文本 token 的拼接序列\n\n这种设计的优势在于其简单性——不需要复杂的跨模态注意力机制或专门的融合模块，只需要一个轻量级的投影层就能桥接视觉和语言两个模态。\n\n## 训练流程\n\nLLaVA 的训练通常分两个阶段：\n- **预训练阶段**：冻结视觉编码器和 LLM，只训练投影层，使用图文对数据进行特征对齐\n- **微调阶段**：使用视觉指令数据（由 GPT-4 生成）对整个模型进行端到端微调\n\n这种方法展示了一个重要趋势：通过组合已有的强大组件（CLIP + LLM）并用少量适配层连接，就能获得强大的多模态能力。",
+      "keyPoints": [
+        "LLaVA 通过 Visual Instruction Tuning 将视觉任务转化为指令跟随任务，目标是接近 GPT-4 的多模态性能",
+        "架构极其简洁：CLIP 视觉编码器 + 线性投影层 + 大语言模型，体现了 '简单且可扩展' 的设计哲学",
+        "训练分两阶段：先对齐视觉-语言特征，再用 GPT-4 生成的指令数据进行微调"
+      ]
+    },
+    {
+      "page": 22,
+      "explanation": "这张幻灯片展示了 **LLaVA 的对话示例**，重点强调了模型的两个关键能力。\n\n## 分布外（Out-of-Distribution）泛化能力\n\n幻灯片特别标注这是一个 **challenging out-of-distribution example**（具有挑战性的分布外样本）。这意味着该示例中的图像或问题类型可能不在训练数据的常见分布内，但模型仍然能够给出合理的回答。这展示了 LLaVA 从视觉指令微调中获得的泛化能力——模型不仅仅是记忆训练数据中的模式，而是真正学会了将视觉理解与语言推理结合起来。\n\n## 多轮对话能力\n\n幻灯片还指出模型被设计为支持 **multi-round conversation（多轮对话）**。这是一个重要的设计目标，因为真实的人机交互往往不是单次问答，而是需要在多轮对话中保持对图像内容的理解和上下文一致性。\n\n多轮对话能力要求模型：\n- 在整个对话过程中保持对原始图像的理解\n- 能够根据之前的对话历史来理解后续问题的语境\n- 支持追问、澄清、深入探讨等复杂交互模式\n\n这种能力直接继承自底层 LLM 的对话能力，而视觉指令微调确保了这种对话能力可以自然地扩展到包含视觉内容的场景中。这也体现了 LLaVA 设计的优雅之处：利用 LLM 已有的对话机制来处理多模态对话。",
+      "keyPoints": [
+        "LLaVA 在分布外样本上也能表现良好，展示了其泛化能力而非简单的模式记忆",
+        "多轮对话能力是 LLaVA 的核心设计目标，继承自底层 LLM 的对话机制并扩展到视觉场景",
+        "视觉指令微调使模型能够在保持图像理解的同时进行复杂的多轮交互"
+      ]
+    },
+    {
+      "page": 23,
+      "explanation": "这张幻灯片将讨论从开源模型（如 LLaVA）转回到 **闭源多模态模型**，以 Google 的 **Gemini** 为代表。\n\n## 闭源多模态模型的特点\n\n### 联合训练的优势\n幻灯片指出闭源模型可能更强大，因为它们是 **trained on all modalities jointly（在所有模态上联合训练的）**。这与之前讨论的开源方法（如 LLaVA 使用预训练的冻结视觉编码器 + 预训练的 LLM + 轻量级适配）形成鲜明对比。\n\n联合训练意味着：\n- 模型从一开始就同时学习文本、图像、音频、视频等多种模态\n- 模态之间的交互可以在训练过程中被深层优化\n- 不存在模态间的 \"对齐瓶颈\"——因为模型天然就是多模态的\n\n### 相似的能力\n闭源模型（如 Gemini、GPT-4V）与开源模型具有类似的多模态能力，但由于更大的数据规模、计算资源和联合训练策略，往往在性能上更胜一筹。\n\n### 代价：昂贵！\n幻灯片明确指出了最大的缺点——**expensive!** 这个 \"贵\" 体现在多个方面：\n- **训练成本**：联合多模态训练需要海量计算资源\n- **数据成本**：需要大量高质量的多模态数据\n- **使用成本**：API 调用费用\n- **可访问性**：无法查看模型权重、架构细节或训练数据\n\n这引出了 Foundation Models 领域的一个核心张力：**性能 vs. 开放性/可复现性**。Gemini 这样的模型代表了 \"不计成本追求最佳性能\" 的路线。",
+      "keyPoints": [
+        "闭源多模态模型（如 Gemini）通过在所有模态上联合训练，可能获得比开源模型更强的性能",
+        "联合训练消除了模态对齐瓶颈，但代价是极高的训练和使用成本",
+        "闭源 vs. 开源反映了 Foundation Models 领域中性能与可访问性之间的核心矛盾"
+      ]
+    },
+    {
+      "page": 24,
+      "explanation": "课程行政信息，跳过。",
+      "keyPoints": []
+    },
+    {
+      "page": 25,
+      "explanation": "这张幻灯片是本讲座的 **大纲（Outline）**，展示了 \"Multimodal Architectures II\" 这一讲座的三大主题板块，帮助学生理解整体知识结构。\n\n## 三大主题板块\n\n### 1. 多模态模型入门 + 单编码器模型\n这部分涵盖了如何将模型适配以整合多种模态，包括类 BERT 的视觉-语言模型（如 VisualBERT、VilBERT 等），以及 Vision Transformers（ViTs）。核心思想是用**单一的 Transformer 架构**同时处理视觉和语言输入，通常通过将图像 patch 和文本 token 拼接后送入同一个编码器。\n\n### 2. VLM 变体与类型\n这是本讲座的核心部分，涵盖了更丰富的架构设计：\n- **多编码器设置（Multi-encoder setups）**：为不同模态使用独立的编码器\n- **对比训练（Contrastive training）**：如 CLIP，通过对比学习对齐视觉和语言表示\n- **联合训练（Joint training）**：端到端训练多模态模型\n- **少样本模型（Few-shot models）**：如 Flamingo，支持少样本多模态学习\n- **视觉指令（Visual instructions）**：如 LLaVA，通过指令微调实现多模态对话\n\n### 3. 其他模态和领域\n将多模态的概念扩展到视觉-语言之外：\n- **音频（Audio）**：语音识别、音乐生成等\n- **视频（Video）**：时序理解、视频生成\n- **强化学习（RL）**：多模态模型在决策和控制中的应用\n\n从大纲可以看出，当前幻灯片标记的位置应该在第二和第三部分之间的过渡处，即刚完成 VLM 变体的讨论，即将进入其他模态的讨论。",
+      "keyPoints": [
+        "讲座从单编码器模型出发，逐步深入到多编码器、对比学习（CLIP）、联合训练、少样本学习和视觉指令微调",
+        "多模态不仅限于视觉-语言，还扩展到音频、视频和强化学习等领域",
+        "大纲体现了多模态架构从简单到复杂、从特定模态到通用模态的发展脉络"
+      ]
+    },
+    {
+      "page": 26,
+      "explanation": "## 其他模态：音频（Audio）\n\n这张幻灯片介绍了多模态架构扩展到音频领域的应用。核心思想是：我们在图像-文本领域学到的多模态技术，可以类似地应用到其他模态上。\n\n### 音频处理的关键洞察\n\n音频信号可以被转换为图像表示（如**频谱图/spectrogram**），然后直接应用图像处理的方法。频谱图将音频的时间-频率特征可视化为二维图像，这样就可以利用已有的视觉模型（如 CNN、ViT）来处理音频数据。这是一个非常优雅的跨模态迁移思路。\n\n### Whisper 模型\n\n幻灯片重点提到了 **Whisper**（Radford et al., 2022），这是 OpenAI 推出的语音识别模型。其关键特点：\n\n- 使用了 **680K 小时** 的音频监督数据进行训练，这是一个巨大的数据规模\n- Whisper 采用了类似于基础模型的思路：通过海量数据的弱监督/监督训练来获得强大的泛化能力\n- 它是一个 encoder-decoder 架构的 Transformer，输入是音频的 mel-spectrogram，输出是转录文本\n- Whisper 展示了 Foundation Model 的一个核心理念：**规模化（scaling）** 可以带来跨语言、跨任务的强大性能\n\n### 与多模态架构的联系\n\n这延续了本讲座的主题：多模态架构不仅限于视觉和语言的结合。音频、视频等模态都可以通过类似的方法被纳入统一的框架中。将非图像模态转换为图像是一种实用的「模态桥接」技巧。",
+      "keyPoints": [
+        "音频可以通过转换为频谱图（spectrogram）来直接应用图像处理方法",
+        "Whisper 使用 680K 小时音频数据训练，展示了大规模数据在音频基础模型中的威力",
+        "多模态架构的思想可以推广到音频等各种模态"
+      ]
+    },
+    {
+      "page": 27,
+      "explanation": "## 其他模态：音频 + 视频 + 文本\n\n这张幻灯片介绍了 **Merlot**（Zellers et al., 2021），一个将视频、文本（以及隐含的音频）结合在一起的多模态模型。\n\n### Merlot 的核心思想\n\nMerlot 是一个多模态预训练模型，专门设计来从视频中学习。视频本身就是一个天然的多模态数据源：\n- **视觉帧（visual frames）**：视频中的图像序列\n- **文本/语言**：视频的字幕、转录文本\n- **时序结构**：视频帧和文本之间存在时间上的对齐关系\n\n### 为什么视频是重要的多模态数据源？\n\n视频相比于静态图像-文本对提供了更丰富的信息：\n1. **时序推理**：可以学习事件的先后顺序和因果关系\n2. **自然对齐**：字幕/旁白天然地与视频帧在时间上对齐，提供了免费的监督信号\n3. **场景理解**：视频提供了比单张图片更完整的场景上下文\n\n### 与多模态架构的联系\n\nMerlot 展示了多模态架构从「两种模态」扩展到「多种模态」的趋势。这一趋势在后续的工作中不断深化，如 Flamingo、GPT-4 等模型都在尝试整合更多类型的输入。将视频理解纳入基础模型是通向更通用 AI 系统的重要一步，因为人类世界的信息天然就是多模态、动态的。",
+      "keyPoints": [
+        "Merlot 是一个结合视频和文本的多模态预训练模型",
+        "视频作为多模态数据源天然提供了时序信息和跨模态对齐的监督信号",
+        "多模态架构正从双模态向多模态（视觉+语言+音频+时序）扩展"
+      ]
+    },
+    {
+      "page": 28,
+      "explanation": "## 基础模型在机器人学中的应用\n\n这张幻灯片引入了一个重要话题：将基础模型（特别是语言模型）应用于**机器人规划（planning）和控制**领域。\n\n### 核心问题：Grounding（接地/落地）\n\n语言模型虽然具有强大的知识和推理能力，但存在一个关键限制：\n- **缺乏环境感知（Not \"grounded\"）**：LLM 知道「打扫房间」的步骤，但它不知道机器人当前所在的房间是什么样的、有哪些物体、机器人能做什么动作\n- 这就是所谓的 **grounding problem**：语言模型的知识是抽象的、脱离物理世界的\n\n### 解决思路：与强化学习结合\n\n幻灯片提到可以将语言模型与 **RL（强化学习）概念** 混合使用：\n- LLM 提供高层次的规划和常识推理\n- RL 提供与环境交互的能力和物理世界的约束\n- 两者结合可以让机器人既有「知识」又有「能力」\n\n### 为什么这很重要？\n\n这代表了基础模型应用的一个重要前沿方向：从纯粹的文本/图像理解走向**物理世界的交互**。这也是实现 embodied AI（具身智能）的关键挑战。Ahn et al., 2022（即 SayCan）是这一方向的代表性工作，将在下一张幻灯片详细介绍。",
+      "keyPoints": [
+        "语言模型用于机器人规划时面临 grounding 问题——不了解物理环境",
+        "解决方案是将 LLM 的高层知识与 RL 的环境交互能力结合",
+        "这代表基础模型从数字世界向物理世界扩展的重要方向"
+      ]
+    },
+    {
+      "page": 29,
+      "explanation": "## SayCan：基础模型在机器人中的具体应用\n\n这张幻灯片详细介绍了 **SayCan**（Ahn et al., 2022）的核心思想，这是将语言模型应用于机器人规划的经典工作。\n\n### SayCan 的核心公式\n\nSayCan 的关键创新在于将两个概率结合起来选择下一步动作：\n\n1. **LLM 提供的概率**：给定任务描述，LLM 评估某个步骤/技能作为下一步的合理性（\"LLM-provided prob of next step being valid\"）。这代表了语言模型的 **常识推理** 能力——在语义层面上，这个动作合不合理？\n\n2. **完成技能的概率**：从当前状态 $s$ 出发，机器人实际完成该技能/步骤的概率（\"Prob. of completing skill/step from state $s$\"）。这通常由一个 RL 训练的 **affordance function（可供性函数）** 提供——在物理层面上，机器人能不能做到？\n\n最终的动作选择可以理解为：\n$$\\text{score}(\\text{skill}) = P_{\\text{LLM}}(\\text{skill is useful}) \\times P_{\\text{affordance}}(\\text{skill succeeds} | s)$$\n\n### 直观理解\n\n想象一个场景：你让机器人「帮我拿一杯水」。\n- LLM 知道步骤应该是：走到厨房 → 找到杯子 → 接水 → 端回来\n- 但如果机器人面前有障碍物挡住了通往厨房的路，那「走到厨房」这个步骤的完成概率就很低\n- SayCan 会综合两者，选择既合理又可行的动作\n\n### 为什么这很重要？\n\n这优雅地解决了 grounding 问题：LLM 负责「说什么该做」（Say），affordance model 负责「什么能做」（Can），两者结合就是 **SayCan**。",
+      "keyPoints": [
+        "SayCan 将 LLM 的语义合理性概率与 RL affordance 的物理可行性概率相乘来选择动作",
+        "LLM 解决「什么该做」，affordance model 解决「什么能做」，巧妙解决 grounding 问题",
+        "这种组合方式让语言模型的抽象知识能够落地到具体的物理环境中"
+      ]
+    },
+    {
+      "page": 30,
+      "explanation": "## 基础模型在导航中的应用\n\n这张幻灯片介绍了将多个基础模型组合用于**机器人导航（navigation）** 的方法（Shah et al., 2022）。\n\n### 架构设计：多个 FM 的连接\n\n该方法的核心思想是将多个专门的基础模型 **串联/组合** 起来：\n\n1. **Language FM（语言基础模型）**：理解自然语言指令，进行高层规划\n2. **Vision FM（视觉基础模型）**：处理视觉观察，理解环境\n3. **Action FM（动作基础模型）**：将规划转化为具体的导航动作\n\n### 输入与输出\n\n- **输入**：\n  - **Observations（观察）**：机器人的传感器数据，如摄像头图像\n  - **Instructions（指令）**：自然语言的导航指令，如「走到红色的门前」\n- **输出**：\n  - **Plan（规划）**：一系列具体的导航动作\n\n### 模块化组合的优势\n\n这种将多个 FM 组合的方法体现了一个重要的设计理念：**模块化（modularity）**。每个 FM 专注于自己擅长的领域，通过接口连接实现整体功能。这种方法的优势包括：\n- 可以独立更新每个模块\n- 可以利用每个领域最好的预训练模型\n- 更容易解释和调试系统的行为\n\n### 与更广泛趋势的联系\n\n这种多 FM 组合的架构预示了后来的 **AI agent** 范式的发展，如 LangChain、AutoGPT 等系统也采用了类似的多模型协作思路。这说明基础模型的价值不仅在于单个模型的能力，还在于多个模型的**组合与协作**。",
+      "keyPoints": [
+        "通过连接语言、视觉和动作三个基础模型来实现机器人导航",
+        "输入为环境观察和语言指令，输出为导航规划",
+        "模块化组合多个 FM 的思路预示了后来 AI agent 系统的发展方向"
+      ]
+    },
+    {
+      "page": 31,
+      "explanation": "Content generation failed for this slide.",
+      "keyPoints": []
+    },
+    {
+      "page": 32,
+      "explanation": "Content generation failed for this slide.",
+      "keyPoints": []
+    }
+  ]
+}
