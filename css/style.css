@@ -511,6 +511,172 @@ mark[data-hl-id].has-note { border-bottom: 2px dashed var(--accent); }
   line-height: 1.5;
 }
 
+/* ---- Q&A Chat Pane ---- */
+#qa-pane {
+  flex: 0 0 320px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-pane);
+  border-left: 1px solid var(--border);
+  min-width: 260px;
+  max-width: 440px;
+}
+#qa-pane.hidden { display: none; }
+
+.qa-divider {
+  width: 4px;
+  cursor: col-resize;
+  background: var(--border);
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.qa-divider.hidden { display: none; }
+.qa-divider:hover, .qa-divider.active { background: var(--accent); }
+
+.qa-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-ui);
+  flex-shrink: 0;
+}
+.qa-title {
+  font-weight: 700;
+  font-size: 13px;
+  flex: 1;
+}
+.qa-header button {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 2px 8px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+}
+.qa-header button:hover { background: var(--accent-light); }
+
+#qa-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qa-msg {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 8px 12px;
+  border-radius: 10px;
+  max-width: 95%;
+  word-wrap: break-word;
+}
+.qa-msg p { margin: 4px 0; }
+.qa-msg p:first-child { margin-top: 0; }
+.qa-msg p:last-child { margin-bottom: 0; }
+.qa-msg code {
+  background: var(--code-bg);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+}
+.qa-msg pre {
+  background: var(--code-bg);
+  padding: 8px 10px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 6px 0;
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  line-height: 1.4;
+}
+.qa-msg pre code { background: none; padding: 0; }
+.qa-msg-user {
+  background: var(--accent);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 3px;
+}
+.qa-msg-assistant {
+  background: var(--code-bg);
+  color: var(--text);
+  align-self: flex-start;
+  border-bottom-left-radius: 3px;
+}
+.qa-msg-assistant .katex-display { margin: 8px 0; }
+.qa-msg-system {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  font-style: italic;
+  align-self: center;
+  padding: 4px 0;
+}
+.qa-typing {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 12px;
+  padding: 4px 12px;
+}
+.qa-typing::after {
+  content: '';
+  animation: blink 1s steps(3) infinite;
+}
+@keyframes blink { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
+
+#qa-form {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+#qa-input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  resize: none;
+  background: var(--bg-pane);
+  color: var(--text);
+  line-height: 1.4;
+}
+#qa-input:focus { outline: none; border-color: var(--accent); }
+#qa-send {
+  align-self: flex-end;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+#qa-send:hover { opacity: 0.85; }
+#qa-send:disabled { opacity: 0.4; cursor: default; }
+
+.qa-context-badge {
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 0 12px 4px;
+  font-family: var(--font-ui);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
 /* ---- KaTeX overrides ---- */
 .katex-display { margin: 16px 0; overflow-x: auto; }
 
@@ -518,8 +684,9 @@ mark[data-hl-id].has-note { border-bottom: 2px dashed var(--accent); }
 @media (max-width: 768px) {
   #split-view { flex-direction: column; }
   #slide-pane { flex: 0 0 40vh; border-right: none; border-bottom: 1px solid var(--border); }
-  #divider { display: none; }
+  #divider, .qa-divider { display: none; }
   #notes-pane { padding: 20px 16px; }
+  #qa-pane { flex: 0 0 40vh; max-width: 100%; border-left: none; border-top: 1px solid var(--border); }
   .brand { display: none; }
   #lecture-select { max-width: 160px; }
 }

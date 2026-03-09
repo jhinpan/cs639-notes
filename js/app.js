@@ -41,6 +41,12 @@ const contextMenu = document.getElementById('context-menu');
 const noteEditor = document.getElementById('note-editor');
 const annotationsPanel = document.getElementById('annotations-panel');
 const annotationsList = document.getElementById('annotations-list');
+const qaPane = document.getElementById('qa-pane');
+const qaDivider = document.getElementById('divider-qa');
+const qaMessages = document.getElementById('qa-messages');
+const qaInput = document.getElementById('qa-input');
+const qaForm = document.getElementById('qa-form');
+const btnQa = document.getElementById('btn-qa');
 
 // ---- Initialize ----
 function init() {
@@ -85,12 +91,14 @@ function bindEvents() {
   tocClose.addEventListener('click', () => tocPanel.classList.add('hidden'));
   btnAnnotations.addEventListener('click', () => { annotationsPanel.classList.toggle('hidden'); tocPanel.classList.add('hidden'); renderAnnotationsPanel(); });
   document.getElementById('annotations-close').addEventListener('click', () => annotationsPanel.classList.add('hidden'));
+  btnQa.addEventListener('click', toggleQaPane);
   btnTheme.addEventListener('click', toggleTheme);
   document.addEventListener('keydown', handleKeys);
   window.addEventListener('hashchange', handleHashChange);
   window.addEventListener('resize', () => { if (pdfDoc) renderPage(currentPage); });
   initDividerDrag();
   initHighlightSystem();
+  initQa();
 }
 
 function handleKeys(e) {
@@ -187,6 +195,7 @@ function goToPage(page) {
   location.hash = `lecture=${currentLecture.id}&page=${currentPage}`;
   renderPage(currentPage);
   renderNotes(currentPage);
+  if (qaOpen) { loadQaHistory(); renderQaMessages(); }
 }
 
 // ---- Render Slide ----
@@ -578,6 +587,207 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+// ============================================================================
+// Q&A Chat Pane
+// ============================================================================
+
+const QA_API_URL = 'http://127.0.0.1:8082/v1/messages';
+const QA_MODEL = 'claude-opus-4-6';
+let qaHistory = [];
+let qaAbortController = null;
+let qaOpen = false;
+
+function toggleQaPane() {
+  qaOpen = !qaOpen;
+  qaPane.classList.toggle('hidden', !qaOpen);
+  qaDivider.classList.toggle('hidden', !qaOpen);
+  if (qaOpen) {
+    loadQaHistory();
+    renderQaMessages();
+    qaInput.focus();
+    if (pdfDoc) renderPage(currentPage);
+  }
+}
+
+function initQa() {
+  qaForm.addEventListener('submit', (e) => { e.preventDefault(); sendQaMessage(); });
+  document.getElementById('qa-close').addEventListener('click', () => { qaOpen = false; qaPane.classList.add('hidden'); qaDivider.classList.add('hidden'); if (pdfDoc) renderPage(currentPage); });
+  document.getElementById('qa-clear').addEventListener('click', clearQaHistory);
+
+  qaInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendQaMessage(); }
+  });
+
+  initQaDividerDrag();
+}
+
+function initQaDividerDrag() {
+  let dragging = false;
+  qaDivider.addEventListener('mousedown', (e) => { dragging = true; qaDivider.classList.add('active'); e.preventDefault(); });
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const right = window.innerWidth - e.clientX;
+    const clamped = Math.max(240, Math.min(500, right));
+    qaPane.style.flex = `0 0 ${clamped}px`;
+  });
+  document.addEventListener('mouseup', () => { dragging = false; qaDivider.classList.remove('active'); });
+}
+
+function getQaStorageKey() {
+  if (!currentLecture) return null;
+  return `cs639_qa_L${currentLecture.id}_P${currentPage}`;
+}
+
+function loadQaHistory() {
+  const key = getQaStorageKey();
+  if (!key) { qaHistory = []; return; }
+  try {
+    const raw = localStorage.getItem(key);
+    qaHistory = raw ? JSON.parse(raw) : [];
+  } catch { qaHistory = []; }
+}
+
+function saveQaHistory() {
+  const key = getQaStorageKey();
+  if (!key) return;
+  localStorage.setItem(key, JSON.stringify(qaHistory.slice(-30)));
+}
+
+function clearQaHistory() {
+  qaHistory = [];
+  const key = getQaStorageKey();
+  if (key) localStorage.removeItem(key);
+  renderQaMessages();
+}
+
+function getSlideContext() {
+  if (!lectureData || !currentLecture) return '';
+  const slide = lectureData.slides.find(s => s.page === currentPage);
+  if (!slide) return '';
+  let ctx = `Lecture: ${currentLecture.title}\nSlide ${currentPage}/${totalPages}\n\n`;
+  if (slide.explanation) ctx += `Explanation:\n${slide.explanation}\n\n`;
+  if (slide.keyPoints?.length) ctx += `Key Points:\n${slide.keyPoints.join('\n')}\n`;
+  return ctx;
+}
+
+function renderQaMessages() {
+  if (!qaHistory.length) {
+    qaMessages.innerHTML = '<div class="qa-msg-system">Ask any question about this slide. The AI will use the current slide content as context.</div>';
+    return;
+  }
+  let html = '';
+  for (const msg of qaHistory) {
+    if (msg.role === 'user') {
+      html += `<div class="qa-msg qa-msg-user">${escapeHtml(msg.content)}</div>`;
+    } else if (msg.role === 'assistant') {
+      html += `<div class="qa-msg qa-msg-assistant">${marked.parse(msg.content)}</div>`;
+    }
+  }
+  qaMessages.innerHTML = html;
+
+  qaMessages.querySelectorAll('.qa-msg-assistant').forEach(el => {
+    if (window.renderMathInElement) {
+      renderMathInElement(el, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$', right: '$', display: false },
+          { left: '\\[', right: '\\]', display: true },
+          { left: '\\(', right: '\\)', display: false },
+        ],
+        throwOnError: false,
+      });
+    }
+  });
+
+  qaMessages.scrollTop = qaMessages.scrollHeight;
+}
+
+async function sendQaMessage() {
+  const text = qaInput.value.trim();
+  if (!text) return;
+
+  qaInput.value = '';
+  qaHistory.push({ role: 'user', content: text });
+  renderQaMessages();
+
+  const sendBtn = document.getElementById('qa-send');
+  sendBtn.disabled = true;
+  qaInput.disabled = true;
+
+  const typingEl = document.createElement('div');
+  typingEl.className = 'qa-typing';
+  typingEl.textContent = 'Thinking';
+  qaMessages.appendChild(typingEl);
+  qaMessages.scrollTop = qaMessages.scrollHeight;
+
+  const slideCtx = getSlideContext();
+  const systemPrompt = `You are a helpful CS professor tutoring a student on Foundation Models (CS639 at UW-Madison). The student is currently studying the following slide content. Answer their questions clearly, using Chinese for explanations with English technical terms. Use LaTeX math notation ($...$ inline, $$...$$ display) when relevant. Be concise but thorough.
+
+Current slide context:
+${slideCtx}`;
+
+  const apiMessages = qaHistory.slice(-10).map(m => ({ role: m.role, content: m.content }));
+
+  try {
+    qaAbortController = new AbortController();
+    const resp = await fetch(QA_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': 'not-used',
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: QA_MODEL,
+        max_tokens: 2048,
+        system: systemPrompt,
+        messages: apiMessages,
+      }),
+      signal: qaAbortController.signal,
+    });
+
+    typingEl.remove();
+
+    if (!resp.ok) {
+      const errText = await resp.text().catch(() => '');
+      throw new Error(`API error (${resp.status}): ${errText.slice(0, 200)}`);
+    }
+
+    const data = await resp.json();
+    let assistantText = '';
+    for (const block of (data.content || [])) {
+      if (block.type === 'text') assistantText += block.text;
+    }
+
+    if (!assistantText) assistantText = '(No response received)';
+    qaHistory.push({ role: 'assistant', content: assistantText });
+    saveQaHistory();
+    renderQaMessages();
+
+  } catch (err) {
+    typingEl.remove();
+    if (err.name === 'AbortError') return;
+
+    let errorMsg = `Error: ${err.message}`;
+    if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+      errorMsg = 'Cannot reach the API. Make sure the Claude API proxy is running at 127.0.0.1:8082. This Q&A feature requires the local API proxy.';
+    }
+
+    const errDiv = document.createElement('div');
+    errDiv.className = 'qa-msg qa-msg-system';
+    errDiv.textContent = errorMsg;
+    qaMessages.appendChild(errDiv);
+    qaMessages.scrollTop = qaMessages.scrollHeight;
+
+    qaHistory.pop();
+  } finally {
+    sendBtn.disabled = false;
+    qaInput.disabled = false;
+    qaInput.focus();
+    qaAbortController = null;
+  }
 }
 
 init();

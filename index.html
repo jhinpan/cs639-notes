@@ -21,6 +21,7 @@
       <button id="btn-next" title="Next slide">&rarr;</button>
     </div>
     <div class="nav-right">
+      <button id="btn-qa" title="Ask questions about this slide">Q&A</button>
       <button id="btn-annotations" title="My annotations">Notes</button>
       <button id="btn-toc" title="Table of contents">TOC</button>
       <button id="btn-theme" title="Toggle dark mode">Dark</button>
@@ -37,6 +38,19 @@
       <div id="notes-content">
         <p class="placeholder">Select a lecture to begin.</p>
       </div>
+    </section>
+    <div id="divider-qa" class="qa-divider hidden"></div>
+    <section id="qa-pane" class="hidden">
+      <div class="qa-header">
+        <span class="qa-title">Q&A</span>
+        <button id="qa-clear" title="Clear chat">Clear</button>
+        <button id="qa-close" title="Close Q&A">&times;</button>
+      </div>
+      <div id="qa-messages"></div>
+      <form id="qa-form">
+        <textarea id="qa-input" placeholder="Ask about this slide..." rows="2"></textarea>
+        <button type="submit" id="qa-send">Send</button>
+      </form>
     </section>
   </main>
 
