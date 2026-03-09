@@ -1,0 +1,252 @@
+{
+  "lecture": 9,
+  "title": "Architectures I",
+  "totalPages": 28,
+  "slides": [
+    {
+      "page": 1,
+      "explanation": "这是课程 CS 639: Foundation Models 的标题页，介绍了第一讲关于架构（Architectures I）的内容。本课程由 UW-Madison 的 Fred Sala 教授讲授，日期为 2026 年 2 月 17 日。这一讲将开始深入探讨基础模型（Foundation Models）所依赖的核心架构设计，特别是 Transformer 及其变体。架构是理解所有现代大语言模型（如 GPT、BERT 等）的基石，因此这一部分是整个课程的关键内容之一。",
+      "keyPoints": [
+        "课程主题：基础模型的核心架构（Architectures I）",
+        "架构理解是掌握 GPT、BERT 等现代基础模型的基石"
+      ]
+    },
+    {
+      "page": 2,
+      "explanation": "课程行政信息，跳过。",
+      "keyPoints": []
+    },
+    {
+      "page": 3,
+      "explanation": "这张幻灯片给出了本节课的大纲（Outline），涵盖三个主要部分：\n\n**1. 完整 Transformer 架构（上节课遗留内容）**\n本节课将首先回顾并完成上节课未讲完的完整 Transformer 架构，包括 Encoder layer（编码器层）、Decoder layer（解码器层），以及原始 Transformer 的完整架构设计。这是 Vaswani et al. 2017 年在 \"Attention is All You Need\" 中提出的经典架构，它用 self-attention 机制完全取代了 RNN 的循环结构。\n\n**2. Encoder-only 模型**\n重点讲解以 BERT 为代表的 encoder-only 架构。BERT（Bidirectional Encoder Representations from Transformers）只使用 Transformer 的编码器部分，通过双向上下文理解来学习文本表示。这部分将涉及 BERT 的具体架构设计、多任务训练（multitask training，包括 Masked Language Model 和 Next Sentence Prediction）、以及如何对下游任务进行 fine-tuning（微调）。Encoder-only 模型擅长理解任务（如分类、NER、问答等），而非生成任务。\n\n**3. Decoder-only 模型预览**\n简要预览 decoder-only 架构，以 GPT 系列为代表。GPT（Generative Pre-trained Transformer）只使用 Transformer 的解码器部分，采用自回归（autoregressive）方式从左到右生成文本。这与 BERT 的双向编码形成鲜明对比。Decoder-only 模型是当前大语言模型（如 GPT-4、LLaMA 等）的主流架构选择。\n\n这三个部分构成了理解现代基础模型架构的完整脉络：从原始 Transformer 的 encoder-decoder 设计，到 encoder-only（BERT）和 decoder-only（GPT）两大分支。",
+      "keyPoints": [
+        "本讲三大主题：完整 Transformer 架构、Encoder-only（BERT）、Decoder-only（GPT）预览",
+        "BERT 代表 encoder-only 架构，擅长理解任务；GPT 代表 decoder-only 架构，擅长生成任务",
+        "理解从完整 Transformer 到两大分支的演化是掌握现代基础模型的关键"
+      ]
+    },
+    {
+      "page": 4,
+      "explanation": "这张幻灯片与第 3 页完全相同，是重复的大纲页面，可能是讲课过程中用于过渡到下一个主题时再次展示大纲。内容同上：完整 Transformer 架构、Encoder-only 模型（BERT）、Decoder-only 模型预览（GPT）。通常教授在讲完一个主题后会再次展示大纲，帮助学生明确当前进度和接下来的内容。",
+      "keyPoints": [
+        "重复的大纲页，用于课程内容过渡和导航",
+        "帮助学生追踪课程进度"
+      ]
+    },
+    {
+      "page": 5,
+      "explanation": "这张幻灯片开始讲解 Transformer 的模型架构，引用了 Vaswani et al. 2017 的开创性论文 \"Attention is All You Need\"。\n\n**设计初衷：Encoder-Decoder 架构**\nTransformer 最初的设计目标是构建一个 encoder-decoder 架构，主要用于序列到序列（seq2seq）任务，如机器翻译。在此之前，主流的 seq2seq 模型（如基于 LSTM/GRU 的模型）依赖于循环（recurrence）结构来处理序列信息。\n\n**核心创新：用 Self-Attention 取代循环**\n- **去除循环（Get rid of recurrence）**：RNN 的循环结构导致无法并行化处理序列，训练速度慢，且在长序列上存在梯度消失/爆炸问题。Transformer 的关键创新就是完全抛弃循环结构。\n- **用 Self-Attention 替代**：Self-attention 机制允许序列中的每个位置直接关注（attend to）所有其他位置，从而捕捉任意距离的依赖关系，同时支持完全并行化计算。\n\n**架构概览**\n幻灯片提到了经典的 Transformer 架构图（\"You may have seen this picture\"），这是深度学习中最著名的架构图之一。整个架构以 self-attention blocks 为核心：\n- **Encoder 部分**（左侧）：由多个相同的层堆叠，每层包含 Multi-Head Self-Attention 和 Feed-Forward Network，配合残差连接（residual connections）和层归一化（Layer Normalization）。\n- **Decoder 部分**（右侧）：类似 encoder，但增加了 Masked Self-Attention（防止看到未来信息）和 Cross-Attention（关注 encoder 的输出）。\n\n这个架构奠定了所有后续基础模型的基础。BERT 取了 encoder 部分，GPT 取了 decoder 部分，而 T5 等模型保留了完整的 encoder-decoder 结构。",
+      "keyPoints": [
+        "Transformer 的核心创新：用 self-attention 完全取代 RNN 的循环结构，实现并行化和长距离依赖建模",
+        "原始 Transformer 是 encoder-decoder 架构，以 self-attention blocks 为核心构建",
+        "该架构奠定了 BERT（encoder-only）、GPT（decoder-only）、T5（encoder-decoder）等所有后续基础模型的基础"
+      ]
+    },
+    {
+      "page": 6,
+      "explanation": "## Encoder-Decoder 模型简介\n\n这张幻灯片引入了 Encoder-Decoder（编码器-解码器）架构的直觉理解，以翻译任务为切入点。\n\n### 核心思想\n\n翻译任务天然适合 encoder-decoder 架构。其直觉是：\n- **Encoder（编码器）**：读取源语言（如法语）的输入序列，将其压缩/编码为一个中间表示（intermediate representation），捕捉输入的语义信息。\n- **Decoder（解码器）**：基于这个中间表示，逐步生成目标语言（如英语）的输出序列。\n\n你可以把它想象成一个翻译官的工作流程：先「理解」整段源语言内容（encoding），然后用目标语言「表达」出来（decoding）。编码器负责理解，解码器负责生成。\n\n### 为什么重要？\n\nEncoder-Decoder 架构是 Transformer 的基础框架。原始的 Transformer 论文（\"Attention Is All You Need\", Vaswani et al., 2017）正是基于这种架构设计的。后续的许多基础模型都可以看作是这个架构的变体：\n- **BERT** 主要使用 encoder 部分\n- **GPT** 主要使用 decoder 部分\n- **T5、BART** 使用完整的 encoder-decoder 架构\n\n理解这个基本框架对于理解整个 Foundation Model 生态系统至关重要。",
+      "keyPoints": [
+        "翻译任务天然适合 encoder-decoder 架构：编码器理解输入，解码器生成输出",
+        "Encoder-Decoder 是 Transformer 的基础框架，BERT、GPT、T5 等都是其变体"
+      ]
+    },
+    {
+      "page": 7,
+      "explanation": "## Transformer 架构总览\n\n这张幻灯片展示了 Transformer 的整体架构：一个由堆叠的 encoder 和 decoder 组成的 sequence-to-sequence 模型。\n\n### 架构概述\n\nTransformer 是一个 **sequence-to-sequence（seq2seq）** 模型，输入一个序列，输出另一个序列。其核心由多个 encoder 层和 decoder 层堆叠而成。\n\n以法语到英语的翻译为例：\n- 输入法语句子 → 经过一系列堆叠的 encoder 层 → 生成上下文表示\n- 该上下文表示传递给堆叠的 decoder 层 → 逐步输出英语句子\n\n### 堆叠的含义\n\n原始 Transformer 使用了 6 层 encoder 和 6 层 decoder。每一层的输出作为下一层的输入，这种堆叠方式使得模型能够学习越来越抽象的表示。类似于深度卷积网络中，浅层学习边缘特征，深层学习高级语义特征。\n\n### 关键特点\n\n与之前的 seq2seq 模型（如基于 RNN 的模型）不同，Transformer 完全依赖 attention 机制，不使用循环结构（recurrence），这使得它可以高度并行化训练，大幅提升效率。这也是为什么 Transformer 成为了现代大规模语言模型（如 GPT-4、LLaMA）的基石。",
+      "keyPoints": [
+        "Transformer 是由多层 encoder 和 decoder 堆叠构成的 seq2seq 模型",
+        "堆叠多层使模型能学习逐渐抽象的特征表示",
+        "完全基于 attention 机制，无需循环结构，支持高度并行化"
+      ]
+    },
+    {
+      "page": 8,
+      "explanation": "## Transformer 架构：Encoder 内部结构\n\n这张幻灯片深入探讨了每个 encoder/decoder 单元的内部组成，重点关注 encoder。\n\n### Encoder 的两个核心组件\n\n每个 encoder 单元由两个主要部分组成：\n\n1. **Self-Attention Block（自注意力模块）**：这是 Transformer 的核心创新。自注意力允许输入序列中的每个位置关注（attend to）所有其他位置，从而捕捉全局依赖关系。例如，在处理句子 \"The cat sat on the mat\" 时，\"sat\" 可以直接关注 \"cat\"，即使它们不相邻。\n\n2. **Fully-Connected Layers / MLP（全连接层/多层感知机）**：在自注意力之后，每个位置的表示独立地通过相同的前馈神经网络。这个 MLP 对每个位置的表示进行非线性变换，增加模型的表达能力。\n\n### 设计的简洁性\n\n幻灯片强调 encoder 的结构 \"pretty simple\"——只有两个组件。这种简洁性是 Transformer 设计哲学的体现：用简单的模块组合，通过堆叠和 attention 机制来实现强大的表示能力，而不是设计复杂的单个模块。\n\n### 与 Decoder 的区别\n\nDecoder 除了这两个组件外，还有一个额外的 cross-attention 层，用于关注 encoder 的输出。这个区别在后续会详细讨论。",
+      "keyPoints": [
+        "Encoder 由两个核心组件构成：Self-Attention Block 和 MLP（全连接层）",
+        "Self-Attention 捕捉全局依赖关系，MLP 对每个位置独立进行非线性变换",
+        "架构设计简洁，通过简单模块的堆叠实现强大能力"
+      ]
+    },
+    {
+      "page": 9,
+      "explanation": "## Transformer Encoder 内部详解\n\n这张幻灯片进一步详细说明了 encoder 内部的两个组件的工作方式。\n\n### 1. Self-Attention Layer（自注意力层）\n\n自注意力层在之前的内容中已经介绍过。它的核心公式为：\n$$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$\n\n其中 $Q$（Query）、$K$（Key）、$V$（Value）都来自同一个输入序列的线性变换，因此称为「自」注意力。每个 token 可以关注序列中所有其他 token，从而学习上下文感知的表示。\n\n### 2. \"Independent\" Feedforward Networks（独立前馈网络）\n\n这里有一个非常重要的细节：**同一个 MLP 应用于每个位置，但各位置之间是独立的**。也就是说：\n- 所有位置共享同一套权重（parameter sharing）\n- 但每个位置的计算是独立进行的，不涉及位置之间的交互\n- 通常是一个 2 层的前馈网络：$\\text{FFN}(x) = \\text{ReLU}(xW_1 + b_1)W_2 + b_2$\n\n这个设计的妙处在于：Self-Attention 负责位置间的信息交互（mixing tokens），而 FFN 负责对每个位置的特征进行独立的非线性变换（mixing features/channels）。两者各司其职，互相配合。\n\n在近年的研究中，FFN 被认为起到了「记忆」的作用——存储训练数据中的知识模式。",
+      "keyPoints": [
+        "Self-Attention 负责跨位置的信息交互，FFN 负责每个位置独立的特征变换",
+        "FFN 在所有位置共享权重，通常为 2 层 MLP",
+        "Self-Attention 混合 tokens，FFN 混合 features，两者功能互补"
+      ]
+    },
+    {
+      "page": 10,
+      "explanation": "## Transformer 中的重要技巧：残差连接与层归一化\n\n这张幻灯片介绍了 Transformer encoder 中两个关键的训练技巧，它们对于模型的稳定训练至关重要。\n\n### 1. Residual Connections（残差连接）\n\n残差连接最初由 ResNet 提出，是深度学习中最重要的创新之一。其核心思想是：\n$$\\text{output} = f(x) + x$$\n\n即将子层（如 self-attention 或 FFN）的输出与其输入相加。这解决了深层网络中的**梯度消失**问题，使得梯度可以通过 \"shortcut\" 直接传播到前面的层。在 Transformer 中，由于需要堆叠多层 encoder 和 decoder，残差连接使得训练深层模型成为可能。\n\n### 2. Layer Normalization（层归一化）\n\n层归一化对每个样本的特征维度进行标准化：\n$$\\text{LayerNorm}(x) = \\frac{x - \\mu}{\\sigma} \\cdot \\gamma + \\beta$$\n\n其中 $\\mu$ 和 $\\sigma$ 是沿特征维度计算的均值和标准差，$\\gamma$ 和 $\\beta$ 是可学习的缩放和偏移参数。Layer Normalization 稳定了训练过程中的数值分布，加速收敛。\n\n### 应用到 Encoder 中\n\n在 Transformer encoder 中，每个子层（self-attention 和 FFN）后都应用残差连接和层归一化。具体形式为：\n$$\\text{output} = \\text{LayerNorm}(x + \\text{SubLayer}(x))$$\n\n这就是所谓的 \"Post-Norm\" 配置。后续研究（如 GPT 系列）发现 \"Pre-Norm\"（先归一化再送入子层）更有利于大规模模型的训练稳定性。\n\n这两个技巧虽然看似简单，但对于训练现代大规模 Foundation Models 来说是必不可少的。",
+      "keyPoints": [
+        "残差连接（output = f(x) + x）解决梯度消失问题，使深层网络训练成为可能",
+        "Layer Normalization 稳定训练过程中的数值分布，加速模型收敛",
+        "每个 Transformer 子层后都应用残差连接 + 层归一化，是训练大模型的关键技巧"
+      ]
+    },
+    {
+      "page": 11,
+      "explanation": "## Transformer Decoder 内部结构\n\n这张幻灯片介绍了 Transformer Decoder（解码器）的三个核心组件，这是理解 GPT 等自回归模型的基础。\n\n### 三个组件\n\n**1. Self-Attention Layer（自注意力层）**\n前面已经详细讲过，Query、Key、Value 都来自同一个输入序列。在 Decoder 中，这个自注意力是对已经生成的输出序列进行的，让每个已生成的 token 能关注到其他已生成的 token。\n\n**2. Encoder-Decoder Attention（编码器-解码器注意力，也叫 Cross-Attention）**\n这是 Decoder 独有的组件。其机制与自注意力相同，但关键区别在于：Query 来自 Decoder 的当前层，而 Key 和 Value 来自 Encoder 的输出。这使得 Decoder 在生成每个 token 时能够\"回看\"整个输入序列。\n\n可以这样类比：想象你在做翻译，Self-Attention 是你回顾自己已经翻译好的部分，而 Cross-Attention 是你回头去看原文。\n\n**3. Independent Feedforward Networks（独立前馈网络）**\n每个位置都有一个相同结构但独立应用的前馈网络（通常是两层全连接网络加 ReLU 激活）。公式为：\n$$\\text{FFN}(x) = \\max(0, xW_1 + b_1)W_2 + b_2$$\n\n这里的\"独立\"意味着前馈网络对每个位置独立处理，不同位置之间不交互——位置间的交互已经由注意力层完成了。前馈网络的作用是对注意力层提取的特征做非线性变换，增强模型的表达能力。\n\n在实际架构中（如原始 Transformer），每个 Decoder 层按顺序执行：Masked Self-Attention → Cross-Attention → Feedforward，每步之间有残差连接和层归一化。",
+      "keyPoints": [
+        "Decoder 包含三个核心组件：自注意力、编码器-解码器注意力（交叉注意力）和前馈网络",
+        "Cross-Attention 中 Q 来自 Decoder，K 和 V 来自 Encoder，实现对输入序列的关注",
+        "前馈网络对每个位置独立处理，位置间交互由注意力层完成"
+      ]
+    },
+    {
+      "page": 12,
+      "explanation": "## Transformer 交叉注意力（Cross-Attention）\n\n这张幻灯片深入探讨了为什么需要 Encoder-Decoder Attention（交叉注意力）。\n\n### 机制回顾\n\nCross-Attention 的计算公式与普通 Self-Attention 完全一致：\n$$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$\n\n唯一的区别是数据来源：\n- **Q（Query）**：来自 Decoder 当前层的表示\n- **K（Key）和 V（Value）**：来自 Encoder 最终层的输出\n\n### 直觉理解\n\n幻灯片提到这其实是更传统的注意力形式。实际上，注意力机制最初就是为 Encoder-Decoder 架构（如 Bahdanau Attention）设计的，Self-Attention 反而是后来的创新。\n\n想象机器翻译的场景：你要把英文翻译成中文。当 Decoder 生成中文的每个词时，它需要\"查询\"英文原文中的相关部分。Decoder 的当前状态形成 Query（\"我现在需要什么信息？\"），Encoder 的输出形成 Key（\"原文各部分包含什么？\"）和 Value（\"原文各部分的具体内容\"）。\n\n幻灯片中列出的 Key term 1-4 可能是具体的翻译词汇示例，展示 Decoder 在生成目标语言词汇时如何关注源语言中的不同词。\n\n### 在现代模型中的角色\n\n值得注意的是，GPT 等纯 Decoder 模型不使用 Cross-Attention（因为没有 Encoder），而 T5、BART 等 Encoder-Decoder 模型则保留了这一结构。",
+      "keyPoints": [
+        "Cross-Attention 的 Q 来自 Decoder，K 和 V 来自 Encoder，实现源序列到目标序列的信息传递",
+        "这是注意力机制最传统的形式，早于 Self-Attention 出现",
+        "纯 Decoder 模型（如 GPT）不需要 Cross-Attention，仅 Encoder-Decoder 模型（如 T5）使用"
+      ]
+    },
+    {
+      "page": 13,
+      "explanation": "## Transformer Decoder 中的掩码机制（Masked Self-Attention）\n\n这张幻灯片讲解了 Decoder 中自注意力层的一个关键修改——掩码（Masking），这是理解自回归生成模型的核心概念。\n\n### 为什么需要掩码？\n\n在训练阶段，我们通常使用 Teacher Forcing，即把整个目标序列一次性输入 Decoder。但问题是：如果不加限制，Self-Attention 会让每个位置关注到序列中的所有位置，包括未来的 token。这就造成了\"作弊\"——模型在预测第 $t$ 个词时已经看到了第 $t+1, t+2, \\ldots$ 个词。\n\n然而在推理（inference）阶段，模型必须逐步生成，根本无法获取未来的 token。如果训练时允许看未来，推理时却看不到，就会造成训练-推理不匹配（train-test mismatch），模型性能会严重下降。\n\n### 如何实现掩码？\n\n方法非常优雅：在计算 Softmax 之前，将注意力分数矩阵中所有\"未来位置\"对应的值设为 $-\\infty$：\n$$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}} + M\\right)V$$\n\n其中掩码矩阵 $M$ 的定义为：\n$$M_{ij} = \\begin{cases} 0 & \\text{if } j \\leq i \\\\ -\\infty & \\text{if } j > i \\end{cases}$$\n\n因为 $e^{-\\infty} = 0$，经过 Softmax 后，未来位置的注意力权重变为零，从而实现了因果性（causality）。这个掩码矩阵是一个下三角矩阵。\n\n### 重要性\n\nGPT 系列模型完全基于 Masked Self-Attention（也叫 Causal Attention），这是它们能进行自回归文本生成的基础。",
+      "keyPoints": [
+        "Decoder 必须使用掩码防止模型在训练时\"偷看\"未来的 token，保证训练与推理的一致性",
+        "实现方法：在 Softmax 之前将未来位置的注意力分数设为 $-\\infty$，使其权重为 0",
+        "GPT 等自回归模型的核心机制就是 Causal/Masked Self-Attention"
+      ]
+    },
+    {
+      "page": 14,
+      "explanation": "## Transformer 的最终输出层\n\n这张幻灯片介绍了 Transformer Decoder 堆叠的注意力和前馈层之后，如何将隐藏表示转化为实际的词汇预测。\n\n### 两个最终层\n\n**1. Linear Layer（线性层）**\n\nDecoder 输出的隐藏向量维度通常是 $d_{\\text{model}}$（如 512 或 768），但我们需要对整个词汇表中的每个词给出一个分数。因此需要一个线性投影层：\n$$z = W \\cdot h + b$$\n其中 $W \\in \\mathbb{R}^{|V| \\times d_{\\text{model}}}$，$|V|$ 是词汇表大小（通常为几万到十几万）。这一步将隐藏表示映射到一个与词汇表等长的向量，每个分量对应一个词的\"原始分数\"（logits）。\n\n**2. Softmax 层**\n\n将 logits 转化为概率分布：\n$$P(w_i) = \\frac{e^{z_i}}{\\sum_{j=1}^{|V|} e^{z_j}}$$\n\n输出的概率分布告诉我们下一个词最可能是什么。例如，如果模型在翻译\"我爱你\"，在生成\"I love\"之后，Softmax 输出中 \"you\" 对应的概率应该最高。\n\n### 与 CNN 的类比\n\n幻灯片提到这与 CNN 的最后几层类似——在图像分类中，CNN 的最后也是全连接层（Linear）加 Softmax，将特征向量映射为类别概率。这种\"特征提取 + 线性分类头\"的模式是深度学习中非常通用的设计范式。\n\n### 实际技巧\n\n在许多实现中（如 GPT），线性层的权重矩阵 $W$ 与 Embedding 层的权重矩阵共享（weight tying），这既减少参数量，又能提升性能。",
+      "keyPoints": [
+        "Transformer 最终通过 Linear 层（映射到词汇表大小）加 Softmax 输出词的概率分布",
+        "这种 \"特征提取 + 分类头\" 的设计与 CNN 分类器的结构类似",
+        "实际应用中常使用 Weight Tying，让输出线性层与 Embedding 层共享权重"
+      ]
+    },
+    {
+      "page": 15,
+      "explanation": "## Transformer 完整架构总览\n\n这张幻灯片将前面讲解的所有组件整合在一起，展示完整的 Transformer 架构。\n\n### 完整架构回顾\n\n**Encoder 端（左侧）：**\n1. **Input Embedding**：将输入 token 转化为向量表示\n2. **Positional Encoding**：注入位置信息（因为注意力本身是置换不变的）\n3. **N 个 Encoder 层**，每层包含：\n   - Multi-Head Self-Attention\n   - Feedforward Network\n   - 每个子层都有残差连接（Residual Connection）和层归一化（Layer Normalization）\n\n**Decoder 端（右侧）：**\n1. **Output Embedding + Positional Encoding**\n2. **N 个 Decoder 层**，每层包含：\n   - **Masked** Multi-Head Self-Attention（防止看到未来 token）\n   - Multi-Head **Cross-Attention**（Q 来自 Decoder，K/V 来自 Encoder）\n   - Feedforward Network\n   - 同样有残差连接和层归一化\n3. **Linear + Softmax**：输出词汇概率分布\n\n### 信息流动\n\n数据流可以概括为：\n- Encoder 处理整个输入序列，生成上下文化的表示\n- Decoder 在每一层通过 Cross-Attention 访问 Encoder 的输出\n- Decoder 自回归地生成输出序列\n\n### 三种变体的诞生\n\n原始 Transformer 是 Encoder-Decoder 结构。后续发展出三种主要变体：\n- **Encoder-only**（如 BERT）：只保留 Encoder，适合理解任务\n- **Decoder-only**（如 GPT）：只保留 Decoder（去掉 Cross-Attention），适合生成任务\n- **Encoder-Decoder**（如 T5、BART）：保持原始结构，适合序列到序列任务\n\n理解这个完整架构是学习所有 Foundation Models 的基石。",
+      "keyPoints": [
+        "完整 Transformer = Encoder（Self-Attention + FFN）× N + Decoder（Masked Self-Attention + Cross-Attention + FFN）× N + Linear + Softmax",
+        "每个子层都配有残差连接和层归一化，保证深层网络的可训练性",
+        "原始架构衍生出 Encoder-only（BERT）、Decoder-only（GPT）、Encoder-Decoder（T5）三大变体",
+        "理解完整架构是掌握所有 Foundation Model 的基础"
+      ]
+    },
+    {
+      "page": 16,
+      "explanation": "## Transformer 的训练细节\n\n这张幻灯片介绍了原始 Transformer 论文中使用的训练设置。\n\n### 数据集\n训练使用的是 **WMT English-German** 数据集，这是机器翻译领域的标准 benchmark 数据集，包含约 **500万对** 英德句子对。这是一个 **supervised（监督学习）** 任务，因为每个英语句子都有对应的德语翻译作为标签。\n\n### 训练方式\n训练过程并没有什么特殊之处：\n- **损失函数**: Cross-entropy loss（交叉熵损失），这是序列生成任务的标准选择。对于每个时间步，模型预测下一个 token 的概率分布，与真实 token 计算交叉熵：\n$$\\mathcal{L} = -\\sum_{t} \\log P(y_t | y_{<t}, x)$$\n- **优化器**: Adam optimizer，这是深度学习中非常流行的自适应学习率优化算法\n\n### 重要预告\n幻灯片特别提到 \"Soon: switch to self-supervised\"，这是一个非常关键的信号。原始 Transformer 用的是有监督的翻译任务，但很快（2018年的 BERT 和 GPT），领域就转向了 **self-supervised learning（自监督学习）**。自监督学习不需要人工标注的配对数据，而是从大规模无标注文本中通过设计 pretext task（如 masked language modeling 或 next token prediction）来学习语言表示。这一转变是 Foundation Models 革命的关键推动力，因为无标注数据的规模远大于有标注数据。",
+      "keyPoints": [
+        "原始 Transformer 在 WMT 英德翻译数据集上训练，约500万句子对，属于监督学习任务",
+        "训练使用标准的交叉熵损失和 Adam 优化器，没有特殊技巧",
+        "重要转折预告：领域即将从监督学习转向自监督学习，这是 Foundation Models 兴起的关键"
+      ]
+    },
+    {
+      "page": 17,
+      "explanation": "课程行政信息，跳过。",
+      "keyPoints": []
+    },
+    {
+      "page": 18,
+      "explanation": "## 为什么需要 Encoder-Decoder？以及如何简化\n\n这张幻灯片是一个关键的概念转折点，解释了为什么原始 Transformer 采用 Encoder-Decoder 架构，以及放松约束后会得到什么。\n\n### Encoder-Decoder 的两个需求\n对于机器翻译任务，我们同时需要两个性质：\n1. **Outputs in natural language（输出是自然语言）**：翻译的结果必须是流畅的目标语言文本，这需要 Decoder 的 **自回归生成** 能力\n2. **Tight alignment with input（与输入紧密对齐）**：翻译需要忠实于源语言的含义，这需要 Encoder 来 **编码理解** 输入，以及 cross-attention 来建立输入输出之间的对应关系\n\n### 放松约束\n如果我们 **放松** 这两个需求中的某一个，就能得到更简化的架构：\n\n1. **Encoder-only models（仅编码器模型）**：放松第一个需求——不需要生成自然语言输出。模型只需要 **理解和表示** 输入，适用于分类、相似度计算等任务。代表：**BERT**\n\n2. **Decoder-only models（仅解码器模型）**：放松第二个需求——不需要与特定输入紧密对齐。模型专注于 **生成文本**，适用于文本生成、对话等任务。代表：**GPT** 系列\n\n这个框架非常优雅地解释了为什么 NLP 领域会出现三种主要的 Transformer 变体，每种适合不同类型的下游任务。",
+      "keyPoints": [
+        "原始 Encoder-Decoder 架构是为翻译设计的，同时需要生成能力和与输入的对齐",
+        "放松生成需求 → Encoder-only（如 BERT），放松对齐需求 → Decoder-only（如 GPT）",
+        "这个分类框架解释了 Foundation Models 三大架构变体的设计动机"
+      ]
+    },
+    {
+      "page": 19,
+      "explanation": "## Encoder-Only 模型：BERT\n\n这张幻灯片介绍了 **BERT（Bidirectional Encoder Representations from Transformers）** 的核心设计思路。\n\n### 设计逻辑\n从上一张幻灯片的框架出发，我们放松了第一个需求——不再需要输出自然语言。因此：\n- **不是生成模型（not a generative model）**：BERT 不会一个 token 一个 token 地生成文本\n- **目标是获取表示（get representations）**：BERT 的核心价值在于为输入文本生成高质量的 **contextualized representations（上下文化表示）**\n\n### 架构简化\n具体做法非常直接：\n- **\"Rip away decoders\"（移除解码器）**：完全去掉 Decoder 部分，包括 masked self-attention 和 cross-attention\n- **\"Just stack encoders\"（堆叠编码器）**：只保留 Encoder 层并堆叠多层。每层包含：\n  - Multi-head self-attention（**双向的，不带 mask**）\n  - Feed-forward network\n  - Residual connections + Layer Normalization\n\n### 关键区别\n因为没有了 Decoder 的 causal mask，BERT 的 self-attention 是 **双向的（bidirectional）**——每个 token 可以同时看到左边和右边的所有 token。这是 BERT 名字中 \"Bidirectional\" 的来源，也是它与 GPT（单向）的根本区别。\n\n### 与自监督学习的联系\n幻灯片提到这与之前讨论的 self-supervised learning 相关。BERT 使用 **Masked Language Model（MLM）** 作为 pretext task——随机遮盖输入中的一些 token，让模型预测被遮盖的 token，从而学习到丰富的语言表示。",
+      "keyPoints": [
+        "BERT 是 Encoder-only 架构：移除 Decoder，只堆叠 Encoder 层",
+        "不是生成模型，核心目标是生成高质量的上下文化表示",
+        "Self-attention 是双向的（没有 causal mask），每个 token 能看到完整上下文",
+        "与自监督学习紧密相关，使用 Masked Language Model 进行预训练"
+      ]
+    },
+    {
+      "page": 20,
+      "explanation": "## 插曲：上下文化嵌入（Contextual Embeddings）\n\n这张幻灯片回顾了从静态词嵌入到上下文化嵌入的发展历程，解释了 BERT 名字的由来。\n\n### 历史脉络\n\n**2013年：静态词嵌入（Dense Word Embeddings）**\n- 代表方法：**Word2Vec** 和 **GloVe**\n- 核心思想：将每个词映射到一个固定的低维稠密向量\n- **致命缺陷**：每个词只有 **一个固定表示**，无法处理 **多义词（polysemy）**\n- 经典例子：\"Bank\" 既可以是银行（building），也可以是河岸（riverside），但在 Word2Vec 中只有一个向量\n\n**2018年：上下文化嵌入（Contextual Embeddings）**\n- 核心需求：同一个词在不同上下文中应该有 **不同的表示**\n- 解决方案：使用 language model-like techniques，根据周围的上下文动态生成词的表示\n- 两个里程碑模型：\n  - **ELMo（Embeddings from Language Models）**：使用 **双向 LSTM** 生成上下文化表示\n  - **BERT（Bidirectional Encoder Representations from Transformers）**：使用 **Transformer Encoder** 生成上下文化表示\n\n### 名字的趣味联系\nBERT 的名字在某种意义上是 ELMo 的 \"后续\"——这两个名字都来自芝麻街（Sesame Street）的角色。ELMo 是 Elmo，BERT 是 Bert。这反映了 NLP 社区的幽默传统。\n\n### 为什么 BERT 优于 ELMo？\n- BERT 使用 Transformer 而非 LSTM，能更好地捕捉长距离依赖\n- BERT 的 self-attention 是真正双向的，而 ELMo 只是将前向和后向 LSTM 的表示拼接起来\n- Transformer 的并行计算能力使 BERT 能在更大规模数据上训练",
+      "keyPoints": [
+        "词嵌入发展：Word2Vec/GloVe（静态） → ELMo（LSTM上下文化） → BERT（Transformer上下文化）",
+        "静态嵌入的核心缺陷：无法处理多义词，每个词只有一个固定向量",
+        "上下文化嵌入根据周围语境动态生成表示，解决了多义词问题",
+        "BERT 和 ELMo 名字都来自芝麻街角色，BERT 用 Transformer 替代了 LSTM"
+      ]
+    },
+    {
+      "page": 21,
+      "explanation": "## BERT 名称的由来与上下文嵌入（Contextual Embeddings）\n\n这张幻灯片是一个小插曲，解释了 BERT 这个名字的来源以及它与之前模型的关系。\n\n### 名称解读\nBERT 全称是 **Bidirectional Encoder Representations from Transformers**（来自Transformer的双向编码器表示）。这个名字的每个部分都有含义：\n\n1. **ERT（Encoder Representations from Transformers）**：BERT 使用的是 Transformer 的 Encoder 部分来生成表示，这部分比较直观。\n2. **Bidirectional（双向）**：这是 BERT 最核心的创新之一。与 GPT 等模型使用 causal mask（因果掩码，只能看到左侧上下文）不同，BERT **不使用因果掩码**，因此它可以同时看到一个词的左侧和右侧上下文。这种双向性通过 self-attention 机制实现——在没有掩码的情况下，每个 token 可以 attend to 序列中的所有其他 token。\n\n### 与 ELMo 的关系\n幻灯片提到 BERT 在某种意义上是 ELMo 的后续工作。ELMo（Embeddings from Language Models）是早期的上下文嵌入模型，使用双向 LSTM 来生成依赖上下文的词向量。BERT 和 ELMo 的名字都来自《芝麻街》的角色（Bert 和 Elmo），这是 NLP 社区的一个有趣传统。\n\n### 为什么双向性重要？\n考虑句子 \"The bank of the river\" 和 \"I went to the bank\"。要正确理解 \"bank\" 的含义，我们需要看到它两侧的上下文。双向注意力使 BERT 能够生成更丰富的 **上下文嵌入（contextual embeddings）**，同一个词在不同语境中会有不同的表示。",
+      "keyPoints": [
+        "BERT 全称 Bidirectional Encoder Representations from Transformers，关键创新是双向注意力（无因果掩码）",
+        "BERT 是 ELMo 的精神继承者，都生成上下文相关的词嵌入，但 BERT 使用 Transformer 而非 LSTM",
+        "双向性通过 self-attention 实现，每个 token 可以关注序列中所有位置的 token"
+      ]
+    },
+    {
+      "page": 22,
+      "explanation": "## BERT 的前向传播架构\n\n这张幻灯片描述了 BERT 的架构设计，核心思想极其简洁：\n\n### 架构设计\nBERT 的架构可以用两句话概括：\n1. **去掉 Decoder**（Rip away decoders）：从原始 Transformer 架构中完全移除解码器部分。\n2. **只堆叠 Encoder**（Just stack encoders）：将多个 Transformer Encoder 层堆叠在一起。\n\n### 与原始 Transformer 的对比\n回顾原始 Transformer（Vaswani et al., 2017）是一个 Encoder-Decoder 架构：\n- **Encoder**：处理输入序列，使用双向 self-attention（无掩码）\n- **Decoder**：生成输出序列，使用 masked self-attention + cross-attention\n\nBERT 只保留了 Encoder 部分。具体来说：\n- **BERT-Base**：12 层 Encoder，768 维隐藏层，12 个注意力头，约 110M 参数\n- **BERT-Large**：24 层 Encoder，1024 维隐藏层，16 个注意力头，约 340M 参数\n\n### 为什么只用 Encoder？\n因为 BERT 的目标不是生成文本（那是 Decoder 的任务），而是**理解文本**——生成高质量的上下文表示。这些表示可以用于下游任务如分类、问答、命名实体识别等。\n\n这与 GPT 形成鲜明对比：GPT 只使用 Decoder（带因果掩码），专注于自回归文本生成。BERT 和 GPT 分别代表了 Foundation Model 的两大架构范式：**编码器模型（理解）** vs **解码器模型（生成）**。",
+      "keyPoints": [
+        "BERT 架构 = 去掉 Decoder，只堆叠多层 Transformer Encoder",
+        "BERT 专注于文本理解（生成上下文表示），而非文本生成",
+        "与 GPT（只用 Decoder）形成对比，代表编码器模型范式"
+      ]
+    },
+    {
+      "page": 23,
+      "explanation": "## BERT 的训练策略概览\n\n这张幻灯片介绍了 BERT 训练的整体框架和两个预训练任务。\n\n### 训练范式：预训练 + 微调\nBERT 采用经典的两阶段训练范式：\n1. **Pretraining（预训练）**：在大规模无标注文本上进行自监督学习\n2. **Fine-tuning（微调）**：在特定下游任务上用少量标注数据进行调整\n\n这就是 **self-supervised learning（自监督学习）** 的体现——不需要人工标注的标签，模型从数据本身的结构中学习。\n\n### 两个预训练任务\nBERT 使用两个互补的预训练任务：\n\n1. **Masked Language Modeling (MLM)**：遮蔽语言建模。随机遮住句子中的一些词，让模型预测被遮住的词。这是 BERT 学习词级别上下文表示的核心机制。\n\n2. **Next Sentence Prediction (NSP)**：下一句预测。给定两个句子，判断第二个句子是否是第一个句子在原文中的下一句。这帮助模型学习句子间的关系。\n\n### 为什么需要两个任务？\nMLM 主要捕捉 **token 级别** 的语义理解，而 NSP 旨在捕捉 **句子级别** 的关系理解。两者结合使 BERT 能够同时学习细粒度和粗粒度的语言表示。（值得注意的是，后续研究如 RoBERTa 发现 NSP 任务的贡献有限，甚至可以去掉。）\n\n这种预训练+微调的范式成为了后续几乎所有 Foundation Model 的标准训练流程。",
+      "keyPoints": [
+        "BERT 采用预训练（自监督）+ 微调（有监督）的两阶段训练范式",
+        "两个预训练任务：Masked Language Modeling（词级别理解）和 Next Sentence Prediction（句子级别关系）",
+        "自监督学习使 BERT 能够利用大规模无标注数据学习通用语言表示"
+      ]
+    },
+    {
+      "page": 24,
+      "explanation": "## BERT 训练任务一：Masked Language Modeling (MLM)\n\n这张幻灯片详细介绍了 BERT 最核心的预训练任务——Masked Language Modeling。\n\n### 基本思想\nMLM 的核心想法很直观：随机遮住句子中的某些词（用特殊的 `[MASK]` token 替换），然后让模型根据上下文预测这些被遮住的词。这类似于英语考试中的完形填空（cloze test）。\n\n### 遮蔽策略的细节\n原始论文中，BERT 随机选择 **15% 的词** 进行处理。但并不是所有被选中的词都简单地替换为 `[MASK]`，而是采用了更精巧的策略：\n\n- **80% 的时间**：替换为 `[MASK]` token（标准遮蔽）\n- **10% 的时间**：替换为一个**随机的其他词**（random word replacement）\n- **10% 的时间**：**保持原词不变**（不做任何替换）\n\n### 为什么需要这种混合策略？\n如果总是使用 `[MASK]`，模型会产生一个问题：在微调和推理阶段，输入中永远不会出现 `[MASK]` token，这造成了预训练和下游使用之间的**分布不匹配（distribution mismatch）**。通过有时用随机词替换或保持原词不变，模型被迫学会：\n1. 不能只依赖 `[MASK]` 这个特殊信号\n2. 需要对每个位置都维持良好的表示，因为任何位置都可能需要被「修正」\n3. 学会判断某个位置的词是否正确\n\n这个设计非常巧妙，体现了训练时需要考虑与推理时分布一致性的工程智慧。",
+      "keyPoints": [
+        "MLM 随机遮蔽 15% 的 token，让模型根据双向上下文预测被遮蔽的词",
+        "被选中的 15% 词中：80% 替换为 [MASK]，10% 替换为随机词，10% 保持不变",
+        "混合遮蔽策略的目的是缓解预训练与微调之间的分布不匹配问题"
+      ]
+    },
+    {
+      "page": 25,
+      "explanation": "## BERT 的预训练-微调训练范式\n\n这张幻灯片进一步强调了 BERT 的训练流程，并配有来自 Devlin et al. 原始论文的图示。\n\n### 两阶段训练流程\n再次强调 BERT 的核心训练范式：\n1. **预训练（Pretraining）**：在大规模语料库上使用 MLM 和 NSP 任务进行无监督/自监督训练。模型学习通用的语言理解能力。\n2. **微调（Fine-tuning）**：将预训练好的 BERT 模型应用到具体的下游任务上（如情感分析、问答系统、命名实体识别等）。通常只需要在 BERT 的输出上添加一个简单的任务特定层（如分类头），然后用少量标注数据对整个模型（或部分参数）进行端到端微调。\n\n### 原论文的图示（Devlin et al.）\n论文中的经典图示通常展示：\n- 左侧是预训练阶段，BERT 在无标注文本上学习\n- 右侧是微调阶段，同一个 BERT 模型被适配到不同的下游任务\n- 关键观点：预训练阶段只需要做一次，微调可以针对多个不同任务分别进行\n\n### 这种范式的革命性意义\n在 BERT 之前，NLP 的每个任务通常需要从零训练专用模型。BERT 开创的预训练-微调范式意味着：\n- **通用性**：一个预训练模型可以迁移到多种任务\n- **数据效率**：微调只需少量标注数据\n- **性能提升**：预训练的通用知识带来显著的性能提升\n\n这个范式后来成为整个 Foundation Model 领域的基石，GPT、T5、LLaMA 等模型都延续了这一思路（虽然具体形式有所变化，如 GPT-3 引入的 in-context learning 减少了对微调的依赖）。",
+      "keyPoints": [
+        "BERT 的训练分为预训练（大规模无标注数据，自监督）和微调（少量标注数据，任务特定）两个阶段",
+        "预训练只需做一次，微调可以针对不同下游任务分别进行，体现了迁移学习的优势",
+        "这种预训练-微调范式成为 Foundation Model 领域的基石"
+      ]
+    },
+    {
+      "page": 26,
+      "explanation": "这是一张大纲（Outline）幻灯片，概述了本次课程的内容结构。本讲的主要内容分为三大块：\n\n1. **完成上次课的内容：完整的 Transformer 架构**：包括 Encoder layer（编码器层）、Decoder layer（解码器层）以及原始 Transformer 的完整架构。这是 Vaswani et al. 2017 年提出的经典\"Attention is All You Need\"模型。\n\n2. **Encoder-only 模型**：以 BERT 为代表，讲解其架构、多任务训练（multitask training）和微调（fine-tuning）方法。BERT 只使用了 Transformer 的编码器部分，通过 Masked Language Modeling (MLM) 和 Next Sentence Prediction (NSP) 进行预训练，然后通过 fine-tuning 适配到下游任务。\n\n3. **Decoder-only 模型的预览**：以 GPT 为代表，讲解 GPT 的架构和相关示例。GPT 只使用 Transformer 的解码器部分，采用自回归（autoregressive）方式进行训练。\n\n这三种架构变体（Encoder-Decoder、Encoder-only、Decoder-only）构成了当今基础模型的三大主流范式。理解它们之间的区别和设计动机，是掌握现代 NLP 和 Foundation Models 的关键。Encoder-only 模型擅长理解任务（如分类、NER），Decoder-only 模型擅长生成任务（如文本生成），而 Encoder-Decoder 模型则擅长序列到序列任务（如翻译、摘要）。",
+      "keyPoints": [
+        "本讲涵盖完整 Transformer 架构、Encoder-only（BERT）和 Decoder-only（GPT）三大模型范式",
+        "三种架构变体分别适用于不同类型的任务：理解、生成和序列到序列",
+        "BERT 代表 Encoder-only，GPT 代表 Decoder-only，是当代基础模型的核心架构"
+      ]
+    },
+    {
+      "page": 27,
+      "explanation": "这张幻灯片介绍了 **Decoder-Only 模型**的设计动机，以 GPT（Generative Pre-trained Transformer）为代表。\n\n核心思想是：原始 Transformer 中 Encoder 的存在主要服务于两个目的：\n- **1) 输出是自然语言**：在翻译等任务中，输出需要是自然语言，Decoder 本身就能处理这一点。\n- **2) 输入与输出之间的紧密对齐（tight alignment）**：在翻译任务中，源语言和目标语言之间有很强的对应关系，Cross-Attention 机制帮助 Decoder 关注 Encoder 的相应位置。\n\n但是，对于许多任务（如开放式文本生成、问答、续写等），我们并不一定需要这种 Encoder-Decoder 之间的紧密对齐。GPT 的做法是大胆地**去掉 Encoder**，只保留 Decoder 堆叠（just stack decoders）。\n\n这是一个非常优雅的简化：将输入和输出都视为一个连续的 token 序列，不再区分\"源\"和\"目标\"。模型只需要学会根据前面的所有 token 预测下一个 token。这种简化不仅降低了架构复杂度，还使模型能够通过简单的自回归方式处理几乎任何 NLP 任务——这也是后来 GPT-2、GPT-3、GPT-4 等大型语言模型成功的基础。\n\n可以用一个类比来理解：Encoder-Decoder 像是有翻译官的双向对话，而 Decoder-only 更像是一个人在自言自语——只根据自己之前说过的话来决定接下来说什么。",
+      "keyPoints": [
+        "GPT 去掉了 Encoder，仅堆叠 Decoder 层，大幅简化架构",
+        "去掉 Encoder 的动机：很多任务不需要输入输出之间的紧密对齐（tight alignment）",
+        "Decoder-only 架构将输入和输出统一为一个连续的 token 序列，是 GPT 系列成功的基础"
+      ]
+    },
+    {
+      "page": 28,
+      "explanation": "这张幻灯片进一步明确了 GPT（Decoder-Only）模型的三个关键设计要素：\n\n**1. 去掉 Encoder，只堆叠 Decoder（Rip away encoders, just stack decoders）**：GPT 由多层 Transformer Decoder block 堆叠而成。每一层包含 Masked Self-Attention 和 Feed-Forward Network，但不再有 Cross-Attention（因为没有 Encoder 可以交叉注意了）。\n\n**2. 使用 Causal Masking（因果遮蔽）**：这是 Decoder-only 模型最核心的设计之一。Causal masking 确保在计算第 $t$ 个位置的注意力时，模型只能看到位置 $1, 2, \\ldots, t$（即当前及之前的 token），而无法看到未来的 token。这通过在 attention score 矩阵的上三角部分设为 $-\\infty$ 来实现。\n\n幻灯片特别强调：**这里的 mask 不是 BERT 中的 [MASK] token**。BERT 的 mask 是将输入中的某些 token 替换为特殊的 [MASK] 标记，让模型去预测被遮住的词。而 GPT 的 causal mask 是在注意力机制中施加的一个矩阵掩码，防止信息从未来位置泄露到当前位置，这是两个完全不同的概念。\n\n**3. 训练方式：Next-Token Prediction（下一个 token 预测）**：给定前面的 token 序列 $x_1, x_2, \\ldots, x_{t-1}$，模型预测 $x_t$ 的概率分布。训练目标是最大化：\n$$\\mathcal{L} = \\sum_{t=1}^{T} \\log P(x_t | x_1, x_2, \\ldots, x_{t-1})$$\n\n这种自回归（autoregressive）训练方式简单而强大，是 GPT 系列模型的核心训练范式，也是当今几乎所有主流大语言模型（LLM）的基础训练方法。",
+      "keyPoints": [
+        "Causal masking 是注意力矩阵中的上三角遮蔽，与 BERT 的 [MASK] token 是完全不同的概念",
+        "GPT 的训练目标是 next-token prediction（自回归语言建模），最大化条件概率的对数似然",
+        "Decoder-only 架构去掉了 Cross-Attention，每层仅包含 Causal Self-Attention 和 FFN",
+        "这种简洁的自回归训练范式是 GPT-2/3/4 等大型语言模型的基础"
+      ]
+    }
+  ]
+}
