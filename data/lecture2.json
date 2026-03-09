@@ -1,0 +1,398 @@
+{
+  "lecture": 2,
+  "title": "Machine Learning Review",
+  "totalPages": 47,
+  "slides": [
+    {
+      "page": 1,
+      "explanation": "这是CS 639: Foundation Models课程的标题幻灯片，主题为机器学习回顾（Machine Learning Review）。本节课由Fred Sala教授在威斯康星大学麦迪逊分校讲授，日期为2026年1月22日。\n\n这节课的目的是回顾机器学习的基础知识，为后续深入学习Foundation Models（如Transformer、GPT、BERT等）打下坚实的基础。Foundation Models的核心构建模块——监督学习、线性模型、神经网络等——都源于经典的机器学习理论。理解这些基础概念对于后续理解self-supervised learning、大规模预训练等高级主题至关重要。",
+      "keyPoints": [
+        "本节课是机器学习基础回顾，为Foundation Models课程奠定基础",
+        "Foundation Models的理解依赖于经典ML概念（监督学习、神经网络等）"
+      ]
+    },
+    {
+      "page": 2,
+      "explanation": "课程行政信息，跳过。",
+      "keyPoints": []
+    },
+    {
+      "page": 3,
+      "explanation": "这张幻灯片展示了本节机器学习回顾课的大纲（Outline），分为三个主要部分：\n\n**1. 通用监督学习回顾（General Supervised Learning Review）**\n涵盖特征（features）、标签（labels）、函数类（function classes）、训练（training）和泛化（generalization）。这是机器学习最核心的框架：给定输入特征$x$和标签$y$，我们要从某个函数类$\\mathcal{F}$中找到一个函数$f$，使其在训练数据上表现好，同时能泛化到未见过的数据。泛化能力是Foundation Models成功的关键——预训练模型之所以强大，正是因为它们在大规模数据上学到的表示能够泛化到各种下游任务。\n\n**2. 线性模型（Linear Models）**\n包括参数化（parametrization）、训练和逻辑回归（logistic regression）。线性模型是最简单的模型形式：$f(x) = w^\\top x + b$，它虽然简单但奠定了理解更复杂模型的基础。逻辑回归将线性模型扩展到分类问题，通过sigmoid函数$\\sigma(z) = \\frac{1}{1+e^{-z}}$将输出映射到概率。这些概念在现代Foundation Models中仍然存在——例如，Transformer的最后一层通常就是一个线性分类器。\n\n**3. 神经网络（Neural Networks）**\n从感知器（perceptrons）开始，介绍其基本设置、训练方法、局限性，然后引入多层感知器（multilayer perceptrons, MLP）和损失函数。感知器是最简单的神经网络单元，但单层感知器无法解决非线性可分问题（如XOR问题）。多层感知器通过堆叠多层并引入非线性激活函数克服了这一局限。MLP是现代深度学习和Foundation Models的基石——Transformer中的Feed-Forward Network本质上就是两层MLP。\n\n这三个部分构成了从简单到复杂的递进关系：监督学习框架 → 线性模型 → 神经网络，为后续课程中的Deep Learning I/II和Self-Supervised Learning提供必要的背景知识。",
+      "keyPoints": [
+        "课程内容从监督学习基础到线性模型再到神经网络，层层递进",
+        "泛化（generalization）是连接经典ML与Foundation Models的核心概念",
+        "线性模型是理解复杂模型的基础，逻辑回归引入分类问题的概率建模",
+        "神经网络从感知器到MLP的演进，解决了线性模型无法处理非线性问题的局限"
+      ]
+    },
+    {
+      "page": 4,
+      "explanation": "这张幻灯片是本次讲座的大纲/目录页，概述了机器学习复习的三大主题板块：\n\n**1. 通用监督学习回顾（General Supervised Learning Review）**\n包括特征（features）、标签（labels）、函数类（function classes）、训练（training）和泛化（generalization）等核心概念。这些是所有机器学习方法的基础，也是理解 Foundation Models 的前置知识。\n\n**2. 线性模型（Linear Models）**\n涵盖参数化（parametrization）、训练过程以及逻辑回归（logistic regression）。线性模型是最简单的模型类别，理解它们有助于后续理解更复杂的神经网络。\n\n**3. 神经网络（Neural Networks）**\n从感知机（perceptrons）出发，讨论其设置、训练、局限性，然后过渡到多层感知机（multilayer perceptrons, MLP）和损失函数（loss functions）。MLP 是深度学习的基础构建块，而现代 Foundation Models（如 GPT、BERT）本质上都是深层神经网络的扩展。\n\n这三个主题形成了一个递进结构：从监督学习的抽象框架，到具体的线性模型，再到更强大的神经网络。这种递进关系帮助我们理解为什么需要更复杂的模型——每一层复杂度的增加都是为了解决前一层模型的局限性。",
+      "keyPoints": [
+        "本次讲座分三大块：监督学习基础 → 线性模型 → 神经网络，层层递进",
+        "这些是理解 Foundation Models（如 Transformer、GPT、BERT）的必要前置知识",
+        "从简单模型到复杂模型的演进逻辑：每一步都在克服前一步的局限性"
+      ]
+    },
+    {
+      "page": 5,
+      "explanation": "这张幻灯片介绍了**监督学习的形式化定义（Formal Setup）**，这是整个机器学习框架的起点。\n\n**问题设定（Problem Setting）包含四个核心要素：**\n\n1. **实例空间（Set of possible instances/points）**：记为 $\\mathcal{X}$，即所有可能输入数据的集合。例如在蘑菇分类问题中，$\\mathcal{X}$ 是所有可能的蘑菇特征描述。\n\n2. **未知目标函数（Unknown target function）**：记为 $f: \\mathcal{X} \\rightarrow \\mathcal{Y}$，它将输入空间映射到输出空间 $\\mathcal{Y}$。这个函数是我们想要学习的\"真相\"，但我们无法直接观察到它。比如，自然界中蘑菇是否有毒的真正规则。\n\n3. **模型集合（Set of models）**：也称为假设类（hypothesis class）或函数类（function class），记为 $\\mathcal{H}$。这是我们从中选择模型来逼近 $f$ 的候选函数集合。选择什么样的 $\\mathcal{H}$ 是一个关键的设计决策——在 Foundation Models 中，$\\mathcal{H}$ 通常是由 Transformer 架构定义的参数化函数族。\n\n4. **训练集（Training set）**：我们获得的是目标函数 $f$ 的一组输入-输出样本对 $\\{(x_i, y_i)\\}_{i=1}^n$。如幻灯片中的蘑菇图片示例，有些标记为 \"safe\"，有些标记为 \"poisonous\"。\n\n**核心思想**：监督学习的目标就是利用有限的训练样本，从假设类 $\\mathcal{H}$ 中找到一个函数 $h \\in \\mathcal{H}$，使其尽可能地逼近未知目标函数 $f$。这个框架在所有监督学习场景中通用，无论是简单的分类还是现代大语言模型的预训练。",
+      "keyPoints": [
+        "监督学习四要素：实例空间 $\\mathcal{X}$、目标函数 $f$、假设类 $\\mathcal{H}$、训练集",
+        "目标函数 $f$ 是未知的，我们只能通过有限的训练样本来间接学习它",
+        "假设类 $\\mathcal{H}$ 的选择决定了模型的表达能力，是关键设计决策"
+      ]
+    },
+    {
+      "page": 6,
+      "explanation": "这张幻灯片进一步细化了监督学习中的**三种核心集合（Three types of sets）**，并给出了具体示例。\n\n**三种集合：**\n\n1. **输入空间（Input space）$\\mathcal{X}$**：所有可能输入的集合。典型例子是**特征向量（feature vectors）**，即将原始数据（如图片、文本、蘑菇的各种属性）编码为数值向量。例如，一个蘑菇可以用颜色、形状、大小等特征组成的向量 $x \\in \\mathbb{R}^d$ 来表示。在 Foundation Models 中，输入空间可以是 token 序列、图像 patch 等。\n\n2. **输出空间（Output space）$\\mathcal{Y}$**：模型预测的目标值所在的集合。幻灯片给出了两种典型情况：\n   - **二元分类（Binary）**：$\\mathcal{Y} = \\{0, 1\\}$ 或 $\\{-1, +1\\}$，如蘑菇是 \"safe\" 还是 \"poisonous\"。\n   - **连续值（Continuous）**：$\\mathcal{Y} = \\mathbb{R}$，即回归问题，预测一个实数值。\n   当然还有多分类（$\\mathcal{Y} = \\{1, 2, ..., K\\}$）等其他情况，大语言模型中的 next-token prediction 本质上是一个大规模多分类问题（词汇表大小可达数万）。\n\n3. **假设类（Hypothesis class）$\\mathcal{H}$**：候选模型的集合。虽然这张幻灯片没有给出假设类的具体例子，但后续幻灯片会讨论线性模型和神经网络作为不同的假设类。\n\n**蘑菇分类的直观例子**贯穿这几张幻灯片：输入是蘑菇的特征，输出是 safe/poisonous 的二元标签。这是一个经典的二分类问题，帮助学生建立具体的直觉理解。\n\n区分这三种集合非常重要，因为它们共同定义了一个学习问题的结构。不同的输入空间、输出空间和假设类的组合，决定了我们面对的是什么类型的学习任务，以及应该使用什么方法来求解。",
+      "keyPoints": [
+        "输入空间通常是特征向量 $x \\in \\mathbb{R}^d$，输出空间决定任务类型（分类 vs 回归）",
+        "二元输出空间对应分类问题，连续输出空间对应回归问题",
+        "这三种集合（输入空间、输出空间、假设类）共同定义了一个完整的监督学习问题"
+      ]
+    },
+    {
+      "page": 7,
+      "explanation": "## 输出空间：分类 vs. 回归\n\n这张幻灯片讨论的是机器学习中一个最基本的区分：根据**输出空间** $\\mathcal{Y}$ 的性质，将任务分为**分类（Classification）**和**回归（Regression）**。\n\n### 分类（Classification）\n当输出空间 $\\mathcal{Y}$ 是**离散的（Discrete）**时，我们称之为分类任务。$\\mathcal{Y}$ 中的每个元素被称为一个**类别（class）**。幻灯片特别指出，分类**不一定是二分类**（binary classification）。例如：\n- 二分类：$\\mathcal{Y} = \\{0, 1\\}$（如垃圾邮件检测）\n- 多分类：$\\mathcal{Y} = \\{1, 2, ..., K\\}$（如ImageNet的1000类图片分类）\n\n在 Foundation Model 的语境下，像 BERT 做情感分析时就是分类任务，GPT 做 next-token prediction 本质上也是一个超大规模的多分类任务（词汇表中每个 token 是一个类别）。\n\n### 回归（Regression）\n当输出空间 $\\mathcal{Y}$ 是**连续的（Continuous）**时，我们称之为回归任务。最经典的例子是**线性回归（Linear Regression）**，其中 $f(x) = w^T x + b$，输出是一个实数值。例如预测房价、温度等。\n\n### 其他类型\n幻灯片还提到还有其他类型的输出空间，比如结构化预测（structured prediction）、序列到序列（sequence-to-sequence）等，这些在现代 Foundation Models 中非常常见（如机器翻译、文本生成）。\n\n理解输出空间的选择是设计机器学习系统的第一步，因为它直接决定了损失函数的选择和模型输出层的设计。",
+      "keyPoints": [
+        "输出空间离散时为分类任务，连续时为回归任务",
+        "分类不限于二分类，可以是多分类（如GPT的next-token prediction本质是超大规模多分类）",
+        "线性回归是回归任务的经典例子，还存在其他类型的输出空间如结构化预测"
+      ]
+    },
+    {
+      "page": 8,
+      "explanation": "## 假设类 / 函数类（Hypothesis/Function Classes）\n\n前一张幻灯片讨论了输出空间 $\\mathcal{Y}$ 的选择，这张幻灯片转向另一个核心问题：**函数类 $\\mathcal{F}$（或假设类 $\\mathcal{H}$）的选择**——即我们从什么样的函数集合中去寻找最优的映射 $f: \\mathcal{X} \\to \\mathcal{Y}$。\n\n### 线性模型（Linear Models）\n最简单的函数类是**线性模型**，形式为：\n$$f(x) = w^T x + b$$\n其中 $w$ 是权重向量，$b$ 是偏置。线性模型的优点是简单、可解释、计算高效，但表达能力有限，无法捕捉复杂的非线性关系。\n\n### 前馈神经网络（Feedforward Neural Networks）\n更强大的函数类是**前馈神经网络**，它通过多层非线性变换来构建复杂的映射：\n$$f(x) = \\sigma(W_L \\cdot \\sigma(W_{L-1} \\cdots \\sigma(W_1 x + b_1) \\cdots + b_{L-1}) + b_L)$$\n其中 $\\sigma$ 是激活函数（如 ReLU、sigmoid）。神经网络具有**万能近似性质（Universal Approximation）**，理论上可以逼近任意连续函数。\n\n### 参数 $\\theta, w$\n无论选择哪种函数类，模型都由一组**参数**（parameters）$\\theta$ 或 $w$ 来定义。训练的过程就是找到最优的参数值。\n\n在 Foundation Models 的背景下，函数类的选择至关重要。**Transformer** 就是一种特定的函数类，它通过 self-attention 机制取代了传统的 RNN/CNN 架构，成为 GPT、BERT 等模型的基础。函数类的选择（即模型架构的选择）直接影响模型的表达能力、训练效率和泛化性能。",
+      "keyPoints": [
+        "函数类（假设类）决定了我们从什么样的模型空间中搜索最优映射",
+        "线性模型简单但表达能力有限，神经网络通过多层非线性变换大幅提升表达能力",
+        "Transformer 是现代 Foundation Models 所采用的核心函数类/架构",
+        "训练的本质是在选定的函数类中找到最优参数 $\\theta$"
+      ]
+    },
+    {
+      "page": 9,
+      "explanation": "## 训练模型（Training The Model）\n\n这张幻灯片介绍了机器学习中最核心的概念之一：**模型训练**以及**泛化（Generalization）**。\n\n### 训练/学习过程\n训练（Training）或学习（Learning）的基本流程是：\n1. **获取数据**：我们得到一组训练数据 $\\{(x^{(i)}, y^{(i)})\\}_{i=1}^{n}$，其中 $x^{(i)}$ 是输入，$y^{(i)}$ 是对应的标签或目标值。\n2. **调整模型**：修改函数 $f$ 的参数，使得对于每个训练样本，$f(x^{(i)})$ 尽可能接近 $y^{(i)}$。\n\n这个\"接近\"通常通过**损失函数（Loss Function）**来衡量，例如均方误差 $L = \\frac{1}{n}\\sum_{i=1}^n (f(x^{(i)}) - y^{(i)})^2$ 或交叉熵损失。训练过程通常使用**梯度下降（Gradient Descent）**等优化算法来最小化损失函数。\n\n### 泛化（Generalization）\n幻灯片特别强调了一个关键点：**我们的真正目标不是在训练数据上表现好，而是在从未见过的新数据上也能做出好的预测**。这就是**泛化**的概念。\n\n这是机器学习中最重要的概念之一。如果模型只是\"记住\"了训练数据但无法泛化到新数据，就出现了**过拟合（Overfitting）**。这在 Foundation Models 中尤其重要：\n- GPT 这样的大模型参数量极大，理论上很容易过拟合\n- 但通过**大规模数据训练**、**正则化**、**dropout** 等技术，它们展现出了惊人的泛化能力\n- Foundation Models 的一大突破就是它们强大的**zero-shot 和 few-shot 泛化能力**——在完全没见过或只见过很少样本的任务上也能表现良好\n\n泛化能力的好坏是衡量一个机器学习模型成功与否的核心标准。",
+      "keyPoints": [
+        "训练过程的核心是获取数据并调整模型参数使预测接近真实标签",
+        "泛化（Generalization）是机器学习的真正目标：在未见过的新数据上也能准确预测",
+        "过拟合是泛化的对立面，Foundation Models 通过大规模数据和正则化技术实现强泛化",
+        "Foundation Models 的 zero-shot/few-shot 能力是泛化能力的极致体现"
+      ]
+    },
+    {
+      "page": 10,
+      "explanation": "Content generation failed for this slide.",
+      "keyPoints": []
+    },
+    {
+      "page": 11,
+      "explanation": "Content generation failed for this slide.",
+      "keyPoints": []
+    },
+    {
+      "page": 12,
+      "explanation": "Content generation failed for this slide.",
+      "keyPoints": []
+    },
+    {
+      "page": 13,
+      "explanation": "课程行政信息，跳过。",
+      "keyPoints": []
+    },
+    {
+      "page": 14,
+      "explanation": "这是一张课程大纲/提纲幻灯片，概述了本次机器学习复习讲座的三大模块：\n\n**1. 通用监督学习回顾 (General Supervised Learning Review)**\n- 涵盖特征 (features)、标签 (labels)、函数类 (function classes)、训练 (training) 和泛化 (generalization) 等核心概念。这些是所有机器学习方法的基石，也是理解 Foundation Models 的前提。\n\n**2. 线性模型 (Linear Models)**\n- 涵盖参数化 (parametrization)、训练过程以及逻辑回归 (logistic regression)。线性模型是最简单的模型类别，理解它们有助于理解更复杂模型（如神经网络和 Transformer）的构建思路。\n\n**3. 神经网络 (Neural Networks)**\n- 从感知机 (perceptrons) 出发，介绍基本设置、训练方法、局限性，再扩展到多层感知机 (multilayer perceptrons, MLPs) 和损失函数 (loss functions)。MLP 是现代深度学习和 Foundation Models（如 GPT、BERT 等）的基本构建单元之一。Transformer 中的 Feed-Forward Network 本质上就是 MLP。\n\n这个大纲体现了从简单到复杂的递进学习路径：线性模型 → 感知机 → 多层感知机 → (后续) 深度网络 → Foundation Models。",
+      "keyPoints": [
+        "本次讲座分三大模块：监督学习基础、线性模型、神经网络",
+        "学习路径从简单（线性模型）到复杂（多层感知机），为后续理解 Foundation Models 奠定基础",
+        "核心概念包括特征、标签、函数类、泛化、参数化、损失函数等"
+      ]
+    },
+    {
+      "page": 15,
+      "explanation": "这张幻灯片回到**线性模型 (Linear Models)**，从最简单的**线性回归 (Linear Regression)** 开始讲解。\n\n## 核心内容\n\n**输入数据：**\n- $\\mathbf{x}$ 是向量（即每个数据点有多个特征/维度），$y$ 是标量（即我们要预测的目标值是一个实数）。\n- 这是一个典型的回归问题 (regression)，目标是预测连续值。\n\n**\"线性\" 的含义：**\n- 预测值是输入向量 $\\mathbf{x}$ 各分量的**线性组合 (linear combination)** 加上一个**截距 (intercept/bias)**。\n- 数学表达为：$$\\hat{y} = w_1 x_1 + w_2 x_2 + \\cdots + w_d x_d + b = \\mathbf{w}^\\top \\mathbf{x} + b$$\n- 其中 $\\mathbf{w}$ 是权重向量，$b$ 是偏置/截距项。\n\n**目标：找到参数 (parameters)**\n- 我们需要学习的参数就是权重 $\\mathbf{w}$ 和截距 $b$。这些参数决定了模型的预测行为。\n\n## 为什么重要？\n\n线性模型虽然简单，但它是理解所有更复杂模型的起点。神经网络中的每一个神经元本质上都在做一个线性变换加上非线性激活。Transformer 中的注意力机制和前馈层也都包含线性变换。理解线性模型的参数化、训练和局限性，对后续理解深度学习至关重要。\n\n从直觉上说，线性模型就是在高维空间中找一个**超平面 (hyperplane)** 来最好地拟合数据点。",
+      "keyPoints": [
+        "线性回归：输入 $\\mathbf{x}$ 为向量，输出 $y$ 为标量，预测值为输入分量的线性组合加截距",
+        "需要学习的参数是权重向量 $\\mathbf{w}$ 和偏置 $b$",
+        "线性模型是理解神经网络和 Foundation Models 的基础构建块"
+      ]
+    },
+    {
+      "page": 16,
+      "explanation": "## 线性回归的问题设置：符号增广技巧\n\n这张幻灯片介绍了线性回归中一个非常实用的**符号增广技巧（augmentation trick）**，目的是将偏置项 $\\theta_0$ 统一到参数向量 $\\theta$ 中，使公式更加简洁。\n\n### 核心思想\n\n在标准线性回归中，预测函数为：\n$$f(x) = \\theta_0 + \\theta_1 x_1 + \\theta_2 x_2 + \\cdots + \\theta_d x_d$$\n\n其中 $\\theta_0$ 是截距（bias/intercept），$x_1, \\ldots, x_d$ 是特征。这样写的话，$\\theta_0$ 需要单独处理，不太方便。\n\n### 增广特征向量\n\n为了简化表达，我们对特征向量进行**增广**：在原始特征向量前面添加一个常数维度 1：\n$$\\tilde{x} = \\begin{pmatrix} 1 \\\\ x \\end{pmatrix}$$\n\n这样，原来的 $d$ 维特征向量变成了 $(d+1)$ 维。对应地，参数向量 $\\theta$ 也变为 $(d+1)$ 维，其中第一个分量就是 $\\theta_0$。\n\n### 统一表达\n\n增广后，预测函数可以统一写为：\n$$f(x) = \\tilde{x}^T \\theta$$\n\n这个内积展开后恰好等于 $\\theta_0 \\cdot 1 + \\theta_1 x_1 + \\cdots + \\theta_d x_d$，与原始形式完全一致。\n\n### 为什么重要\n\n这个技巧在机器学习中非常普遍。它让我们不需要为 bias 项写特殊的公式，所有推导（梯度计算、闭式解等）都可以用统一的矩阵形式完成。在深度学习中，虽然框架自动处理 bias，但理解这个概念有助于理解全连接层的数学本质。",
+      "keyPoints": [
+        "通过在特征向量中添加常数1维度，将偏置项 $\\theta_0$ 统一纳入参数向量 $\\theta$",
+        "增广后预测函数简化为 $f(x) = x^T \\theta$，便于后续矩阵化推导",
+        "这是机器学习中处理截距项的标准技巧，广泛应用于各种线性模型"
+      ]
+    },
+    {
+      "page": 17,
+      "explanation": "## 线性回归的矩阵形式\n\n这张幻灯片将线性回归从单个样本的表达推广到**整个训练集的矩阵形式**，这是推导闭式解的关键步骤。\n\n### 设计矩阵（Design Matrix）\n\n给定训练集有 $n$ 个样本，每个增广后的特征向量 $\\tilde{x}_i$ 是 $(d+1)$ 维的。将所有样本的特征向量**按行排列**，构成一个 $n \\times (d+1)$ 的矩阵：\n$$X = \\begin{pmatrix} x_1^T \\\\ \\vdots \\\\ x_n^T \\end{pmatrix}$$\n\n同时，将所有标签组成一个 $n$ 维列向量：\n$$y = \\begin{pmatrix} y_1 \\\\ \\vdots \\\\ y_n \\end{pmatrix}$$\n\n### 矩阵化的损失函数\n\n有了矩阵表示，所有样本的预测值可以一次性计算为 $X\\theta$（结果是 $n$ 维向量）。预测误差向量为 $X\\theta - y$，而**均方损失（mean squared error）**可以紧凑地写为：\n$$L(\\theta) = \\frac{1}{n} \\|X\\theta - y\\|^2$$\n\n这里 $\\|\\cdot\\|^2$ 是向量的 L2 范数的平方，即 $\\sum_{i=1}^n (x_i^T \\theta - y_i)^2$。\n\n### 为什么矩阵形式重要\n\n1. **计算效率**：矩阵运算可以利用高度优化的线性代数库（如 NumPy、BLAS），比逐样本循环快得多。\n2. **推导简洁**：矩阵微积分可以直接对 $\\theta$ 求导，得到闭式解。\n3. **与深度学习的联系**：现代深度学习中的 batch 计算本质上也是同样的矩阵化思想，GPU 加速也依赖于此。",
+      "keyPoints": [
+        "设计矩阵 $X$ 是 $n \\times (d+1)$ 矩阵，每行是一个增广后的样本特征",
+        "均方损失的矩阵形式为 $\\frac{1}{n}\\|X\\theta - y\\|^2$，简洁且便于求导",
+        "矩阵化是高效计算和推导闭式解的基础，也是现代深度学习 batch 计算的核心思想"
+      ]
+    },
+    {
+      "page": 18,
+      "explanation": "## 线性回归的参数估计：正规方程\n\n这张幻灯片讨论如何**最小化均方损失** $\\frac{1}{n}\\|X\\theta - y\\|^2$ 来找到最优参数 $\\hat{\\theta}$。\n\n### 两种优化方法\n\n1. **迭代优化（如 SGD）**：通过随机梯度下降等方法迭代更新参数。这是训练深度学习模型时的标准做法，因为深度网络的损失函数没有闭式解。\n2. **闭式解（Normal Equations）**：线性回归的特殊之处在于它的损失函数是关于 $\\theta$ 的二次凸函数，因此可以直接求解。\n\n### 正规方程推导\n\n对损失函数关于 $\\theta$ 求导并令其为零：\n$$\\nabla_\\theta \\|X\\theta - y\\|^2 = 2X^T(X\\theta - y) = 0$$\n$$X^T X \\theta = X^T y$$\n\n如果 $X^T X$ 可逆，则闭式解为：\n$$\\hat{\\theta} = (X^T X)^{-1} X^T y$$\n\n这就是著名的**正规方程（Normal Equations）**。\n\n### 关键注意事项\n\n- **帽子符号 $\\hat{\\theta}$**：在统计学中，帽子（hat）表示这是一个**估计量/学习到的量**，而非真实值。\n- **可逆性问题**：$X^T X$ 不一定可逆。当特征之间存在线性相关（多重共线性），或者样本数 $n$ 小于特征维度 $d+1$ 时，$X^T X$ 是奇异的。此时可以通过**正则化**（如岭回归，添加 $\\lambda I$）来解决：$\\hat{\\theta} = (X^T X + \\lambda I)^{-1} X^T y$。\n\n### 与基础模型的联系\n\n虽然 Foundation Models（如 GPT、BERT）不使用闭式解，但理解线性回归的优化原理是理解更复杂模型训练（梯度下降、损失函数设计）的基础。线性层本质上就是线性回归的堆叠和组合。",
+      "keyPoints": [
+        "正规方程 $\\hat{\\theta} = (X^T X)^{-1} X^T y$ 提供了线性回归的闭式解",
+        "$\\hat{\\theta}$ 的帽子符号表示这是一个估计/学习得到的量",
+        "$X^T X$ 不一定可逆，可通过正则化（如岭回归）解决",
+        "实际深度学习中使用 SGD 等迭代方法，但线性回归的闭式解是理解优化的重要基础"
+      ]
+    },
+    {
+      "page": 19,
+      "explanation": "这张幻灯片讲解了如何从**线性回归**过渡到**分类问题**，引出了**逻辑回归（Logistic Regression）**的核心思想。\n\n## 核心问题\n当标签 $y$ 不再是连续值，而是离散的 $0$ 或 $1$（二分类问题）时，线性回归的输出 $w^\\top x$ 范围是 $(-\\infty, +\\infty)$，无法直接作为概率使用。我们需要一种方法将其映射到 $[0, 1]$ 区间。\n\n## Logistic 函数（Sigmoid 函数）\n解决方案是使用 **logistic function**（也叫 sigmoid 函数）：\n$$p = \\sigma(w^\\top x) = \\frac{1}{1 + e^{-w^\\top x}}$$\n\n## 直觉理解\n- 当 $w^\\top x$ 非常大（正方向）时，$e^{-w^\\top x}$ 趋近于 $0$，所以 $p \\approx \\frac{1}{1+0} = 1$，表示模型非常确信属于正类。\n- 当 $w^\\top x$ 非常小（负方向）时，$e^{-w^\\top x}$ 趋近于 $+\\infty$，所以 $p \\approx \\frac{1}{\\infty} = 0$，表示模型非常确信属于负类。\n- 当 $w^\\top x = 0$ 时，$p = 0.5$，表示完全不确定。\n\n可以将 sigmoid 想象为一个 **S 形曲线**，它把整个实数轴\"压缩\"到 $(0, 1)$ 区间，形成一个平滑的概率输出。\n\n## 与 Foundation Models 的联系\n逻辑回归是最基础的分类模型，但其核心思想——**用非线性函数将线性输出映射到概率空间**——贯穿了整个深度学习。在 Transformer 模型中，最后的分类头（classification head）通常也使用 softmax（sigmoid 的多类推广）来输出概率分布。BERT 的 [CLS] token 经过线性层后就是用 softmax/sigmoid 做分类的。理解 logistic regression 是理解所有神经网络分类任务的基石。",
+      "keyPoints": [
+        "逻辑回归通过 sigmoid 函数 $\\sigma(z) = 1/(1+e^{-z})$ 将线性输出映射到 [0,1] 概率区间",
+        "当线性输出很大时概率接近1，很小（负）时接近0，实现了从回归到分类的转换",
+        "Sigmoid/softmax 的思想是所有神经网络分类任务的基础，广泛应用于 BERT、GPT 等模型的输出层"
+      ]
+    },
+    {
+      "page": 20,
+      "explanation": "课程行政信息，跳过。",
+      "keyPoints": []
+    },
+    {
+      "page": 21,
+      "explanation": "这张幻灯片是课程的**大纲概览（Outline）**，展示了本次机器学习复习讲座的三大模块结构。\n\n## 三大模块\n\n### 1. 通用监督学习回顾（General Supervised Learning Review）\n涵盖了机器学习的基本要素：\n- **Features（特征）**：输入数据的表示\n- **Labels（标签）**：监督信号\n- **Function classes（函数族）**：假设空间，即模型可以表达的函数集合\n- **Training（训练）**：如何通过优化损失函数来学习参数\n- **Generalization（泛化）**：模型在未见数据上的表现能力\n\n### 2. 线性模型（Linear Models）\n包括参数化（parametrization）、训练方法、以及刚刚讲到的逻辑回归。这是从简单模型出发，建立基础理解。\n\n### 3. 神经网络（Neural Networks）\n这是本讲的重点扩展部分：\n- **Perceptrons（感知机）**：最简单的神经网络单元\n- **Setup & Training**：神经网络的建模和训练框架\n- **Limitations（局限性）**：单层感知机的表达能力限制（如无法解决 XOR 问题）\n- **Multilayer Perceptrons (MLP)**：通过多层结构突破限制\n- **Loss functions（损失函数）**：不同任务对应的损失函数选择\n\n## 与 Foundation Models 的联系\n这三个模块构成了理解 Foundation Models 的必备基础。从线性模型到 MLP，再到 Transformer，是一个逐步增加模型表达能力的过程。Foundation Models（如 GPT、BERT）本质上就是极其深层的神经网络，理解其基础组件对于后续课程至关重要。",
+      "keyPoints": [
+        "本讲分为三大模块：监督学习基础 → 线性模型 → 神经网络，层层递进",
+        "神经网络部分将涵盖感知机、MLP、训练方法和局限性，为理解 Transformer 等 Foundation Models 打下基础",
+        "从线性模型到多层神经网络的演进过程体现了模型表达能力的逐步增强"
+      ]
+    },
+    {
+      "page": 22,
+      "explanation": "Content generation failed for this slide.",
+      "keyPoints": []
+    },
+    {
+      "page": 23,
+      "explanation": "Content generation failed for this slide.",
+      "keyPoints": []
+    },
+    {
+      "page": 24,
+      "explanation": "Content generation failed for this slide.",
+      "keyPoints": []
+    },
+    {
+      "page": 25,
+      "explanation": "## 感知机学习 AND 函数\n\n这张幻灯片展示了单个感知机（Perceptron）如何学习逻辑 AND 函数。AND 函数的真值表是：只有当两个输入都为 1 时，输出才为 1，其他情况输出为 0。\n\n### 感知机模型\n\n感知机的计算公式为：\n$$\\text{output} = \\sigma(x_1 w_1 + x_2 w_2 + b)$$\n\n其中激活函数 $\\sigma$ 是阶跃函数（step function）：\n$$\\sigma(x) = \\begin{cases} 1 & \\text{if } x > 0 \\\\ 0 & \\text{otherwise} \\end{cases}$$\n\n### 具体参数\n\n幻灯片给出的参数为 $w_1 = 1, w_2 = 1, b = -1.5$。我们可以验证：\n\n- $x_1=0, x_2=0$: $\\sigma(0+0-1.5) = \\sigma(-1.5) = 0$ ✓\n- $x_1=1, x_2=0$: $\\sigma(1+0-1.5) = \\sigma(-0.5) = 0$ ✓\n- $x_1=0, x_2=1$: $\\sigma(0+1-1.5) = \\sigma(-0.5) = 0$ ✓\n- $x_1=1, x_2=1$: $\\sigma(1+1-1.5) = \\sigma(0.5) = 1$ ✓\n\n所有四种输入组合都正确输出了 AND 函数的结果。\n\n### 几何直觉\n\n感知机本质上在二维平面上划一条分界线 $x_1 w_1 + x_2 w_2 + b = 0$，即 $x_1 + x_2 = 1.5$。AND 函数的正例 $(1,1)$ 在线的一侧，负例 $(0,0), (1,0), (0,1)$ 在另一侧，因此是**线性可分**的。\n\n这是理解神经网络的基础：单个神经元可以实现线性分类器。这一简单模型后来扩展为深度神经网络，成为 Transformer 和各种 Foundation Model 的基本构建模块。",
+      "keyPoints": [
+        "感知机通过 σ(x₁w₁ + x₂w₂ + b) 实现线性分类，参数 w₁=1, w₂=1, b=-1.5 可以正确学习 AND 函数",
+        "AND 函数是线性可分的，感知机可以找到一条直线将正例和负例分开",
+        "单个感知机是神经网络的最基本单元，是理解深度学习的起点"
+      ]
+    },
+    {
+      "page": 26,
+      "explanation": "## 单个神经元的局限性：XOR 问题\n\n这张幻灯片揭示了感知机的根本局限——**无法学习 XOR（异或）函数**。这是神经网络发展史上的一个关键问题，由 Minsky 和 Papert 在 1969 年提出，曾导致 AI 研究进入第一个\"寒冬\"。\n\n### XOR 函数的真值表\n\n$$\\text{XOR}(x_1, x_2) = (x_1 \\wedge \\neg x_2) \\vee (\\neg x_1 \\wedge x_2)$$\n\n| $x_1$ | $x_2$ | $y$ |\n|-------|-------|-----|\n| 0 | 0 | 0 |\n| 1 | 0 | 1 |\n| 0 | 1 | 1 |\n| 1 | 1 | 0 |\n\n### 为什么感知机无法学习 XOR？\n\n核心原因：**感知机只能生成线性分界面**（linear separator）。在二维平面上，XOR 的正例 $(1,0)$ 和 $(0,1)$ 与负例 $(0,0)$ 和 $(1,1)$ 交错分布，无论怎么画一条直线，都无法将它们分开。这就是**线性不可分**（linearly inseparable）问题。\n\n### 几何直觉\n\n想象在平面上标出四个点：正例在对角位置（右下和左上），负例也在对角位置（左下和右上）。你无法用一条直线把对角的点分到同一侧。这就是幻灯片中 \"?\" 所表达的困惑。\n\n### 历史意义与解决方案\n\n这一局限性的解决方案就是**多层感知机**（MLP），通过引入隐藏层来学习非线性函数。现代 Foundation Model 如 Transformer 中的 Feed-Forward Network 就是 MLP 的直接应用，它们通过多层非线性变换来捕捉复杂的模式。",
+      "keyPoints": [
+        "单个感知机只能生成线性分界面，因此无法学习线性不可分的 XOR 函数",
+        "XOR 问题是神经网络发展史上的经典问题，推动了多层神经网络的研究",
+        "解决方案是引入隐藏层，构建多层感知机（MLP）以实现非线性分类"
+      ]
+    },
+    {
+      "page": 27,
+      "explanation": "## 多层感知机（MLP）示例\n\n这张幻灯片介绍了**多层感知机**（Multi-Layer Perceptron, MLP），它是解决单层感知机局限性的标准方法，也是现代深度学习的基础架构。\n\n### 网络结构\n\n幻灯片展示了一个具体的 MLP 示例：\n- **输入层**：$\\mathbf{x} \\in \\mathbb{R}^d$，包含 $x_1, x_2$ 等特征\n- **隐藏层**（Hidden Layer）：包含 3 个神经元\n- **输出层**：1 个神经元\n- **网络深度**（depth）= 2（隐藏层 + 输出层）\n\n### 数学公式\n\n隐藏层第一个神经元的计算为：\n$$h_1 = \\sigma\\left(\\sum_{i=1}^{d} x_i w_{1i}^{(1)} + b_1\\right)$$\n\n其中 $w_{1i}^{(1)}$ 表示第 1 层（上标 $(1)$）中连接第 $i$ 个输入到第 1 个隐藏神经元的权重。例如 $w_{11}^{(1)}$ 连接 $x_1$ 到 $h_1$，$w_{12}^{(1)}$ 连接 $x_2$ 到 $h_1$。\n\n### 关键概念\n\n1. **标准连接方式**：每一层的每个神经元与上一层的所有神经元相连，称为**全连接层**（Fully Connected Layer）\n2. **层次化表示**：隐藏层学习输入数据的中间表示（intermediate representation），输出层基于这些表示做最终决策\n3. **非线性能力**：通过堆叠多层非线性变换，MLP 可以逼近任意连续函数（万能近似定理）\n\n### 与 Foundation Model 的联系\n\nMLP 是 Transformer 架构中的核心组件之一。在 Transformer 的每个 block 中，Self-Attention 之后都会接一个 MLP（通常称为 Feed-Forward Network, FFN）。GPT、BERT 等模型中，FFN 负责对注意力层提取的特征进行非线性变换。研究表明，Transformer 中的 FFN 层实际上起到了\"知识存储\"的作用。",
+      "keyPoints": [
+        "MLP 通过引入隐藏层实现非线性分类，解决了单层感知机无法处理 XOR 等问题的局限",
+        "隐藏层神经元计算公式：$h_1 = \\sigma(\\sum_{i=1}^{d} x_i w_{1i}^{(1)} + b_1)$，上标表示层编号",
+        "MLP 是 Transformer 中 Feed-Forward Network 的基础，是 Foundation Model 的核心组件之一",
+        "网络深度 = 层数（不含输入层），本例深度为 2"
+      ]
+    },
+    {
+      "page": 28,
+      "explanation": "## 多层感知机（MLP）示例：第二个隐藏神经元\n\n这张幻灯片继续构建多层感知机的具体示例，聚焦于隐藏层中**第二个神经元** $h_2$ 的计算过程。\n\n### 网络结构\n- **输入层**：输入向量 $\\mathbf{x} \\in \\mathbb{R}^d$，图中展示了 $x_1, x_2$ 等输入分量\n- **隐藏层**：包含3个神经元\n- **输出层**：1个输出层\n- **深度（depth）= 2**：即共有2层可训练的层（1个隐藏层 + 1个输出层）\n\n### 第二个隐藏神经元的计算\n\n$$h_2 = \\sigma\\left(\\sum_{i=1}^{d} x_i w_{2i}^{(1)} + b_2\\right)$$\n\n其中：\n- $w_{2i}^{(1)}$ 是第一层中连接输入 $x_i$ 到第二个隐藏神经元的权重，上标 $(1)$ 表示这是第一层的权重\n- $b_2$ 是第二个隐藏神经元的偏置\n- $\\sigma$ 是激活函数（如 sigmoid、ReLU 等）\n\n图中具体标注了 $w_{21}^{(1)}$（从 $x_1$ 到 $h_2$ 的权重）和 $w_{22}^{(1)}$（从 $x_2$ 到 $h_2$ 的权重）。\n\n### 直觉理解\n每个隐藏神经元都独立地对所有输入进行加权求和，但使用**不同的权重**。这意味着每个神经元学习到输入数据的不同特征或模式。就像多个\"观察者\"从不同角度观察同一组数据，每个人关注不同的方面。",
+      "keyPoints": [
+        "隐藏层第二个神经元 $h_2$ 通过对所有输入加权求和后经过激活函数得到",
+        "上标 $(1)$ 表示第一层的权重，下标中第一个数字标识目标神经元",
+        "每个隐藏神经元使用不同的权重集合，从而学习数据的不同特征"
+      ]
+    },
+    {
+      "page": 29,
+      "explanation": "## 多层感知机（MLP）示例：第三个隐藏神经元\n\n这张幻灯片展示隐藏层中**第三个神经元** $h_3$ 的计算方式，与前一张幻灯片的结构完全对称。\n\n### 第三个隐藏神经元的计算\n\n$$h_3 = \\sigma\\left(\\sum_{i=1}^{d} x_i w_{3i}^{(1)} + b_3\\right)$$\n\n其中：\n- $w_{3i}^{(1)}$ 是从输入 $x_i$ 到第三个隐藏神经元的权重\n- $b_3$ 是第三个隐藏神经元的偏置\n- 图中标注了 $w_{31}^{(1)}$ 和 $w_{32}^{(1)}$\n\n### 模式总结\n到目前为止，我们可以看到一个清晰的模式：对于隐藏层中的第 $j$ 个神经元，其计算公式为：\n\n$$h_j = \\sigma\\left(\\sum_{i=1}^{d} x_i w_{ji}^{(1)} + b_j\\right)$$\n\n每个神经元的结构完全相同——都是线性变换加激活函数——唯一的区别在于权重和偏置的值不同。这正是MLP的\"标准连接方式\"（standard way to connect Perceptrons）：隐藏层中每个神经元都与所有输入相连，即**全连接（fully connected）**结构。\n\n### 与基础模型的关联\n全连接层是 Transformer 中 Feed-Forward Network（FFN）的核心组件。在 GPT、BERT 等模型中，每个 Transformer block 都包含一个两层的 MLP（FFN），它对每个 token 的表示独立应用全连接变换。",
+      "keyPoints": [
+        "第三个隐藏神经元 $h_3$ 遵循与 $h_1, h_2$ 相同的计算模式",
+        "所有隐藏神经元共享相同的结构，仅权重和偏置不同",
+        "这种全连接结构是神经网络的基本构建块，也是 Transformer FFN 的基础"
+      ]
+    },
+    {
+      "page": 30,
+      "explanation": "## 多层感知机（MLP）示例：完整隐藏层\n\n这张幻灯片将前几张幻灯片的内容汇总，展示了包含 $m=3$ 个神经元的**完整隐藏层**。\n\n### 三个隐藏神经元的完整公式\n\n$$h_1 = \\sigma\\left(\\sum_{i=1}^{d} x_i w_{1i}^{(1)} + b_1\\right)$$\n$$h_2 = \\sigma\\left(\\sum_{i=1}^{d} x_i w_{2i}^{(1)} + b_2\\right)$$\n$$h_3 = \\sigma\\left(\\sum_{i=1}^{d} x_i w_{3i}^{(1)} + b_3\\right)$$\n\n### 向量化表示\n\n这三个公式可以统一写成矩阵形式：\n\n$$\\mathbf{h} = \\sigma\\left(W^{(1)}\\mathbf{x} + \\mathbf{b}\\right)$$\n\n其中 $W^{(1)} \\in \\mathbb{R}^{m \\times d}$ 是权重矩阵，$\\mathbf{b} \\in \\mathbb{R}^m$ 是偏置向量，$\\sigma$ 逐元素应用。这种向量化表示是实际实现中使用的方式，因为矩阵运算可以在 GPU 上高效并行计算。\n\n### 网络结构总结\n- **输入层**：$\\mathbf{x} \\in \\mathbb{R}^d$\n- **隐藏层**：$m = 3$ 个神经元，产生隐藏表示 $\\mathbf{h} \\in \\mathbb{R}^3$\n- **深度 = 2**：隐藏层 + 输出层（输出层的公式将在后续幻灯片展示）\n\n### 直觉类比\n可以把隐藏层想象成一组\"特征检测器\"。输入数据通过不同的权重组合被投影到一个新的特征空间中。每个隐藏神经元检测输入中的某种模式，激活函数则决定该模式是否\"激活\"。隐藏层的宽度（$m$）决定了网络能学习多少种不同的特征。在现代基础模型中，隐藏层的宽度通常非常大（如 GPT-3 的 FFN 隐藏层宽度为 12288 × 4 = 49152）。",
+      "keyPoints": [
+        "完整隐藏层由 $m=3$ 个神经元组成，每个神经元独立计算但共享相同的输入",
+        "可以用矩阵形式 $\\mathbf{h} = \\sigma(W^{(1)}\\mathbf{x} + \\mathbf{b})$ 统一表示整个隐藏层",
+        "隐藏层的宽度 $m$ 决定了网络的表达能力，现代基础模型使用非常宽的隐藏层",
+        "深度（depth）= 2 指可训练层数，即隐藏层和输出层"
+      ]
+    },
+    {
+      "page": 31,
+      "explanation": "## 多层感知机（MLP）示例：隐藏层的计算\n\n这张幻灯片展示了一个具体的多层感知机（Multi-layer Perceptron, MLP）结构示例，重点讲解隐藏层中每个神经元的计算方式。\n\n### 网络结构\n- **输入层**：输入向量 $\\mathbf{x} \\in \\mathbb{R}^d$，图中以 $x_1, x_2$ 为例\n- **隐藏层**：包含 $m=3$ 个神经元\n- **输出层**：1个输出神经元\n- **深度（depth）= 2**：即有2层可训练的权重层（隐藏层 + 输出层）\n\n### 隐藏层每个神经元的计算\n每个隐藏层神经元 $h_j$（$j=1,2,3$）的计算公式为：\n$$h_j = \\sigma\\left(\\sum_{i=1}^{d} x_i w_{ji}^{(1)} + b_j\\right)$$\n\n其中：\n- $w_{ji}^{(1)}$ 是第一层（输入到隐藏层）的权重，上标 $(1)$ 表示第1层\n- $b_j$ 是第 $j$ 个神经元的偏置项\n- $\\sigma(\\cdot)$ 是激活函数\n\n### 输出层的连接\n隐藏层的三个输出 $h_1, h_2, h_3$ 分别通过权重 $w_1^{(2)}, w_2^{(2)}, w_3^{(2)}$ 连接到输出层。上标 $(2)$ 表示这是第2层的权重。\n\n### 直觉理解\n可以把每个隐藏层神经元想象成一个\"特征检测器\"——它从原始输入中提取某种特定的模式。3个神经元就能检测3种不同的特征，然后输出层将这些特征组合起来做最终决策。这种层级式的特征提取正是深度学习的核心思想，也是 Transformer 等 Foundation Model 中全连接层（Feed-Forward Network）的基础组件。",
+      "keyPoints": [
+        "MLP由输入层、隐藏层和输出层组成，此例中深度为2（2层可训练权重）",
+        "每个隐藏层神经元计算：$h_j = \\sigma(\\sum_{i=1}^{d} x_i w_{ji}^{(1)} + b_j)$，即加权求和后通过激活函数",
+        "上标(1)和(2)分别标识不同层的权重参数，隐藏层输出通过第二层权重连接到输出"
+      ]
+    },
+    {
+      "page": 32,
+      "explanation": "## 多层感知机示例：完整的前向传播\n\n这张幻灯片在上一页的基础上补充了**输出层的计算公式**，展示了完整的前向传播过程。\n\n### 隐藏层（与上页相同，但偏置记号更精确）\n$$h_j = \\sigma\\left(\\sum_{i=1}^{d} x_i w_{ji}^{(1)} + b_j^{(1)}\\right), \\quad j=1,2,3$$\n\n注意这里偏置也加上了上标 $b_j^{(1)}$，明确表示这是第1层的偏置。\n\n### 输出层\n$$\\hat{y} = \\sigma\\left(\\sum_{i=1}^{m} h_i w_i^{(2)} + b^{(2)}\\right)$$\n\n- 将隐藏层的 $m=3$ 个输出 $h_1, h_2, h_3$ 作为输入\n- 通过第二层权重 $w_i^{(2)}$ 加权求和，加上偏置 $b^{(2)}$\n- 最后通过 **Sigmoid 激活函数** 得到预测值 $\\hat{y}$\n\n### Sigmoid 激活函数\n$$\\sigma(z) = \\frac{1}{1+e^{-z}}$$\n\nSigmoid 将输出压缩到 $(0, 1)$ 区间，非常适合**二分类任务**，输出可以解释为概率。\n\n### 整体数据流\n$$\\mathbf{x} \\xrightarrow{W^{(1)}, b^{(1)}} \\mathbf{h} \\xrightarrow{W^{(2)}, b^{(2)}} \\hat{y}$$\n\n这就是一个完整的两层神经网络的前向传播。在现代 Foundation Model（如 Transformer）中，每个 Transformer block 内部的 Feed-Forward Network (FFN) 本质上就是一个两层的 MLP，通常使用 ReLU 或 GELU 作为激活函数而非 Sigmoid。理解这个基本的 MLP 结构是理解更复杂模型的基础。",
+      "keyPoints": [
+        "输出层计算：$\\hat{y} = \\sigma(\\sum_{i=1}^{m} h_i w_i^{(2)} + b^{(2)})$，将隐藏层输出再次加权求和并通过激活函数",
+        "使用Sigmoid激活函数将输出压缩到(0,1)，适合二分类任务",
+        "完整的前向传播：输入→隐藏层（第一层权重+激活）→输出层（第二层权重+激活）→预测值",
+        "Transformer中的FFN本质就是两层MLP，理解此结构是理解现代模型的基础"
+      ]
+    },
+    {
+      "page": 33,
+      "explanation": "## 图示幻灯片\n\n这张幻灯片似乎仅包含图片/图表，没有可提取的文字内容。根据上下文推测，这很可能展示了以下内容之一：\n\n1. **MLP 的完整网络结构图**：以可视化方式展示输入层、隐藏层和输出层之间的全连接关系，帮助学生直观理解数据流动方向和权重矩阵的作用。\n\n2. **Sigmoid 激活函数的图形**：展示 $\\sigma(z) = \\frac{1}{1+e^{-z}}$ 的 S 形曲线，说明其输出范围在 $(0,1)$ 之间，以及其在不同输入值处的行为特性（如饱和区域）。\n\n3. **MLP 决策边界的可视化**：展示多层感知机相比单层感知机能够学习非线性决策边界的能力，这是多层网络相对于单个 Perceptron 的核心优势——单个 Perceptron 只能处理线性可分的数据，而 MLP 通过非线性激活和多层组合可以拟合任意复杂的决策边界。\n\n由于无法提取具体内容，建议同学们参考课件原始文件查看此图。",
+      "keyPoints": [
+        "此页为纯图片幻灯片，可能展示MLP网络结构图、激活函数曲线或决策边界可视化",
+        "建议参考原始课件查看具体图片内容"
+      ]
+    },
+    {
+      "page": 34,
+      "explanation": "## 多层感知器（MLP）：矩阵表示法\n\n这张幻灯片展示了多层感知器中单层前向传播的矩阵表示。这是理解神经网络计算的基础。\n\n### 核心内容\n\n在一个单层的前向传播中，输入向量 $\\mathbf{x} \\in \\mathbb{R}^d$（维度为 $d \\times 1$）经过权重矩阵 $\\mathbf{W}$（维度为 $m \\times d$）的线性变换，然后加上偏置向量 $\\mathbf{b}$（维度为 $m \\times 1$），得到输出（维度为 $m \\times 1$）。\n\n用数学公式表示：\n$$\\mathbf{z} = \\mathbf{W}\\mathbf{x} + \\mathbf{b}$$\n\n其中：\n- $\\mathbf{W} \\in \\mathbb{R}^{m \\times d}$：权重矩阵，包含了该层所有神经元的连接权重\n- $\\mathbf{x} \\in \\mathbb{R}^{d}$：输入向量\n- $\\mathbf{b} \\in \\mathbb{R}^{m}$：偏置向量\n- $\\mathbf{z} \\in \\mathbb{R}^{m}$：线性变换后的输出\n\n### 维度分析\n\n矩阵乘法的维度匹配非常重要：$(m \\times d) \\cdot (d \\times 1) = (m \\times 1)$，再加上 $(m \\times 1)$ 的偏置，最终输出为 $(m \\times 1)$。这里 $d$ 是输入维度，$m$ 是该层神经元数量（输出维度）。\n\n### 与Foundation Models的联系\n\n这种矩阵表示法是所有现代深度学习模型的基础。Transformer中的 Feed-Forward Network (FFN) 层本质上就是两个这样的线性变换层叠加。在GPT和BERT中，每个Transformer block都包含这样的矩阵运算。矩阵表示法使得我们能够利用GPU进行高效的并行计算，这是大规模Foundation Models能够实际训练的关键。",
+      "keyPoints": [
+        "单层MLP的前向传播可以用矩阵运算表示为 $\\mathbf{z} = \\mathbf{W}\\mathbf{x} + \\mathbf{b}$",
+        "维度匹配：$(m \\times d) \\cdot (d \\times 1) + (m \\times 1) = (m \\times 1)$",
+        "矩阵表示法是高效并行计算的基础，也是理解Transformer等模型的前提"
+      ]
+    },
+    {
+      "page": 35,
+      "explanation": "## 多层感知器：矩阵表示法（含激活函数）\n\n这张幻灯片在上一张的基础上加入了**逐元素非线性激活函数（element-wise activation function）**，完整展示了MLP一层的计算过程。幻灯片强调了关键要素：**线性运算 + 非线性激活**。\n\n### 完整的单层前向传播\n\n完整的计算公式为：\n$$\\mathbf{h} = \\sigma(\\mathbf{W}\\mathbf{x} + \\mathbf{b})$$\n\n其中 $\\sigma(\\cdot)$ 是逐元素（element-wise）的非线性激活函数。所谓\"逐元素\"意味着激活函数独立地应用于向量的每个分量：\n$$\\sigma\\left(\\begin{bmatrix} z_1 \\\\ z_2 \\\\ \\vdots \\\\ z_m \\end{bmatrix}\\right) = \\begin{bmatrix} \\sigma(z_1) \\\\ \\sigma(z_2) \\\\ \\vdots \\\\ \\sigma(z_m) \\end{bmatrix}$$\n\n### 为什么非线性激活至关重要？\n\n这是神经网络的核心设计原则。如果没有非线性激活函数，多层线性变换的叠加仍然是线性变换（矩阵乘法的结合性）：\n$$\\mathbf{W}_2(\\mathbf{W}_1 \\mathbf{x}) = (\\mathbf{W}_2 \\mathbf{W}_1)\\mathbf{x} = \\mathbf{W}'\\mathbf{x}$$\n\n这意味着无论堆叠多少层，网络的表达能力都等价于单层。非线性激活函数打破了这种线性组合关系，使得深层网络具有更强的函数逼近能力（Universal Approximation Theorem）。\n\n### 常见激活函数\n\n常见的激活函数包括 Sigmoid、Tanh、ReLU、GELU 等。在现代Foundation Models中，GELU 激活函数被广泛使用（如BERT、GPT系列），而 SwiGLU 等变体在LLaMA等新模型中也非常流行。\n\n### 与Foundation Models的联系\n\nTransformer的FFN层通常表示为：$\\text{FFN}(x) = \\sigma(xW_1 + b_1)W_2 + b_2$，正是两个线性变换中间夹一个非线性激活的结构。",
+      "keyPoints": [
+        "完整的单层MLP计算为 $\\mathbf{h} = \\sigma(\\mathbf{W}\\mathbf{x} + \\mathbf{b})$，激活函数逐元素应用",
+        "神经网络的核心设计 = 线性运算 + 非线性激活",
+        "没有非线性激活，多层网络退化为单层线性模型，无法学习复杂函数",
+        "现代Foundation Models中常用GELU等激活函数"
+      ]
+    },
+    {
+      "page": 36,
+      "explanation": "## 幻灯片内容（图片/图表）\n\n这张幻灯片似乎包含一个图片或图表，但没有可提取的文本内容。根据上下文推断，这很可能展示了以下内容之一：\n\n1. **MLP的完整网络结构图**：展示多层感知器从输入层到隐藏层再到输出层的完整架构，直观地呈现数据如何在各层之间流动。\n\n2. **常见激活函数的图形**：可能展示了 Sigmoid、Tanh、ReLU 等常见激活函数的函数图像，帮助学生直观理解不同激活函数的形状和特性。\n\n3. **矩阵运算的可视化**：将前两张幻灯片介绍的矩阵运算过程可视化，展示权重矩阵如何与输入向量相乘、加偏置、再通过激活函数的完整流程。\n\n### 与前文的联系\n\n无论图片具体内容是什么，它都是对前两张幻灯片中MLP矩阵表示法的视觉补充。在学习神经网络时，将数学公式与网络结构图对应起来理解是非常重要的。每一层的 $\\mathbf{W}$ 对应两层神经元之间的所有连接权重，$\\mathbf{b}$ 对应目标层每个神经元的偏置，$\\sigma$ 对应每个神经元的激活函数。\n\n由于无法确认图片具体内容，建议同学们参考课件原始文件查看该图。",
+      "keyPoints": [
+        "该幻灯片为图片/图表内容，可能是MLP结构可视化或激活函数图形",
+        "建议结合前两张幻灯片的矩阵公式理解网络结构图"
+      ]
+    },
+    {
+      "page": 37,
+      "explanation": "## 用于 K 类分类的神经网络\n\n这张幻灯片展示了如何将前面介绍的单隐层神经网络扩展到 **K 类分类（multi-class classification）** 问题。\n\n### 网络结构\n\n- **输入层**：输入向量 $\\mathbf{x} \\in \\mathbb{R}^d$（图中以 $x_1, x_2$ 为例）\n- **隐藏层**：$m=3$ 个神经元，每个神经元的计算为：\n$$h_j = \\sigma\\left(\\sum_{i=1}^{d} x_i w_{ji}^{(1)} + b_j^{(1)}\\right), \\quad j = 1, 2, 3$$\n其中 $\\sigma$ 是激活函数（如 ReLU、sigmoid 等）。\n- **输出层**：有 **K 个输出节点**，每个对应一个类别。第 $k$ 个输出为：\n$$f_k = \\sum_{i=1}^{m} h_i w_{ki}^{(2)} + b_k^{(2)}$$\n\n### 关键设计要点\n\n输出层**不使用激活函数**——这些原始输出值 $f_k$ 被称为 **logits**。之所以不在输出层加激活函数，是因为后续会用 softmax 将它们转换为概率分布。如果在此处加了非线性激活，反而会影响 softmax 的效果。\n\n### 实际应用\n\n幻灯片提到了 ImageNet 分类任务，其中 $K=1000$，即需要将图像分到 1000 个类别中的一个。这是深度学习的经典 benchmark 任务。\n\n### 与 Foundation Models 的联系\n\n在 Transformer 模型（如 GPT、BERT）中，最后一层通常也是一个线性层产生 logits，然后通过 softmax 得到词汇表上的概率分布。这种\"线性层 + softmax\"的设计模式在整个深度学习中极为普遍。",
+      "keyPoints": [
+        "K 类分类的输出层有 K 个节点，每个节点对应一个类别的 logit 值",
+        "输出层不使用激活函数，产生的原始值（logits）将传入 softmax 处理",
+        "这种结构是现代 Foundation Models（如 GPT、BERT）分类头的基本模式"
+      ]
+    },
+    {
+      "page": 38,
+      "explanation": "## Softmax 函数\n\n这张幻灯片介绍了 **softmax** 函数，它是将神经网络的原始输出（logits）转换为概率分布的标准方法。\n\n### Softmax 的定义\n\n给定 $K$ 个输出 $f_1, f_2, \\ldots, f_K$，softmax 将第 $y$ 类的概率计算为：\n$$p(y|\\mathbf{x}) = \\text{softmax}(f)_y = \\frac{\\exp(f_y(\\mathbf{x}))}{\\sum_{k=1}^{K} \\exp(f_k(\\mathbf{x}))}$$\n\n### 核心性质\n\n1. **输出是概率**：所有 $p(y|\\mathbf{x}) > 0$，且 $\\sum_{y=1}^{K} p(y|\\mathbf{x}) = 1$\n2. **保序性**：如果 $f_a > f_b$，则 $p(a|\\mathbf{x}) > p(b|\\mathbf{x})$，即 softmax 保持了 logits 的相对大小关系\n3. **指数放大**：$\\exp$ 函数会放大 logits 之间的差异，使得最大的 logit 对应的概率显著大于其他类\n\n### 直觉理解\n\n可以把 softmax 想象成一个\"竞争\"机制：每个类别的 logit 值通过指数函数\"竞争\"概率份额。分数越高的类别获得的概率越大，但不会完全排除其他类别（与 hardmax/argmax 不同）。\n\n### 在 Foundation Models 中的角色\n\nSoftmax 是 Transformer 的核心组件之一：\n- **注意力机制**中用 softmax 计算注意力权重：$\\text{softmax}(QK^T / \\sqrt{d_k})$\n- **语言模型输出层**用 softmax 将 logits 转为词汇表上的概率分布\n- GPT 用 softmax 输出下一个 token 的概率",
+      "keyPoints": [
+        "Softmax 将任意实数值的 logits 转换为和为 1 的概率分布",
+        "公式：$p(y|\\mathbf{x}) = \\frac{\\exp(f_y)}{\\sum_{k=1}^{K} \\exp(f_k)}$",
+        "Softmax 在 Transformer 的注意力机制和输出层中都起到关键作用"
+      ]
+    },
+    {
+      "page": 39,
+      "explanation": "## Softmax 的归一化性质\n\n这张幻灯片继续讨论 softmax 函数，强调其**归一化（normalized）**的性质，并通过一个带有 \"??\" 的标注暗示了一个需要思考或回答的问题。\n\n### 归一化的含义\n\nSoftmax 输出的所有概率之和严格等于 1：\n$$\\sum_{y=1}^{K} p(y|\\mathbf{x}) = \\sum_{y=1}^{K} \\frac{\\exp(f_y)}{\\sum_{k=1}^{K} \\exp(f_k)} = \\frac{\\sum_{y=1}^{K} \\exp(f_y)}{\\sum_{k=1}^{K} \\exp(f_k)} = 1$$\n\n这个证明非常直接——分子和分母完全相同。\n\n### \"??\" 可能的含义\n\n幻灯片上的 \"??\" 很可能是在课堂上提问学生：为什么 softmax 的输出是归一化的？或者让学生验证这一性质。这是一个经典的课堂互动问题。另一种可能是在问：softmax 是否是唯一的归一化方案？答案是否——例如可以用 $f_k / \\sum_j f_j$（当所有 $f_k > 0$ 时），但 softmax 使用指数函数有独特优势：\n- 保证所有输出为正（$\\exp$ 值域为正实数）\n- 与交叉熵损失配合时梯度计算简洁\n- 与 log-linear 模型和最大熵原理有深刻的理论联系\n\n### 与 Foundation Models 的联系\n\n归一化是概率模型的基本要求。在语言模型中，我们需要对词汇表中所有可能的下一个 token 给出合法的概率分布，softmax 的归一化性质保证了这一点。在 attention 中，归一化确保注意力权重可以被解释为\"关注程度\"的分配。",
+      "keyPoints": [
+        "Softmax 输出的概率之和严格等于 1，这由分子分母的对称结构保证",
+        "归一化性质使 softmax 适合作为概率分布的输出函数",
+        "指数函数保证输出为正，配合交叉熵损失时梯度形式优美"
+      ]
+    },
+    {
+      "page": 40,
+      "explanation": "## Softmax 函数\n\n这张幻灯片介绍了 **Softmax** 函数的核心概念。Softmax 是神经网络中用于多分类任务的关键激活函数，它将模型的原始输出（logits）$f_1, f_2, \\ldots, f_K$ 转换为概率分布。\n\n### 数学定义\n\nSoftmax 函数的定义为：\n\n$$p_k = \\text{softmax}(f_k) = \\frac{e^{f_k}}{\\sum_{j=1}^{K} e^{f_j}}$$\n\n其中 $K$ 是类别总数，$f_k$ 是第 $k$ 个类别的原始输出值。\n\n### 关键性质\n\n1. **归一化（Normalized）**：所有输出概率之和为 1，即 $\\sum_{k=1}^{K} p_k = 1$。\n2. **非负性**：由于指数函数的性质，每个 $p_k > 0$。\n3. **保序性**：较大的 $f_k$ 对应较大的 $p_k$，但 softmax 会放大差异。\n\n### 直觉理解\n\n可以把 Softmax 想象成一个\"竞争\"机制：每个类别的原始分数通过指数函数被放大，然后通过除以总和来\"瓜分\"概率。分数最高的类别会获得最大的概率份额。\n\n### 在 Foundation Models 中的重要性\n\nSoftmax 在现代基础模型中无处不在：\n- **Transformer 的 Attention 机制**中，使用 softmax 计算注意力权重：$\\text{Attention}(Q,K,V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$\n- **GPT、BERT** 等语言模型的最终输出层使用 softmax 来预测下一个 token 的概率分布\n- 分类任务中 softmax 与交叉熵损失（cross-entropy loss）配合使用是标准做法",
+      "keyPoints": [
+        "Softmax 将原始输出转化为概率分布，所有概率之和为1",
+        "公式为 $p_k = e^{f_k} / \\sum_{j=1}^{K} e^{f_j}$，利用指数函数保证非负性",
+        "Softmax 在 Transformer 的 Attention 机制和语言模型输出层中广泛使用"
+      ]
+    },
+    {
+      "page": 41,
+      "explanation": "## 更复杂的神经网络结构与 Softmax\n\n这张幻灯片展示了一个完整的多层神经网络（Multi-layer Neural Network）的结构图，并说明 softmax 如何应用于网络的输出。\n\n### 网络结构\n\n幻灯片描绘了一个经典的三层前馈神经网络：\n\n1. **输入层（Input Layer）**：接收原始输入特征 $x$\n2. **隐藏层（Hidden Layer）**：通过权重矩阵和激活函数进行非线性变换，提取高层特征\n3. **输出层（Output Layer）**：产生 $K$ 个原始输出 $f_1, f_2, \\ldots, f_K$\n\n### Softmax 的应用\n\n网络的输出 $f_1, f_2, \\ldots, f_K$ 经过 softmax 函数转换为概率：\n\n$$p_1, p_2, \\ldots, p_K = \\text{softmax}(f_1, f_2, \\ldots, f_K)$$\n\n每个 $p_k$ 表示输入属于第 $k$ 类的概率。\n\n### 从简单到复杂\n\n标题中的\"More complicated neural networks\"暗示，之前可能讨论了简单的线性分类器或单层感知机。加入隐藏层后，网络具备了学习**非线性决策边界**的能力。隐藏层的作用相当于自动进行特征工程（feature engineering），将原始输入映射到一个更容易分类的表示空间。\n\n### 与 Foundation Models 的联系\n\n这种\"输入 → 隐藏层变换 → 输出 + softmax\"的范式是所有深度学习模型的基础。在 Foundation Models 中，隐藏层变得极其复杂（如 Transformer 的多头注意力层和前馈层堆叠数十甚至上百层），但最终输出层 + softmax 的基本思想保持不变。",
+      "keyPoints": [
+        "完整的神经网络包含输入层、隐藏层和输出层，隐藏层赋予网络非线性建模能力",
+        "输出层的 $K$ 个值通过 softmax 转化为 $K$ 个类别的概率分布",
+        "这种架构是所有深度学习模型（包括 Transformer）的基本范式"
+      ]
+    },
+    {
+      "page": 42,
+      "explanation": "## 图示幻灯片\n\n这张幻灯片没有可提取的文本，很可能包含一个图像或图表。根据前后文的上下文（Softmax 和多层神经网络），这张幻灯片最可能展示以下内容之一：\n\n### 可能的内容\n\n1. **神经网络计算流程的详细图示**：展示数据从输入层经过隐藏层到输出层，最后通过 softmax 的完整前向传播过程，可能标注了权重矩阵 $W$、偏置 $b$、激活函数等。\n\n2. **Softmax 的可视化**：可能展示了原始 logits 值如何被 softmax 转换为概率分布的柱状图对比，直观说明 softmax 的\"放大\"和\"归一化\"效果。\n\n3. **决策边界的可视化**：展示简单线性分类器 vs. 多层神经网络在分类任务上的决策边界差异，说明隐藏层如何帮助学习复杂的非线性边界。\n\n4. **损失函数相关图示**：可能展示交叉熵损失（cross-entropy loss）与 softmax 输出的关系，因为 softmax + cross-entropy 是多分类问题的标准组合。\n\n### 学习建议\n\n建议同学参考原始课件中的图片，结合前两张幻灯片的内容理解。核心要点是理解 softmax 在多分类神经网络中的作用以及多层网络的前向传播流程。",
+      "keyPoints": [
+        "该幻灯片为纯图示内容，建议参考原始课件查看",
+        "结合前文理解 softmax 与多层神经网络的整体计算流程"
+      ]
+    },
+    {
+      "page": 43,
+      "explanation": "这张幻灯片展示的是一个神经网络结构的示意图（图片幻灯片）。根据上下文推断，这应该是一个简单的前馈神经网络（feedforward neural network）的可视化图示，用于引入神经网络的基本概念。\n\n神经网络的基本结构包括：\n- **输入层（Input Layer）**：接收原始数据特征\n- **隐藏层（Hidden Layer）**：对输入进行非线性变换，提取更高层次的特征\n- **输出层（Output Layer）**：产生最终的预测结果\n\n每一层由多个**神经元（neurons）**组成，层与层之间通过**权重（weights）**连接。每个神经元接收上一层的输出，进行加权求和后通过一个**激活函数（activation function）**产生输出。\n\n数学上，对于单个神经元，其计算为：\n$$z = \\sum_{i} w_i x_i + b, \\quad a = \\sigma(z)$$\n其中 $w_i$ 是权重，$b$ 是偏置，$\\sigma$ 是激活函数（如 ReLU、Sigmoid 等）。\n\n这种多层结构是现代 Foundation Models（如 GPT、BERT）的基础。Transformer 架构本质上也是由大量神经元层叠组成的深度网络，只是引入了 self-attention 机制来替代传统的全连接或卷积结构。理解基本的神经网络结构是理解更复杂模型的前提。",
+      "keyPoints": [
+        "神经网络由输入层、隐藏层和输出层组成，层间通过权重连接",
+        "每个神经元执行加权求和加偏置后通过激活函数输出",
+        "这种基本结构是所有深度学习模型（包括 Transformer）的基础"
+      ]
+    },
+    {
+      "page": 44,
+      "explanation": "这张幻灯片以**猫狗分类（Classify cats vs. dogs）**为例，展示了一个具体的神经网络结构，并引出核心问题：**如何训练神经网络？**\n\n网络结构包括：\n- **输入层（Input）**：接收图像数据（如像素值）\n- **隐藏层（Hidden layer）**：包含 **100 个神经元**，负责学习图像的中间特征表示\n- **输出层（Output）**：输出分类结果（猫或狗）\n\n猫狗分类是一个经典的**二分类问题（binary classification）**。输入是一张图片的特征向量 $\\mathbf{x} \\in \\mathbb{R}^d$（例如将图片展平为一维向量），经过隐藏层的变换后，输出层产生一个预测值。\n\n隐藏层有 100 个神经元意味着：\n$$\\mathbf{h} = \\sigma(W_1 \\mathbf{x} + \\mathbf{b}_1), \\quad \\mathbf{h} \\in \\mathbb{R}^{100}$$\n其中 $W_1 \\in \\mathbb{R}^{100 \\times d}$ 是第一层权重矩阵。\n\n这个例子虽然简单，但它引出了深度学习最核心的问题——**训练（training）**。现代 Foundation Models 如 GPT-4 拥有数十亿参数，但训练的基本原理与这个 100 神经元的网络是一致的：都需要通过某种优化算法来调整权重，使得模型输出尽可能接近真实标签。",
+      "keyPoints": [
+        "猫狗分类是经典的二分类任务，用于演示神经网络的基本应用",
+        "隐藏层有 100 个神经元，将输入映射到 100 维的中间表示",
+        "核心问题是如何训练网络——即如何确定所有权重的值"
+      ]
+    },
+    {
+      "page": 45,
+      "explanation": "这张幻灯片正式定义了**二分类问题（Binary Classification）**下神经网络训练的基本框架。\n\n**符号定义：**\n- $\\mathbf{x} \\in \\mathbb{R}^d$：训练集 $D$ 中的一个训练数据点，是 $d$ 维特征向量\n- $\\hat{y} \\in [0, 1]$：模型对输入 $\\mathbf{x}$ 的预测输出（通常通过 Sigmoid 函数将输出压缩到 $[0,1]$ 区间）\n- $y$：样本 $\\mathbf{x}$ 对应的**真实标签（ground truth label）**，取值为 0 或 1\n\n**训练的核心思想——Learning by matching：**\n训练的目标是让模型输出 $\\hat{y}$ 尽可能匹配真实标签 $y$：\n- 当 $y = 1$ 时，希望 $\\hat{y} \\to 1$\n- 当 $y = 0$ 时，希望 $\\hat{y} \\to 0$\n\n**关键洞察：** $\\hat{y}$ 是所有权重 $W$ 的函数，即 $\\hat{y} = g(W)$。这意味着训练过程本质上是一个**优化问题**——我们需要找到最优的权重 $W^*$，使得模型在所有训练样本上的输出与真实标签之间的差距最小化。\n\n这个 \"matching\" 的度量通常通过**损失函数（loss function）**来量化。对于二分类问题，最常用的是**二元交叉熵（Binary Cross-Entropy）**：\n$$\\mathcal{L} = -[y \\log \\hat{y} + (1-y) \\log(1-\\hat{y})]$$\n\n这个框架是所有监督学习的基础，也是 Foundation Models 预训练的起点——只是 Foundation Models 的 \"标签\" 可能是下一个 token（GPT）或被遮盖的词（BERT），但 \"让输出匹配目标\" 的核心思想是完全一致的。",
+      "keyPoints": [
+        "训练的核心思想是让模型输出 $\\hat{y}$ 匹配真实标签 $y$（learning by matching）",
+        "$\\hat{y} = g(W)$ 表明预测是所有权重的函数，训练就是优化权重的过程",
+        "二分类中 $\\hat{y} \\in [0,1]$，通常使用 Sigmoid 激活和交叉熵损失",
+        "这一框架是 Foundation Models 预训练（如 next-token prediction）的基础"
+      ]
+    },
+    {
+      "page": 46,
+      "explanation": "## 神经网络的训练：二元交叉熵损失函数\n\n这张幻灯片展示了如何训练一个用于**二元分类（Binary Classification）**任务的神经网络，重点介绍了损失函数的选择。\n\n### 网络结构\n幻灯片左侧展示了一个简单的神经网络结构：输入层 → 隐藏层（100个神经元） → 输出层。这是一个典型的前馈神经网络（feedforward neural network）。\n\n### 损失函数：二元交叉熵\n对于二元分类问题，我们使用**负对数似然（Negative Log Likelihood）**作为损失函数，也称为**二元交叉熵损失（Binary Cross-Entropy Loss）**：\n\n$$\\ell(\\mathbf{x}, y) = -y \\log(\\hat{y}) - (1 - y) \\log(1 - \\hat{y})$$\n\n其中 $y \\in \\{0, 1\\}$ 是真实标签，$\\hat{y}$ 是模型预测的概率值（通常通过 sigmoid 函数输出）。\n\n**直觉理解**：\n- 当 $y = 1$ 时，损失为 $-\\log(\\hat{y})$，如果模型预测 $\\hat{y}$ 接近 1，损失趋近于 0；如果 $\\hat{y}$ 接近 0，损失趋向无穷大。\n- 当 $y = 0$ 时，损失为 $-\\log(1 - \\hat{y})$，逻辑相反。\n- 这个损失函数本质上是在惩罚模型对正确类别的预测概率不够高的情况。\n\n### 整体损失\n在整个数据集 $D$ 上的损失是所有样本损失的平均值：\n\n$$\\frac{1}{|D|} \\sum_{(\\mathbf{x}, y) \\in D} \\ell(\\mathbf{x}, y)$$\n\n### 与大语言模型的联系\n幻灯片特别强调\"我们将在 LLM 中一直使用这个损失函数\"。在大语言模型（如 GPT）中，虽然输出不是二元分类，而是多类别的 token 预测，但核心思想完全相同——使用**交叉熵损失**来衡量模型预测的概率分布与真实分布之间的差异。GPT 的训练目标就是最小化下一个 token 预测的交叉熵损失，这是 binary cross-entropy 的自然推广。",
+      "keyPoints": [
+        "二元交叉熵损失 $\\ell(\\mathbf{x}, y) = -y\\log(\\hat{y}) - (1-y)\\log(1-\\hat{y})$ 是二元分类任务的标准损失函数",
+        "整体训练损失是数据集中所有样本损失的平均值",
+        "交叉熵损失的核心思想将直接推广到 LLM 的训练中，用于 token 级别的预测"
+      ]
+    },
+    {
+      "page": 47,
+      "explanation": "## 图示幻灯片\n\n这张幻灯片似乎是一张图片或图表，没有可提取的文字内容。根据上下文推断，它很可能展示了以下内容之一：\n\n1. **二元交叉熵损失函数的图形**：展示 $-\\log(\\hat{y})$ 和 $-\\log(1-\\hat{y})$ 随 $\\hat{y}$ 变化的曲线。当预测正确时损失接近 0，当预测错误时损失急剧增大，呈现出类似\"悬崖\"的形状，这给了模型强烈的梯度信号来纠正错误预测。\n\n2. **神经网络训练过程的可视化**：可能展示了梯度下降优化过程、损失曲线下降的趋势，或者决策边界如何随训练迭代逐步形成。\n\n3. **前向传播/反向传播的图示**：展示数据如何在网络中流动，以及梯度如何反向传播更新权重。\n\n由于无法确认具体内容，建议同学们参考课程录像或 slides PDF 查看原始图片，理解其与前一张幻灯片（二元交叉熵损失函数）的关联。",
+      "keyPoints": [
+        "该幻灯片为图示内容，建议查看原始课件获取完整信息",
+        "可能展示了交叉熵损失函数的曲线或神经网络训练过程的可视化"
+      ]
+    }
+  ]
+}
