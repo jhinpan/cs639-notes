@@ -5,28 +5,42 @@
   "slides": [
     {
       "page": 1,
-      "explanation": "Content generation failed for this slide.",
+      "explanation": "课程行政信息，跳过。",
       "keyPoints": []
     },
     {
       "page": 2,
-      "explanation": "Content generation failed for this slide.",
+      "explanation": "课程行政信息，跳过。",
       "keyPoints": []
     },
     {
       "page": 3,
-      "explanation": "Content generation failed for this slide.",
-      "keyPoints": []
+      "explanation": "这张幻灯片展示了本次课程（Architectures II）的大纲，涵盖两个核心主题：\n\n## 1. Encoder-only 模型\n本次课将首先完成上节课未讲完的 **Encoder-only** 架构内容。核心示例是 **BERT（Bidirectional Encoder Representations from Transformers）**。BERT 是 Transformer 架构中仅使用 Encoder 部分的代表性模型。幻灯片提到将讨论：\n- **Architecture（架构）**：BERT 使用多层 Transformer Encoder，每一层包含 multi-head self-attention 和 feed-forward network。关键特点是 **双向注意力（bidirectional attention）**，即每个 token 可以同时关注左右两侧的上下文，这与 decoder-only 模型的单向（causal）attention 形成对比。\n- **Multitask Training（多任务训练）**：BERT 的预训练包含两个任务——**Masked Language Modeling (MLM)** 和 **Next Sentence Prediction (NSP)**。MLM 随机遮盖输入中约 15% 的 token，让模型预测被遮盖的词；NSP 训练模型判断两个句子是否连续。\n- **Fine-tuning（微调）**：BERT 的设计哲学是 \"pre-train then fine-tune\"，预训练后可以在下游任务（如分类、问答、NER）上微调，只需加上简单的任务头。\n\n## 2. Decoder-only 模型\n第二部分讨论 **Decoder-only** 架构，核心示例是 **GPT（Generative Pre-trained Transformer）**。将涵盖：\n- **Architecture（架构）**：GPT 使用 Transformer 的 Decoder 部分，采用 **causal（自回归）attention mask**，确保生成第 $t$ 个 token 时只能看到位置 $1, 2, \\ldots, t-1$ 的信息。\n- **Basic Functionality（基本功能）**：自回归生成，即逐 token 生成序列，每次基于已生成的所有 token 预测下一个 token：$P(x_t | x_1, x_2, \\ldots, x_{t-1})$。\n- **Properties of New Models（新模型特性）**：讨论现代大规模 decoder-only 模型（如 GPT-3/4）展现出的涌现能力（emergent abilities）、in-context learning 等特性。\n\n这两种架构代表了 Foundation Models 中最重要的两大范式：BERT 代表理解型模型，GPT 代表生成型模型。理解它们的异同是掌握现代基础模型的关键。",
+      "keyPoints": [
+        "Encoder-only 模型（以 BERT 为例）使用双向注意力机制，通过 MLM 和 NSP 进行多任务预训练，适合理解型任务",
+        "Decoder-only 模型（以 GPT 为例）使用因果注意力掩码进行自回归生成，是当前最主流的大语言模型架构",
+        "BERT 的核心范式是 pre-train + fine-tune，而 GPT 系列逐渐发展出 in-context learning 等新能力",
+        "理解 Encoder-only 与 Decoder-only 的架构差异（双向 vs 单向注意力）是本讲的核心目标"
+      ]
     },
     {
       "page": 4,
-      "explanation": "Content generation failed for this slide.",
-      "keyPoints": []
+      "explanation": "这张幻灯片展示了本次课程（Architectures II）的整体大纲，帮助学生了解课程的组织结构和学习路线。\n\n课程内容分为两大部分：\n\n**第一部分：Encoder-only 模型**\n- 继续上节课未完成的内容，重点讲解 Encoder-only 架构\n- 以 **BERT**（Bidirectional Encoder Representations from Transformers）为核心示例\n- 涵盖 BERT 的架构设计、多任务训练（multitask training）以及微调（fine-tuning）策略\n\n**第二部分：Decoder-only 模型**\n- 以 **GPT**（Generative Pre-trained Transformer）为核心示例\n- 涵盖 GPT 的架构设计、基本功能，以及新一代模型所展现的涌现性质（properties of new models）\n\n这个大纲的设计逻辑非常清晰：在上一讲（Architectures I）中，课程应该已经介绍了完整的 Encoder-Decoder 架构（如原始 Transformer 用于机器翻译），本讲则分别拆解为 Encoder-only 和 Decoder-only 两种变体。这三种架构——Encoder-Decoder、Encoder-only、Decoder-only——构成了当代基础模型（Foundation Models）的三大架构范式。理解它们各自的设计动机、适用场景和优缺点，是理解整个基础模型领域的关键基础。\n\nBERT 和 GPT 是这两种架构最具代表性的模型：BERT 代表了理解型（understanding）任务的范式，而 GPT 代表了生成型（generation）任务的范式，后者更是当今大语言模型（如 GPT-4、LLaMA 等）的核心架构基础。",
+      "keyPoints": [
+        "本讲覆盖两大架构：Encoder-only（以 BERT 为例）和 Decoder-only（以 GPT 为例）",
+        "BERT 重点关注架构、多任务预训练和微调；GPT 重点关注架构、功能和新模型的涌现性质",
+        "这三种架构范式（Encoder-Decoder、Encoder-only、Decoder-only）是理解基础模型的核心框架"
+      ]
     },
     {
       "page": 5,
-      "explanation": "Content generation failed for this slide.",
-      "keyPoints": []
+      "explanation": "这张幻灯片从设计动机的角度解释了为什么会从 Encoder-Decoder 架构衍生出 Encoder-only 和 Decoder-only 两种变体。这是一个非常关键的概念性幻灯片。\n\n**Encoder-Decoder 的设计初衷**\n\n原始的 Encoder-Decoder Transformer 是为机器翻译设计的，它需要同时满足两个需求：\n1. **输出是自然语言**（Outputs in natural language）：模型需要逐 token 生成流畅的目标语言句子，这需要自回归解码能力（Decoder 的职责）\n2. **与输入紧密对齐**（Tight alignment with input）：翻译要求输出与输入语义高度一致，Encoder 通过双向注意力充分理解输入，Decoder 通过 cross-attention 与 Encoder 的表示对齐\n\n**放松约束 → 新架构**\n\n幻灯片提出一个关键问题：**如果我们放松（relax）这些约束会怎样？**\n\n- **放松约束 1**（不需要生成自然语言输出）→ **Encoder-only 模型**：如果我们的任务不需要生成文本，而只需要理解输入（如分类、命名实体识别、句子相似度），那就不需要 Decoder。BERT 就是这样的模型，它只保留 Encoder 部分，输出的是输入的深层表示（representations），而非自然语言序列。\n\n- **放松约束 2**（不需要与特定输入紧密对齐）→ **Decoder-only 模型**：如果我们的任务是自由生成文本（如续写、对话、创作），不需要一个专门的 Encoder 来编码某个固定输入，那就可以只保留 Decoder。GPT 系列就是这样的模型，输入和输出共享同一个 Decoder，通过自回归方式逐步生成。\n\n这个 \"relaxation\" 的思维框架非常优雅，它揭示了架构选择背后的任务驱动逻辑。",
+      "keyPoints": [
+        "Encoder-Decoder 为翻译设计，需同时满足：生成自然语言输出 + 与输入紧密对齐",
+        "放松「生成自然语言」约束 → Encoder-only（如 BERT），专注于输入的理解和表示",
+        "放松「与输入对齐」约束 → Decoder-only（如 GPT），专注于自由文本生成",
+        "架构选择本质上由任务需求驱动：理解型任务选 Encoder-only，生成型任务选 Decoder-only"
+      ]
     },
     {
       "page": 6,

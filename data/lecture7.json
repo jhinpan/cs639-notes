@@ -5,10 +5,10 @@
   "slides": [
     {
       "page": 1,
-      "explanation": "这是课程「CS 639: Foundation Models」关于 Transformers 与 Attention 机制第一讲的标题页。本讲由 UW-Madison 的 Fred Sala 教授于 2026 年 2 月 10 日讲授。\n\nTransformers 和 Attention 机制是现代基础模型（Foundation Models）的核心架构。从 2017 年 Google 的论文 \"Attention is All You Need\" 开始，Transformer 架构彻底改变了自然语言处理（NLP）领域，并逐步扩展到计算机视觉、语音处理、蛋白质结构预测等多个领域。GPT、BERT、T5、ViT 等著名模型都是基于 Transformer 架构构建的。因此，深入理解 Attention 机制和 Transformer 架构是学习基础模型的必备基础。\n\n本讲是两讲中的第一讲，将重点介绍 Attention 的基本概念、Self-Attention、Query-Key-Value（QKV）框架等核心内容。",
+      "explanation": "这是课程 CS 639: Foundation Models 的标题幻灯片，介绍本次讲座的主题：**Transformers & Attention I**。这是关于 Transformer 架构和注意力机制的第一讲，由威斯康星大学麦迪逊分校的 Fred Sala 教授主讲，日期为2026年2月10日。\n\nTransformer 是现代基础模型（Foundation Models）的核心架构，几乎所有主流大语言模型（如 GPT、BERT、LLaMA、PaLM 等）都基于 Transformer 构建。理解 Transformer 和注意力机制是理解整个基础模型领域的关键基石。\n\n注意力机制（Attention）最初在序列到序列（seq2seq）模型中被提出，用于解决 RNN/LSTM 在处理长序列时的信息瓶颈问题。2017年 Vaswani 等人发表的里程碑论文 \"Attention is All You Need\" 提出了完全基于注意力机制的 Transformer 架构，彻底改变了 NLP 乃至整个深度学习领域。本讲将是深入理解这一革命性架构的起点。",
       "keyPoints": [
-        "Transformers 和 Attention 是现代基础模型的核心架构",
-        "本讲是两讲系列中的第一部分，聚焦基本注意力机制"
+        "Transformer 和注意力机制是基础模型课程的核心内容",
+        "几乎所有现代大语言模型（GPT、BERT等）都基于 Transformer 架构"
       ]
     },
     {
@@ -18,128 +18,133 @@
     },
     {
       "page": 3,
-      "explanation": "这是本讲的大纲（Outline）页面，概述了三大模块的内容：\n\n**1. Basic Attention（基本注意力机制）**\n- 注意力的基本概念（Notions of Attention）\n- 自注意力（Self-Attention）\n- 基本注意力层（Basic Attention Layer）\n- QKV（Query-Key-Value）的设置与直觉理解\n\n**2. Additional Elements（附加元素）**\n- 多头注意力（Multi-Head Attention）：允许模型在不同的子空间中同时关注不同位置的信息\n- 位置编码（Positional Encodings）：由于 Transformer 本身没有序列顺序信息，需要通过位置编码注入位置信息\n\n**3. Transformers（Transformer 架构）**\n- 整体架构（Architecture）\n- 编码器（Encoder）和解码器（Decoder）的设置\n\n这三个模块从底层机制到完整架构，层层递进。理解 QKV 是理解 Self-Attention 的关键；Multi-Head Attention 和 Positional Encoding 是让 Transformer 真正强大的重要补充；最终的 Encoder-Decoder 架构将这些组件整合为完整的模型。这个知识框架对于理解 GPT（Decoder-only）、BERT（Encoder-only）、T5（Encoder-Decoder）等不同变体至关重要。",
+      "explanation": "这张幻灯片展示了本次讲座的**大纲（Outline）**，将内容分为三个主要部分：\n\n## 1. Basic Attention（基础注意力）\n本部分将介绍注意力的基本概念，包括：\n- **注意力的基本概念（Notions of attention）**：注意力机制的核心思想是让模型在处理某个位置时，能够\"关注\"输入序列中所有位置的信息，并根据相关性分配不同的权重。可以类比人类阅读时会根据上下文重点关注某些关键词。\n- **自注意力（Self-attention）**：输入序列对自身计算注意力，即每个 token 与同一序列中所有其他 token 计算相关性。这是 Transformer 区别于 RNN 的核心创新。\n- **基本注意力层（Basic attention layer）**：注意力的具体计算层实现。\n- **QKV 设置与直觉（QKV setup and intuition）**：Query（查询）、Key（键）、Value（值）的三元组框架。直觉上，Q 代表\"我在找什么\"，K 代表\"我有什么\"，V 代表\"我实际提供的信息\"。注意力分数通过 $\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$ 计算。\n\n## 2. Additional Elements（附加元素）\n- **多头注意力（Multi-head attention）**：将注意力计算并行地在多个\"头\"上执行，每个头学习不同的注意力模式（如语法关系、语义关系等）。\n- **位置编码（Positional encodings）**：由于 Transformer 没有 RNN 的递归结构，需要额外注入位置信息，让模型知道 token 的顺序。\n\n## 3. Transformers（Transformer 架构）\n- **架构总览**：整体结构，包括层的堆叠、残差连接、层归一化等。\n- **编码器和解码器设置（Encoder and decoder setups）**：Encoder-only（如 BERT）、Decoder-only（如 GPT）和 Encoder-Decoder（如原始 Transformer、T5）的不同变体。\n\n这三部分从基础到完整架构，层层递进，构建了对 Transformer 的全面理解。",
       "keyPoints": [
-        "本讲包含三大模块：基本注意力、附加元素、Transformer 架构",
-        "从 QKV 基本概念出发，逐步构建到完整的 Transformer 架构",
-        "Multi-Head Attention 和 Positional Encoding 是 Transformer 的重要补充组件"
+        "讲座分三部分：基础注意力（含QKV机制）、附加元素（多头注意力和位置编码）、Transformer完整架构",
+        "QKV（Query-Key-Value）框架是理解注意力机制的关键：Q是查询，K是键，V是值",
+        "多头注意力允许模型同时学习多种不同的注意力模式",
+        "Transformer 架构有三种主要变体：Encoder-only、Decoder-only 和 Encoder-Decoder"
       ]
     },
     {
       "page": 4,
-      "explanation": "这是与第 3 页相同的大纲页面的重复，可能用于在讲课过程中标记当前所处的位置（即即将进入 Basic Attention 模块）。在课堂演示中，教授通常会在进入每个新模块前重新展示大纲页，以帮助学生了解课程进度和当前上下文。\n\n当前高亮的部分是 **Basic Attention**，即基本注意力机制，包括：\n- 注意力的各种概念定义\n- 自注意力（Self-Attention）\n- 基本注意力层\n- QKV 设置与直觉理解\n\n这是本讲最核心的内容，理解了这些概念之后，后续的 Multi-Head Attention、Positional Encoding 以及完整 Transformer 架构都是在此基础上的扩展。",
+      "explanation": "这张幻灯片展示了本次Lecture的大纲，分为三大部分：\n\n**1. Basic Attention（基本注意力机制）**\n- 注意力的基本概念、自注意力（self-attention）、基本注意力层、QKV（Query-Key-Value）的设置和直觉理解\n- 这是理解Transformer的核心基础\n\n**2. Additional Elements（附加组件）**\n- 多头注意力（Multi-head attention）：允许模型同时关注不同位置的不同表示子空间\n- 位置编码（Positional encodings）：由于注意力机制本身不包含序列顺序信息，位置编码是弥补这一缺陷的关键设计\n\n**3. Transformers（Transformer架构）**\n- 整体架构介绍\n- Encoder和Decoder的设置：Encoder-only（如BERT）、Decoder-only（如GPT）、Encoder-Decoder（如原始Transformer、T5）\n\n这三部分从底层机制到完整架构，层层递进。注意力机制是现代Foundation Models的核心构建模块，理解这条主线对于掌握GPT、BERT、Vision Transformer等所有主流基础模型至关重要。本次Lecture的内容对应了2017年经典论文\"Attention Is All You Need\"的核心思想。",
       "keyPoints": [
-        "大纲重复页，标记即将进入 Basic Attention 模块",
-        "Basic Attention 是本讲最核心的内容"
+        "本次Lecture从基本注意力机制出发，逐步构建到完整的Transformer架构",
+        "三大核心内容：注意力机制（QKV）、多头注意力与位置编码、Transformer的Encoder-Decoder架构",
+        "这些概念是理解所有现代基础模型（GPT、BERT等）的必备知识"
       ]
     },
     {
       "page": 5,
-      "explanation": "这张幻灯片回顾了 RNN（循环神经网络）的结构，并指出了其关键瓶颈——这正是 Attention 机制被发明的动机。\n\n**RNN 的结构回顾：**\n\n幻灯片展示了一个标准的 RNN 展开图。在每个时间步 $t$：\n\n1. **激活值计算**：$a^{(t)} = b + W s^{(t-1)} + U x^{(t)}$，其中 $b$ 是偏置，$W$ 是状态到状态的权重矩阵，$U$ 是输入到状态的权重矩阵\n2. **状态更新**：$s^{(t)} = \\tanh(a^{(t)})$，通过 tanh 激活函数产生新的隐藏状态\n3. **输出计算**：$o^{(t)} = c + V s^{(t)}$，其中 $V$ 是状态到输出的权重矩阵\n4. **预测**：$\\hat{y}^{(t)} = \\text{softmax}(o^{(t)})$\n5. **损失**：$L^{(t)} = \\text{CrossEntropy}(y^{(t)}, \\hat{y}^{(t)})$\n\n**核心问题——信息瓶颈（Bottleneck）：**\n\n在 RNN 中，所有过去的信息都必须压缩到一个**固定长度的上下文向量** $s^{(t)}$ 中。无论输入序列有多长（10 个词还是 1000 个词），历史信息都被压缩到同一个固定维度的向量中。这就像试图把一本书的所有内容塞进一张便签纸——早期的信息在长序列传递中会逐渐丢失（梯度消失问题）。\n\n这个瓶颈直接催生了 Attention 机制的发展：与其让所有信息挤过一个固定大小的\"管道\"，不如让模型在每一步都能直接\"回看\"之前所有时间步的隐藏状态，并动态选择哪些信息是当前最相关的。这就是 Attention 的核心思想。\n\n从历史角度看，Attention 最早由 Bahdanau et al. (2014) 在机器翻译的 Encoder-Decoder RNN 中引入，后来 Vaswani et al. (2017) 在 \"Attention is All You Need\" 中完全抛弃了 RNN 结构，仅用 Attention 构建了 Transformer。",
+      "explanation": "这张幻灯片回顾了RNN（循环神经网络）的结构，为引出注意力机制做铺垫。\n\n**RNN的核心问题：固定长度的上下文向量**\n\n在RNN中，所有历史信息都必须压缩进一个固定维度的隐藏状态 $s^{(t)}$ 中。其计算过程如下：\n\n$$a^{(t)} = b + Ws^{(t-1)} + Ux^{(t)}$$\n$$s^{(t)} = \\tanh(a^{(t)})$$\n$$o^{(t)} = c + Vs^{(t)}$$\n$$\\hat{y}^{(t)} = \\text{softmax}(o^{(t)})$$\n$$L^{(t)} = \\text{CrossEntropy}(y^{(t)}, \\hat{y}^{(t)})$$\n\n其中 $W$ 是状态到状态的权重矩阵，$U$ 是输入到状态的权重矩阵，$V$ 是状态到输出的权重矩阵。\n\n**关键瓶颈**：隐藏状态 $s^{(t)}$ 是一个固定长度的向量，它必须编码从 $x^{(1)}$ 到 $x^{(t)}$ 所有时间步的信息。可以把它想象成一个固定容量的\"瓶子\"——无论句子有多长、信息有多复杂，都必须挤进同一个瓶子里。\n\n当序列很长时，早期的信息会在不断传递中被\"冲淡\"甚至丢失（即使LSTM/GRU有所缓解，本质问题依然存在）。这就是所谓的\"信息瓶颈\"（information bottleneck）问题。\n\n这个局限性直接催生了注意力机制的发明：与其把所有信息压缩进一个固定向量，不如让模型在每一步都能\"回头看\"所有历史信息，并动态选择关注哪些部分。",
       "keyPoints": [
-        "RNN 将所有历史信息压缩到一个固定长度的隐藏状态向量 $s^{(t)}$ 中，这是严重的信息瓶颈",
-        "长序列中早期信息容易丢失（梯度消失），这催生了 Attention 机制的发明",
-        "Attention 的核心思想：让模型动态地\"回看\"所有历史状态，而非仅依赖固定大小的上下文向量",
-        "RNN 的公式：$s^{(t)} = \\tanh(b + W s^{(t-1)} + U x^{(t)})$，参数 $W, U, V$ 在所有时间步共享"
+        "RNN将所有历史信息压缩进固定长度的隐藏状态 $s^{(t)}$，形成信息瓶颈",
+        "RNN的计算是顺序的：$s^{(t)} = \\tanh(b + Ws^{(t-1)} + Ux^{(t)})$，每步依赖前一步",
+        "固定长度上下文向量的局限性是注意力机制诞生的直接动机"
       ]
     },
     {
       "page": 6,
-      "explanation": "## 注意力机制的历史背景\n\n这张幻灯片介绍了 Attention（注意力机制）诞生的历史动机。\n\n### 核心问题：固定长度的上下文向量不够用\n\n在早期的 Seq2Seq 模型（如基于 RNN/LSTM 的编码器-解码器架构）中，编码器将整个输入序列压缩成一个**固定长度的上下文向量**（fixed-length context vector）。这个向量需要承载整个输入句子的所有信息，然后解码器仅依赖这个向量来生成输出。\n\n这带来了严重的问题：\n1. **词与词之间存在依赖关系**（dependencies）：例如代词指代、主谓一致等\n2. **依赖关系是复杂的**：可能是长距离的、非线性的\n3. 当句子变长时，一个固定维度的向量无法有效编码所有信息，导致**信息瓶颈**（information bottleneck）\n\n### 解决思路\n\n我们需要一种机制让模型在生成每个输出时，能够**聚焦于输入的正确部分**（focus on the right \"part\"）。这就是注意力机制的核心思想。\n\n### 里程碑工作：Bahdanau et al., 2014\n\nBahdanau 等人在 2014 年提出了第一个广泛使用的注意力机制，用于机器翻译任务。其核心想法是：解码器在生成每个词时，不仅看固定的上下文向量，而是对编码器所有时间步的隐藏状态计算一个**加权组合**，权重反映了当前解码步与各个编码步的相关程度。\n\n从 2014 年开始，涌现了大量注意力机制的变体和改进方案，为后来 2017 年 Transformer 的诞生奠定了基础。",
+      "explanation": "这张幻灯片阐述了注意力机制诞生的基本动机。\n\n**核心问题：固定长度上下文向量不够用**\n\n为什么不够用？幻灯片给出了三个原因：\n\n1. **词与词之间相互依赖**（Words depend on each other）：例如在\"The cat sat on the mat because it was tired\"中，\"it\"指代的是\"cat\"，两者之间存在依赖关系。\n\n2. **依赖关系是复杂的**（Dependencies are complex）：这些依赖可能跨越很长的距离，也可能是多对多的关系。例如在机器翻译中，源语言和目标语言的词序可能完全不同。\n\n3. **需要一种机制让模型能聚焦于\"正确的部分\"**（Need: mechanism to help model focus on the right \"part\"）：不是所有历史信息都同等重要，模型应该能动态决定关注什么。\n\n**历史背景**：从2014年开始出现了大量的注意力机制方法。其中最具影响力的是 **Bahdanau et al., 2014**（\"Neural Machine Translation by Jointly Learning to Align and Translate\"）。这篇论文首次在序列到序列（seq2seq）的机器翻译模型中引入了注意力机制。\n\nBahdanau的核心思想是：在解码器（decoder）的每一步，不只看最终的隐藏状态，而是计算一个对所有编码器（encoder）隐藏状态的加权和。权重由当前解码状态和每个编码状态的\"相关性\"决定。\n\n可以用一个直觉类比来理解：就像你在阅读一段很长的文章后回答问题时，你不会试图记住每一个字，而是会\"回头翻阅\"，找到与问题最相关的段落来回答。注意力机制就是这个\"回头翻阅\"的过程。\n\n这是从RNN到Transformer的关键过渡步骤。Bahdanau的注意力仍然是在RNN框架内使用的，后来\"Attention Is All You Need\"（2017）则完全去掉了RNN，只用注意力机制。",
       "keyPoints": [
-        "固定长度上下文向量是早期 Seq2Seq 模型的信息瓶颈，无法有效处理长序列和复杂依赖",
-        "注意力机制的核心思想：让模型在每一步能够聚焦于输入中最相关的部分",
-        "Bahdanau et al. (2014) 是注意力机制的里程碑工作，为 Transformer 的出现铺平了道路"
+        "固定长度上下文向量无法有效捕捉长距离、复杂的词间依赖关系",
+        "注意力机制让模型能够动态聚焦于输入序列中最相关的部分",
+        "Bahdanau et al., 2014 是注意力机制的开创性工作，首次应用于神经机器翻译",
+        "这一动机最终推动了Transformer架构（完全基于注意力）的诞生"
       ]
     },
     {
       "page": 7,
-      "explanation": "## Self-Attention（自注意力）的动机\n\n这张幻灯片从 Bahdanau 的 Attention 过渡到了 **Self-Attention**（自注意力），这是 Transformer 架构的核心组件。\n\n### 从 Attention 到 Self-Attention 的演进\n\n之前的 Attention（如 Bahdanau Attention）关注的是**两个不同序列之间的依赖**——编码器序列和解码器序列之间的关系（cross-attention）。\n\n而 **Self-Attention** 关注的是**同一个句子内部词与词之间的依赖关系**（dependencies within the same sentence）。例如：\n- 在句子 \"The animal didn't cross the street because it was too tired\" 中，\"it\" 指代的是 \"animal\"。模型需要在同一句子内捕捉这种依赖。\n\n### 自底向上设计\n\n幻灯片强调了一种 \"from bottom-up\"（自底向上）的设计思路：我们将从零开始设计一个基本的层（layer），而不是直接给出完整架构。这种教学方式帮助我们理解每个设计决策背后的直觉。\n\n### 历史参考\n\n- **Cheng et al., 2016** 是 Self-Attention 早期工作的代表\n- Self-Attention 真正流行开来是从 **2017 年** Vaswani et al. 的论文 \"Attention Is All You Need\" 开始的，这篇论文提出了 Transformer 架构，完全抛弃了 RNN，仅使用 Self-Attention 构建模型\n\nJay Alammar 的可视化资源被引用，这是学习 Transformer 非常优秀的参考资料。",
+      "explanation": "## Self-Attention 的动机\n\n这张幻灯片介绍了 Self-Attention（自注意力）机制的动机和直觉。Self-Attention 从2017年开始（特别是通过 \"Attention Is All You Need\" 这篇论文）被广泛使用，成为 Transformer 架构的核心组件。\n\n### 从底向上的设计思路\n\n课程采用 **bottom-up（自底向上）** 的方式来理解 Self-Attention：先设计一个基本的层（layer），然后逐步构建完整的架构。这与我们学习 CNN 时先理解卷积操作再构建卷积层的思路一致。\n\n### 核心直觉：句子内部的依赖关系\n\nSelf-Attention 的关键动机是捕捉 **同一句子内部词与词之间的依赖关系**（dependencies within the same sentence）。例如，在句子 \"The animal didn't cross the street because it was too tired\" 中，\"it\" 指代的是 \"animal\" 而不是 \"street\"。要正确理解这个句子，模型需要建立 \"it\" 和 \"animal\" 之间的关联。\n\n这与 RNN 不同——RNN 按顺序处理，远距离依赖容易因为梯度消失而丢失。Self-Attention 则允许句子中 **任意两个位置的词直接交互**，不受距离限制，这是它的核心优势。\n\n引用了 Cheng et al., 2016 的工作，说明 Self-Attention 的思想在2017年 Transformer 论文之前就已经有所探索。Jay Alammar 的可视化资源也是理解 Transformer 的经典参考。",
       "keyPoints": [
-        "Self-Attention 关注同一序列内部词与词之间的依赖，而非两个序列之间的关系",
-        "Self-Attention 从 2017 年 Transformer 论文后广泛流行，成为现代 Foundation Model 的核心",
-        "自底向上的设计思路有助于理解 Transformer 每个组件的设计动机"
+        "Self-Attention 的核心动机是捕捉同一句子内部词与词之间的依赖关系",
+        "采用自底向上的方式：先设计基本操作，再构建完整的层",
+        "相比 RNN，Self-Attention 允许任意位置的词直接交互，不受距离限制"
       ]
     },
     {
       "page": 8,
-      "explanation": "## 构建层（Building Layers）——类比卷积层来理解注意力层\n\n这张幻灯片通过与**卷积层**（convolutional layer）的类比，引导我们理解如何构建一个**注意力层**（attention-based layer）。\n\n### 回顾卷积层的构建过程\n\n构建卷积层时我们做了两件事：\n1. **定义一个操作**（operation）：卷积运算（convolution），即用滤波器/卷积核在输入上滑动并计算内积\n2. **决定这个操作如何作用于输入**：从上一层接收输入，通过卷积操作产生本层的输出\n\n### 用同样的思路构建注意力层\n\n现在我们要用完全相同的方法论来构建一个基于注意力的层：\n1. **定义操作**：Self-Attention 运算（后续幻灯片会详细展开）\n2. **决定输入/输出关系**：输入是**词的向量表示**（vectors for words），输出也是一组向量\n\n### 关键思维模型\n\n这种类比非常重要。就像 CNN 中卷积层可以堆叠一样，注意力层也可以堆叠。Transformer 本质上就是由多个注意力层（加上前馈网络层）堆叠而成的深度网络。\n\n每一层的输入是一组向量（每个词/token 一个向量），输出也是一组同样数量的向量（经过变换和交互后的表示）。这种 \"set-to-set\" 的结构是 Transformer 的重要特征。\n\n幻灯片还推荐了 Jay Alammar 的 Illustrated Transformer 可视化资源，这是理解 Transformer 最好的图解教程之一。",
+      "explanation": "## 构建注意力层的思路\n\n这张幻灯片将构建 Attention-based layer 的过程类比于构建 Convolutional layer，帮助学生建立直觉。\n\n### 类比卷积层的构建过程\n\n回顾 CNN 中卷积层的构建：\n1. **定义一个操作**：卷积（convolution），即用一个 filter/kernel 在输入上滑动并计算加权和\n2. **决定如何在输入上应用这个操作**：从前一层获取输入，通过卷积操作产生输出\n\n同样地，构建 Attention-based layer 也遵循这个范式：\n1. **定义核心操作**：注意力计算（attention computation）\n2. **决定输入输出的组织方式**：输入是词的向量表示，输出是经过注意力加权后的新向量表示\n\n### 输入：词向量\n\n注意力层的输入是 **词的向量表示**（vectors for words）。每个词被表示为一个固定维度的向量，这些向量可以来自 Word Embedding 层或前一个注意力层的输出。\n\n这种 **模块化设计思路** 非常重要——无论是卷积层还是注意力层，都是定义一个核心操作，然后规定输入输出的格式。这使得我们可以将多个层堆叠起来形成深层网络。Transformer 正是通过堆叠多个 Attention 层来构建的。\n\n幻灯片推荐了 Jay Alammar 的 Illustrated Transformer（https://jalammar.github.io/illustrated-transformer/），这是理解 Transformer 最好的可视化资源之一。",
       "keyPoints": [
-        "构建注意力层的思路与构建卷积层类似：定义操作 + 决定输入输出关系",
-        "注意力层的输入和输出都是一组词向量，形成可堆叠的层结构",
-        "Transformer 就是由多个注意力层堆叠而成的深度网络"
+        "构建 Attention 层的思路与构建卷积层相同：定义操作 → 决定如何应用于输入产生输出",
+        "Attention 层的输入是词的向量表示，来自 embedding 层或前一层的输出",
+        "模块化设计使得多层堆叠成为可能，这是 Transformer 深层架构的基础"
       ]
     },
     {
       "page": 9,
-      "explanation": "## 词嵌入（Word Embeddings）\n\n这张幻灯片介绍了 **Word Embeddings**（词嵌入），这是注意力层的输入基础。\n\n### 什么是词嵌入？\n\n词嵌入是将词汇表中的每个词映射为一个**固定维度的向量**。例如，\"cat\" 可能被表示为一个 300 维的向量，\"dog\" 也是一个 300 维的向量。语义相近的词在向量空间中距离较近。\n\n### Token 和 Tokenizer\n\n幻灯片澄清了一个重要细节：实际上嵌入对应的不是\"词\"而是 **token**。处理流程是：\n1. **Tokenizer**（分词器）将原始文本拆分成 token。Token 可以是完整的词，也可以是子词（subword）。例如 \"unhappiness\" 可能被拆分为 \"un\"、\"happi\"、\"ness\"\n2. 然后为每个 token 查找或学习对应的嵌入向量\n\n这在现代 Foundation Model（如 GPT、BERT）中非常重要，因为它们使用 BPE（Byte Pair Encoding）等子词分词方法。\n\n### Word2Vec 的直觉\n\n**Word2Vec** 是经典的词嵌入方法，其核心思想是：**词的共现关系（co-occurrences）应该反映在嵌入的距离中**。\n\n如果两个词经常在相似的上下文中出现（如 \"king\" 和 \"queen\"），那么它们的嵌入向量应该在空间中距离较近。这就是分布式语义假设（distributional hypothesis）的体现。\n\n词嵌入是 Transformer 输入的起点：原始文本 → tokenize → 查找嵌入 → 输入到第一个注意力层。",
+      "explanation": "## Word Embeddings（词嵌入）\n\n这张幻灯片介绍了 Word Embeddings 的基本概念，这是构建 Attention 层的前提——我们首先需要把文本转化为向量。\n\n### 什么是 Embedding？\n\nEmbedding 是为词汇表中的每个词分配一个 **固定维度的向量**（fixed-dimensional vector）。例如，词汇表有 50,000 个词，每个词用一个 512 维的向量表示，那么 embedding 矩阵的大小就是 $50000 \\times 512$。\n\n### Token 与 Tokenizer\n\n严格来说，embedding 是为每个 **token** 而非每个 \"word\" 准备的。处理流程是：\n1. **Tokenizer（分词器）** 将原始文本切分为 tokens（可能是词、子词、甚至字符）\n2. 每个 token 对应一个 embedding 向量\n\n现代模型（如 GPT、BERT）通常使用 **subword tokenization**（如 BPE、WordPiece），将不常见的词拆分为更小的子词单元。这样可以在有限的词汇表大小下处理几乎所有文本。\n\n### Word2Vec 的思想\n\nWord2Vec 是经典的词嵌入方法，其核心思想是：**词的共现关系（co-occurrences）映射到嵌入空间中的距离**。经常在相似上下文中出现的词，其 embedding 向量在空间中会更接近。例如，\"king\" 和 \"queen\" 的向量距离会比 \"king\" 和 \"apple\" 更近。\n\n这体现了 **distributional hypothesis**：一个词的含义由其上下文决定（\"You shall know a word by the company it keeps\"）。这个思想在现代 foundation models 中被大大扩展——Transformer 模型中的 contextual embeddings 不仅考虑静态共现，还根据具体上下文动态调整每个词的表示。",
       "keyPoints": [
-        "词嵌入将每个 token 映射为固定维度的向量，是注意力层的输入基础",
-        "实际处理中先用 Tokenizer 将文本拆分为 token（可能是子词），再查找对应嵌入",
-        "Word2Vec 的核心思想：词的共现关系反映在嵌入向量的距离中"
+        "Embedding 为词汇表中每个 token 分配固定维度的向量表示",
+        "文本处理流程：原始文本 → Tokenizer 分词 → 查找每个 token 的 embedding",
+        "Word2Vec 的核心思想：词的共现关系反映在嵌入向量的距离中",
+        "现代模型使用 subword tokenization（如 BPE）来平衡词汇表大小和覆盖率"
       ]
     },
     {
       "page": 10,
-      "explanation": "## Self-Attention 的目标和输入\n\n这张幻灯片明确了设计 Self-Attention 层需要满足的**两个核心目标**，以及层的输入形式。\n\n### 两个设计准则（Two Criteria）\n\n1. **Transform incoming word vectors**（变换输入的词向量）：层需要对每个词的表示进行变换，使得输出的向量包含比输入更丰富、更有用的信息。这类似于卷积层通过卷积操作变换输入特征图。\n\n2. **Enable interactions between words**（实现词与词之间的交互）：这是 Self-Attention 区别于简单全连接层的关键。我们不仅要独立地变换每个词的向量，还要让不同词的信息能够**相互流动和交互**。例如，\"it\" 这个词的输出表示应该融合了它所指代的 \"animal\" 的信息。\n\n### 为什么这两个准则很重要？\n\n如果只有准则 1（变换）没有准则 2（交互），那就退化成了逐位置的前馈网络（position-wise feedforward network），每个词独立处理，无法捕获上下文信息。\n\n如果只有准则 2（交互）没有准则 1（变换），那信息无法被逐层提炼和抽象。\n\n**Self-Attention 的精妙之处在于它同时满足了这两个需求**：通过计算每对词之间的注意力权重（交互），然后用这些权重对所有词的变换后表示进行加权求和（变换+聚合）。\n\n### 输入\n\n输入是一组**词向量**（vectors for words），即上一张幻灯片介绍的词嵌入向量（或上一层的输出向量）。如果句子有 $n$ 个 token，每个向量维度为 $d$，那么输入就是一个 $n \\times d$ 的矩阵。\n\n这张幻灯片为后续详细介绍 Query-Key-Value 机制做了铺垫。",
+      "explanation": "## Self-Attention：目标与输入\n\n这张幻灯片从底层出发，介绍了设计 Self-Attention 层的动机和基本设定。\n\n### 两个核心设计准则\n\n我们需要设计一个基本的神经网络层（layer），它必须满足两个关键要求：\n\n1. **变换输入的词向量（Transform incoming word vectors）**：每个词的表示需要被进一步加工、提炼，使其包含更丰富的语义信息。这类似于传统神经网络中全连接层对输入特征的变换。\n\n2. **实现词与词之间的交互（Enable interactions between words）**：这是 Self-Attention 区别于普通前馈层的关键所在。在一个句子中，每个词的含义往往依赖于其上下文。例如，\"bank\" 在 \"river bank\" 和 \"bank account\" 中含义完全不同。我们需要一种机制让词向量之间能够\"交流\"信息。\n\n### 输入\n\n层的输入是一组**词向量（word vectors）**，即句子中每个词（或 token）对应的向量表示。这些向量可以来自 embedding 层，也可以来自前一个 Transformer 层的输出。\n\n### 为什么这很重要？\n\n传统的全连接层可以做到第一点（变换向量），但无法有效实现第二点（词间交互）。RNN 通过顺序处理实现交互，但存在长距离依赖和并行化问题。Self-Attention 的设计目标就是同时优雅地解决这两个需求——既变换表示，又让所有位置的词可以直接交互，这正是 Transformer 架构的核心创新。",
       "keyPoints": [
-        "Self-Attention 层需要同时满足两个目标：变换词向量 + 实现词间交互",
-        "仅有变换无交互退化为逐位置前馈网络，仅有交互无变换则无法逐层提炼信息",
-        "输入是一组词向量（$n \\times d$ 矩阵），可以是词嵌入或上一层的输出"
+        "Self-Attention 层需要满足两个设计目标：变换词向量 + 实现词间交互",
+        "输入是一组词向量，可来自 embedding 或前一层的输出",
+        "词间交互是 Self-Attention 区别于普通前馈层的关键特性"
       ]
     },
     {
       "page": 11,
-      "explanation": "## Self-Attention的检索直觉\n\n这张幻灯片通过一个非常直观的**搜索类比**来引入Self-Attention的核心思想。\n\n想象你在搜索引擎中输入：\"哪些我附近的餐厅在晚上9点还营业？\"这个搜索过程包含三个关键要素：\n\n1. **Query（查询）**：你的搜索问题——\"晚上9点营业的附近餐厅\"\n2. **Key（键）**：数据库中每个餐厅的标签/属性，比如\"营业时间\"、\"位置\"等\n3. **Value（值）**：每个餐厅的实际详细信息（名称、地址、菜单等）\n\n搜索引擎会用你的Query去和每个餐厅的Key进行**匹配**，产生一个**Score（分数）**。分数高的（如0.7）说明匹配度高，分数低的（如0.3）说明相关性低。最终返回的结果是根据这些分数对Value进行加权。\n\n**Self-Attention的工作方式完全相同**：在一个句子中，每个词都会生成自己的Query、Key和Value。每个词的Query会与所有词的Key进行比较，计算注意力分数，然后用这些分数对所有词的Value进行加权求和。这就是词与词之间\"交互\"(interaction)的方式。\n\n这个检索直觉非常重要，因为它解释了为什么Transformer能够捕捉长距离依赖：每个词都可以直接\"查询\"句子中的任何其他词，不像RNN需要逐步传递信息。这也是Transformer在GPT、BERT等模型中取得巨大成功的基础机制。",
+      "explanation": "## Self-Attention：检索直觉（Retrieval Intuition）\n\n这张幻灯片通过一个搜索/检索的类比来直觉地解释 Self-Attention 的工作原理。\n\n### 搜索类比\n\n想象你在搜索引擎中输入查询：**\"Which restaurants near me are open at 9:00 pm?\"**\n\n搜索系统的工作流程是：\n1. **Query（查询）**：你的搜索请求，代表你想要什么信息\n2. **Key（键）**：数据库中每个条目的索引/标签，用于与 Query 进行匹配\n3. **Score（分数）**：Query 与每个 Key 的匹配程度，例如某个餐厅匹配度为 0.3（不太相关），另一个为 0.7（高度相关）\n4. **Value（值）**：每个条目实际存储的内容/信息\n\n### 映射到 Self-Attention\n\n在 Self-Attention 中，每个词同时扮演三个角色：\n- 作为 **Query**：\"我需要关注哪些其他词？\"\n- 作为 **Key**：\"我能为其他词提供什么样的匹配信号？\"\n- 作为 **Value**：\"如果被关注到，我实际传递什么信息？\"\n\n匹配过程就是计算 Query 与所有 Key 之间的相似度（Score），然后用这些 Score 对 Value 进行加权求和。Score 高的词贡献更多信息，Score 低的词贡献较少。\n\n这个类比非常精确地捕捉了 Attention 机制的本质：**它是一种软性的、可微分的信息检索机制**。这也是为什么 Vaswani 等人在原始 Transformer 论文中使用 Query-Key-Value 这套术语的原因。",
       "keyPoints": [
-        "Self-Attention的核心思想可以用搜索/检索来类比：Query查询、Key匹配、Value返回结果",
-        "每个词生成Query去和所有词的Key比较，产生注意力Score，再加权Value",
-        "这种机制使每个词可以直接关注句子中任意位置的其他词，解决了长距离依赖问题"
+        "Self-Attention 的直觉来源于信息检索：Query 查询、Key 匹配、Score 评分、Value 返回内容",
+        "每个词同时生成 Query、Key、Value 三种向量",
+        "Score 衡量 Query 与 Key 的匹配程度，用于对 Value 加权求和"
       ]
     },
     {
       "page": 12,
-      "explanation": "## Self-Attention：Query、Key、Value向量的生成\n\n这张幻灯片解释了Self-Attention中Query、Key、Value向量是**如何从输入词向量生成的**。\n\n核心思想：对于每个输入词向量 $\\mathbf{x}_i$，我们通过三个不同的**权重矩阵**（线性变换）来生成三个不同角色的向量：\n\n$$\\mathbf{q}_i = W_Q \\mathbf{x}_i \\quad \\text{(Query向量)}$$\n$$\\mathbf{k}_i = W_K \\mathbf{x}_i \\quad \\text{(Key向量)}$$\n$$\\mathbf{v}_i = W_V \\mathbf{x}_i \\quad \\text{(Value向量)}$$\n\n其中 $W_Q, W_K, W_V$ 是可学习的参数矩阵。\n\n**为什么需要三个不同的变换？**\n\n如果Query和Key用同一个向量，那一个词和自己的匹配度总是最高的，这就失去了捕捉词间关系的能力。通过不同的线性变换，模型可以学习到：\n- **Query**代表\"我在寻找什么\"\n- **Key**代表\"我能提供什么信息\"\n- **Value**代表\"如果你选择了我，我给你的实际内容\"\n\n这种设计赋予了模型极大的灵活性。例如在BERT中，这些权重矩阵在预训练过程中学习到丰富的语义匹配模式。在GPT系列模型中，同样的QKV机制被用于自回归生成。\n\n线性变换的简洁性也是Transformer高效的关键——矩阵乘法可以在GPU上高度并行化。",
+      "explanation": "## Self-Attention：Query、Key、Value 向量的生成\n\n这张幻灯片具体说明了如何从输入词向量生成 Query、Key、Value 三种向量。\n\n### 核心方法：线性变换\n\n对于每个输入词向量 $x_i$，我们通过三个**权重矩阵**（weight matrices）进行线性变换来生成 Q、K、V：\n\n$$q_i = W_Q \\cdot x_i$$\n$$k_i = W_K \\cdot x_i$$\n$$v_i = W_V \\cdot x_i$$\n\n其中 $W_Q, W_K, W_V$ 是可学习的参数矩阵。如果输入向量维度为 $d_{model}$，Q 和 K 的维度通常为 $d_k$，V 的维度为 $d_v$。\n\n### 为什么需要三个不同的变换？\n\n这回应了前面提到的两个设计准则：\n\n1. **变换词向量**：通过线性变换 $W_Q, W_K, W_V$，输入向量被投影到不同的语义子空间中。这使得模型能够学习到不同的表示用于不同的目的。\n\n2. **实现词间交互**：Query 向量用于\"提问\"，Key 向量用于\"被匹配\"，Value 向量用于\"传递信息\"。将同一个词投影到三个不同空间，使得匹配过程和信息传递过程解耦，增强了模型的表达能力。\n\n### 直觉理解\n\n如果只用一个向量同时承担 Q、K、V 的角色，模型的灵活性会大大降低。使用三个独立的线性变换，相当于让模型可以学习：\"当我作为查询者时关注什么\"（Q）、\"当我被查询时呈现什么特征\"（K）、\"当我被选中时传递什么内容\"（V）。\n\n在实际的 Transformer 实现（如 GPT、BERT）中，这三个矩阵是模型参数的核心组成部分，通过反向传播端到端学习。",
       "keyPoints": [
-        "Query、Key、Value向量通过三个独立的权重矩阵 $W_Q, W_K, W_V$ 对输入词向量做线性变换得到",
-        "三个不同的变换让模型学习不同的\"角色\"：查询、匹配和内容",
-        "这些权重矩阵是模型训练中学习的参数，线性变换便于GPU并行计算"
+        "Q、K、V 向量通过三个可学习的权重矩阵 $W_Q, W_K, W_V$ 对输入词向量做线性变换得到",
+        "三个独立的变换将同一个词投影到不同语义子空间，分别用于查询、匹配和信息传递",
+        "线性变换同时满足了变换词向量和实现词间交互两个设计目标",
+        "这些权重矩阵是 Transformer 的核心可学习参数"
       ]
     },
     {
       "page": 13,
-      "explanation": "## Self-Attention：分数函数（Score Function）\n\n这张幻灯片讨论了在得到Query和Key向量之后，**如何计算注意力分数**。\n\n有了 $\\mathbf{q}_i$（Query）和 $\\mathbf{k}_j$（Key）向量之后，我们需要衡量它们之间的相似度/相关性。这个分数决定了词 $i$ 应该对词 $j$ 给予多少\"注意力\"。\n\n**选择分数函数的原则：简单通常更好！**\n\n最常用的方法是**点积（Dot Product）**：\n\n$$\\text{score}(i, j) = \\mathbf{q}_i \\cdot \\mathbf{k}_j = \\mathbf{q}_i^T \\mathbf{k}_j$$\n\n点积的直觉：如果两个向量方向相似（语义相关），点积值大；如果方向正交（不相关），点积值接近零。\n\n其他可能的分数函数包括：加性注意力（Additive Attention，Bahdanau Attention）等，但点积因为计算简单且效果好，成为了Transformer的标准选择。\n\n**接下来做Softmax**：将所有分数通过softmax函数转化为概率分布：\n\n$$\\alpha_{ij} = \\text{softmax}_j(\\text{score}(i,j)) = \\frac{\\exp(\\mathbf{q}_i^T \\mathbf{k}_j)}{\\sum_l \\exp(\\mathbf{q}_i^T \\mathbf{k}_l)}$$\n\nSoftmax确保所有注意力权重 $\\alpha_{ij}$ 非负且总和为1，形成有效的概率分布。这样，每个词对其他词的注意力分配就是一个概率分布，体现了\"聚焦\"的效果。",
+      "explanation": "## Self-Attention 中的评分函数（Score Functions）\n\n这张幻灯片介绍了 Self-Attention 机制中最核心的一步：**计算注意力分数（score）**。在上一步中，我们已经通过线性变换得到了 Query、Key、Value 向量，现在需要确定不同 token 之间的\"关注程度\"。\n\n### 评分方式\n\n计算 score 的方式有很多种，但正如幻灯片所说，**\"simpler is usually better\"（越简单通常越好）**。Transformer 采用的是最直观的方式——**点积（Dot Product）**：\n\n$$\\text{score}(q, k) = q \\cdot k = \\sum_i q_i k_i$$\n\n点积的直觉非常自然：如果 Query 向量和 Key 向量方向相似（即它们在语义空间中\"对齐\"），点积值就会大，表示这两个 token 之间应该有更强的关注关系。反之，如果方向不同，点积值小甚至为负，表示关注度低。\n\n### Softmax 归一化\n\n得到 score 后，还需要通过 **softmax** 将所有 score 转换为概率分布：\n\n$$\\alpha_i = \\frac{\\exp(\\text{score}_i)}{\\sum_j \\exp(\\text{score}_j)}$$\n\n这样做的目的是让所有注意力权重之和为1，形成一个概率分布，从而可以对 Value 向量进行加权求和。\n\n幻灯片中的示例显示 score 为 0.3，这是一个 Query 和 Key 点积后的具体数值。在实际的 Transformer（如 GPT、BERT）中，还会有一个 **缩放因子**（scaling factor），即除以 $\\sqrt{d_k}$，这在下一张幻灯片中会涉及。\n\n### 为什么点积好用？\n\n相比于其他评分函数（如加性注意力 additive attention），点积计算效率极高，可以通过矩阵乘法并行完成，这对 GPU 加速至关重要。",
       "keyPoints": [
-        "注意力分数通常用点积计算：$\\text{score}(i,j) = \\mathbf{q}_i^T \\mathbf{k}_j$，简单高效",
-        "点积衡量Query和Key向量的相似度：方向越接近，分数越高",
-        "Softmax将分数转化为概率分布，确保注意力权重非负且归一化"
+        "Self-Attention 使用点积（Dot Product）计算 Query 和 Key 之间的相似度作为注意力分数",
+        "点积后通过 Softmax 将分数归一化为概率分布",
+        "简单的点积评分方式在实践中表现优异且计算效率高"
       ]
     },
     {
       "page": 14,
-      "explanation": "## Self-Attention：打分与缩放（Scoring and Scaling）\n\n这张幻灯片在前几步的基础上，强调了**计算分数**这一步，并暗示了缩放（Scaling）的重要性。\n\n回顾整个流程：\n1. 输入词向量 $\\mathbf{x}_i$\n2. 通过线性变换得到 $\\mathbf{q}_i, \\mathbf{k}_i, \\mathbf{v}_i$\n3. **计算分数并缩放**\n\n在原始Transformer论文\"Attention is All You Need\"中，使用的是**Scaled Dot-Product Attention**：\n\n$$\\text{score}(i,j) = \\frac{\\mathbf{q}_i^T \\mathbf{k}_j}{\\sqrt{d_k}}$$\n\n其中 $d_k$ 是Key向量的维度。\n\n**为什么需要缩放？** 当 $d_k$ 很大时，点积的值可能非常大。如果Query和Key的各分量是均值为0、方差为1的独立随机变量，那么点积 $\\mathbf{q}^T \\mathbf{k}$ 的方差为 $d_k$。大的点积值会导致softmax函数进入梯度非常小的区域（饱和区），使得训练不稳定。除以 $\\sqrt{d_k}$ 可以将方差归一化为1，保持softmax在有效的梯度区间内。\n\n这个缩放技巧看似简单，但对训练稳定性至关重要。在实际的Transformer实现（如GPT-2、GPT-3、BERT）中，这个缩放因子都是标准配置。",
+      "explanation": "## Self-Attention：评分与缩放（Scoring and Scaling）\n\n这张幻灯片对 Self-Attention 的整体流程进行了梳理和总结，并强调了几个关键步骤。\n\n### 整体流程回顾\n\n1. **转换输入词向量（Transform incoming word vectors）**：将原始的词嵌入向量通过线性变换映射到新的空间。\n\n2. **实现词与词之间的交互（Enable interactions between words）**：这是 Self-Attention 的核心目标——让每个 token 都能\"看到\"序列中的其他 token，从而建模上下文关系。\n\n3. **通过权重矩阵得到 Query、Key、Value 向量**：\n$$q_i = W^Q x_i, \\quad k_i = W^K x_i, \\quad v_i = W^V x_i$$\n其中 $W^Q, W^K, W^V$ 是可学习的权重矩阵，$x_i$ 是输入向量。这些都是**线性变换（linear transformations）**。\n\n4. **计算 scores**：使用点积计算每对 Query-Key 之间的相似度。\n\n### 为什么用线性变换？\n\n线性变换的好处是它允许模型学习到不同的\"视角\"来看待同一个输入。Query 矩阵学习\"我在找什么\"，Key 矩阵学习\"我提供什么信息\"，Value 矩阵学习\"我携带什么内容\"。这三个角色的分离使得注意力机制非常灵活。\n\n### 连接到 Transformer 架构\n\n在 BERT 和 GPT 中，这个过程会在多个 attention head 中并行执行（Multi-Head Attention），每个 head 使用不同的 $W^Q, W^K, W^V$，从而捕捉不同类型的关系模式。",
       "keyPoints": [
-        "Scaled Dot-Product Attention在点积后除以 $\\sqrt{d_k}$ 来防止softmax饱和",
-        "缩放的原因：高维点积的方差与维度成正比，不缩放会导致梯度消失",
-        "这是Transformer标准实现中的关键细节，对训练稳定性至关重要"
+        "Query、Key、Value 通过可学习的权重矩阵（线性变换）从输入向量生成",
+        "Self-Attention 的核心目的是让序列中的词能够相互交互、建模上下文关系",
+        "三个不同的权重矩阵让模型从不同角度理解同一个输入"
       ]
     },
     {
       "page": 15,
-      "explanation": "## Self-Attention：完整流程汇总\n\n这张幻灯片将Self-Attention的所有步骤整合在一起，展示完整的计算流程。\n\n### 完整三步流程：\n\n**第一步：线性变换生成QKV**\n$$\\mathbf{q}_i = W_Q \\mathbf{x}_i, \\quad \\mathbf{k}_i = W_K \\mathbf{x}_i, \\quad \\mathbf{v}_i = W_V \\mathbf{x}_i$$\n\n**第二步：计算注意力权重（Softmax分数）**\n$$\\alpha_{ij} = \\text{softmax}\\left(\\frac{\\mathbf{q}_i^T \\mathbf{k}_j}{\\sqrt{d_k}}\\right)$$\n\n这些权重表示词 $i$ 应该\"关注\"词 $j$ 的程度。\n\n**第三步：加权求和Value向量**\n$$\\mathbf{z}_i = \\sum_j \\alpha_{ij} \\mathbf{v}_j$$\n\n最终输出 $\\mathbf{z}_i$ 是所有Value向量的加权和，权重由注意力分数决定。\n\n用矩阵形式表示整个过程：\n$$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right) V$$\n\n### 直觉理解\n\n\"Add up the values\"（加起来Value）是Self-Attention的最终输出步骤。每个词的新表示是所有词的Value的加权混合。注意力权重高的词贡献更多，低的贡献更少。这就实现了**上下文感知的表示**：同一个词在不同上下文中会得到不同的表示，因为它关注的词不同。\n\n这是Transformer的核心计算模块，GPT、BERT、T5等所有基于Transformer的Foundation Model都依赖于这一机制。理解这个完整流程是理解现代大语言模型的基础。",
+      "explanation": "## Self-Attention：整合所有步骤（Putting it Together）\n\n这张幻灯片将 Self-Attention 的完整计算流程串联起来，展示了最终输出的生成过程。\n\n### 完整流程\n\n1. **通过权重矩阵得到 Query、Key、Value 向量**（线性变换）\n2. **计算 Softmax 分数**（注意力权重，即 focus/关注度）\n3. **用注意力权重加权求和 Value 向量**\n\n最终的自注意力输出公式为：\n\n$$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right) V$$\n\n### \"Add up the values\" 的含义\n\n幻灯片中说的 **\"Add up the values\"** 是指对 Value 向量进行**加权求和**。具体来说，对于某个位置 $i$ 的输出：\n\n$$\\text{output}_i = \\sum_j \\alpha_{ij} v_j$$\n\n其中 $\\alpha_{ij}$ 是位置 $i$ 的 Query 对位置 $j$ 的 Key 计算得到的 softmax 注意力权重，$v_j$ 是位置 $j$ 的 Value 向量。\n\n### 直觉理解\n\n可以把这个过程想象成一个\"信息检索\"系统：\n- **Query** 是你的搜索查询\n- **Key** 是数据库中每条记录的索引/标签\n- **Value** 是每条记录的实际内容\n- **Softmax score** 决定了每条记录与你查询的相关程度\n- **最终输出** 是按相关度加权后的内容混合\n\n这种机制使得每个 token 的输出都融合了整个序列的上下文信息，相关性高的 token 贡献更多。这就是为什么 Transformer 在 NLP 任务中表现如此出色——它能高效地捕捉长距离依赖关系。\n\n### 在 Foundation Models 中的意义\n\n这个 Self-Attention 机制是 GPT、BERT、T5、ViT 等所有 Transformer-based 模型的基础构建模块。理解这个公式及其直觉对于理解整个 Foundation Model 领域至关重要。",
       "keyPoints": [
-        "Self-Attention完整公式：$\\text{Attention}(Q,K,V) = \\text{softmax}(QK^T/\\sqrt{d_k})V$",
-        "最终输出是所有Value向量按注意力权重的加权和，实现上下文感知的词表示",
-        "这三步（QKV生成→打分→加权求和）构成了Transformer及所有主流Foundation Model的核心计算单元"
+        "Self-Attention 最终步骤是用 softmax 注意力权重对 Value 向量进行加权求和",
+        "完整公式：$\\text{Attention}(Q,K,V) = \\text{softmax}(QK^T / \\sqrt{d_k}) V$",
+        "可以类比为信息检索：Query 搜索、Key 匹配、Value 返回内容",
+        "这是所有 Transformer-based Foundation Models 的核心构建模块"
       ]
     },
     {
       "page": 16,
-      "explanation": "这张幻灯片总结了Self-Attention的矩阵公式，将之前讨论的所有组件整合在一起。\n\n**三大核心组件：**\n\n1. **Query, Key, Value 向量**：通过权重矩阵（线性变换）从输入生成。对于输入 $X$，我们计算：\n   - $Q = XW^Q$（查询矩阵）\n   - $K = XW^K$（键矩阵）\n   - $V = XW^V$（值矩阵）\n   \n   这里 $W^Q, W^K, W^V$ 都是可学习的参数矩阵，本质上是线性变换（linear transformations）。\n\n2. **Softmax 分数输出（focus）**：通过 Query 和 Key 的点积计算注意力分数，再经过 softmax 归一化，得到每个位置对其他位置的\"关注程度\"。这就是 attention weights。\n\n3. **加权求和 Values**：用 softmax 得到的权重对 Value 向量进行加权求和，得到最终输出。\n\n完整的 Self-Attention 公式可以写为：\n$$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$\n\n其中 $d_k$ 是 key 向量的维度，用于缩放（scaling），防止点积值过大导致 softmax 梯度消失。\n\n**为什么重要？**\n- 整个过程完全由矩阵运算构成，这意味着可以高效地在 GPU 上并行计算\n- 线性变换让模型能够学习在不同的\"表示空间\"中进行查询、匹配和提取信息\n- 这是 Transformer（包括 GPT、BERT 等）的核心计算单元\n\n**直觉类比：** 想象你在图书馆查资料。Query 是你的问题，Key 是每本书的标题/索引，Value 是书的内容。你用问题和标题匹配（softmax score），然后根据匹配程度从相关书籍中提取信息（加权求和 values）。",
+      "explanation": "这张幻灯片总结了Self-Attention的矩阵公式，将之前讨论的所有组件整合在一起。\n\n**三大核心组件：**\n\n1. **Query, Key, Value 向量**：通过权重矩阵（线性变换）从输入生成。给定输入矩阵 $X$，我们计算：\n   $$Q = XW^Q, \\quad K = XW^K, \\quad V = XW^V$$\n   其中 $W^Q, W^K, W^V$ 是可学习的权重矩阵。这些线性变换将输入投影到不同的子空间中，分别用于\"查询\"、\"被查询\"和\"提供信息\"三个角色。\n\n2. **Softmax 分数输出（focus）**：Query 和 Key 的点积经过 softmax 归一化后，产生注意力权重（attention weights）。这些权重决定了每个位置应该\"关注\"其他位置的程度。公式为：\n   $$\\text{Attention Scores} = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)$$\n   其中 $d_k$ 是 key 向量的维度，除以 $\\sqrt{d_k}$ 是为了缩放（scaled attention），防止点积值过大导致 softmax 梯度消失。\n\n3. **加权求和 Values**：最终输出是 Value 向量的加权和：\n   $$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$\n\n**直觉类比**：想象你在图书馆找书。Query 是你的搜索需求，Key 是每本书的索引标签，Value 是书的实际内容。你用 Query 和所有 Key 比较（点积），找到最相关的书（softmax 产生权重），然后根据相关度加权组合这些书的内容（加权求和 Value）。\n\n这个矩阵公式是整个 Transformer 架构的核心计算单元，GPT、BERT 等模型都基于此。矩阵形式使得计算可以高度并行化，这是 Transformer 相比 RNN 的关键优势之一。",
       "keyPoints": [
-        "Q、K、V 通过可学习的权重矩阵对输入进行线性变换得到",
-        "Softmax 将 Q 和 K 的点积转化为注意力权重分布",
-        "最终输出是对 Value 向量的加权求和，整个过程可并行计算"
+        "Self-Attention 的三要素：通过线性变换得到 Q、K、V，softmax 计算注意力权重，最后加权求和 Value",
+        "完整公式为 $\\text{Attention}(Q,K,V) = \\text{softmax}(QK^T/\\sqrt{d_k})V$，矩阵形式支持高效并行计算",
+        "权重矩阵 $W^Q, W^K, W^V$ 是可学习参数，使模型能学会在不同子空间中执行不同的注意力模式"
       ]
     },
     {
@@ -149,46 +154,48 @@
     },
     {
       "page": 18,
-      "explanation": "这张幻灯片是课程大纲/提纲页，展示了本节课的三大板块结构：\n\n1. **Basic Attention**（基础注意力）：包括注意力的概念、self-attention、基础注意力层、QKV 的设置与直觉理解。这部分已经在前半节课讲完。\n\n2. **Additional Elements**（附加组件）：包括 Multi-head Attention（多头注意力）和 Positional Encodings（位置编码）。这是接下来要讲的内容，是从基础 self-attention 层过渡到完整 Transformer 的关键桥梁。\n\n3. **Transformers**（Transformer 架构）：包括整体架构、Encoder 和 Decoder 的设置。这是最终目标——理解完整的 Transformer 模型。\n\n这个提纲很好地展示了知识的递进关系：先理解基本的注意力机制，再添加必要的组件使其更强大（多头）和更完整（位置信息），最后组装成完整的 Transformer 架构。",
+      "explanation": "这张幻灯片展示了本次课程的大纲结构，帮助学生理解整体学习路线。课程分为三大部分：\n\n**1. Basic Attention（基础注意力）**：这是我们已经覆盖的内容，包括注意力的基本概念（notions of attention）、自注意力机制（self-attention）、基础注意力层（basic attention layer）、以及 QKV（Query-Key-Value）的设置与直觉理解。这部分建立了理解 Transformer 的核心基础。\n\n**2. Additional Elements（附加组件）**：接下来将讨论两个关键扩展：\n- **Multi-head Attention（多头注意力）**：不是只做一次注意力计算，而是并行地在多个不同的子空间中执行注意力，然后拼接结果。这让模型能同时关注不同类型的关系（如语法关系、语义关系等）。\n- **Positional Encodings（位置编码）**：由于 self-attention 本身是置换不变的（permutation invariant），无法区分输入序列的顺序，因此需要额外注入位置信息。\n\n**3. Transformers（Transformer 架构）**：最终将所有组件组装成完整的 Transformer 架构，包括 Encoder（编码器）和 Decoder（解码器）的设计。Encoder 用于理解输入（如 BERT），Decoder 用于生成输出（如 GPT），Encoder-Decoder 结构用于序列到序列任务（如 T5、原始 Transformer）。\n\n从基础注意力到完整 Transformer，这是一个层层递进的学习路径。",
       "keyPoints": [
-        "课程从基础注意力机制逐步构建到完整的 Transformer 架构",
-        "Multi-head attention 和 positional encoding 是连接基础注意力与完整 Transformer 的关键组件"
+        "课程从基础注意力机制出发，逐步扩展到多头注意力和位置编码，最终构建完整的 Transformer 架构",
+        "多头注意力和位置编码是将基础 self-attention 变为实用 Transformer 的关键补充组件",
+        "Transformer 有 Encoder、Decoder 和 Encoder-Decoder 三种架构变体，对应不同的应用场景"
       ]
     },
     {
       "page": 19,
-      "explanation": "这张幻灯片介绍了 **Multi-head Attention（多头注意力）** 的概念和动机。\n\n**核心问题：** 单个 self-attention 能捕获所有需要的信息吗？答案是不能。一个 attention head 只能学习一种\"关注模式\"，但语言中的关系是多样的（语法关系、语义关系、指代关系等）。\n\n**与 CNN 的类比：**\n幻灯片巧妙地用 CNN 做类比——在卷积神经网络中，我们不会只用一个 kernel/filter，因为一个 kernel 只能检测一种特征（如水平边缘）。同样，在 attention 中，一个 head 只能学习一种注意力模式。所以我们需要多个 heads！\n\n**Multi-head Attention 的做法：**\n- 并行地运行多个 self-attention（每个称为一个\"head\"）\n- 每个 head 有自己独立的 $W^Q_i, W^K_i, W^V_i$ 参数\n- 将所有 head 的输出拼接（concatenate）起来\n- 最后通过一个线性层映射回所需维度\n\n数学公式为：\n$$\\text{MultiHead}(Q, K, V) = \\text{Concat}(\\text{head}_1, \\dots, \\text{head}_h)W^O$$\n$$\\text{where } \\text{head}_i = \\text{Attention}(QW^Q_i, KW^K_i, VW^V_i)$$\n\n**为什么重要？**\n- 不同的 head 可以关注不同类型的关系。例如，在 BERT 中研究发现，某些 head 专门关注语法依赖关系，某些关注共指消解，某些关注相邻词\n- 这大大增强了模型的表达能力\n- 在实践中，原始 Transformer 使用 8 个 heads，GPT-3 使用 96 个 heads\n\n**参数效率：** 通常每个 head 的维度是 $d_{model} / h$，所以总参数量与单头 attention 大致相同，但表达能力更强。",
+      "explanation": "## 多头注意力机制 (Multi-Head Attention)\n\n这张幻灯片引入了 Transformer 中一个关键改进：**多头注意力机制 (Multi-Head Attention)**。\n\n### 核心动机\n\n单一的自注意力机制虽然能捕捉序列中元素之间的关系，但一个注意力头只能学习一种特定的\"关注模式\"。就像在 CNN 中我们不会只用一个卷积核 (kernel)，因为一个卷积核只能检测一种特征（如水平边缘），多个卷积核才能检测多种特征（水平、垂直、对角线等）。同理，一个注意力头可能关注语法关系，另一个关注语义相似性，第三个关注位置邻近性。\n\n### 工作原理\n\n多头注意力的做法是：将 Query、Key、Value 投影到多个不同的子空间，**并行**地执行多次注意力计算，然后将所有头的输出**拼接 (concatenate)** 起来：\n\n$$\\text{MultiHead}(Q, K, V) = \\text{Concat}(\\text{head}_1, \\text{head}_2, \\ldots, \\text{head}_h) W^O$$\n\n其中每个头为：\n$$\\text{head}_i = \\text{Attention}(Q W_i^Q, K W_i^K, V W_i^V)$$\n\n每个头有自己独立的投影矩阵 $W_i^Q$, $W_i^K$, $W_i^V$，使得每个头可以在不同的表示子空间中学习不同的注意力模式。\n\n### 实际意义\n\n在原始 Transformer 论文 (\"Attention is All You Need\") 中，使用了 $h=8$ 个注意力头。GPT-3 使用了 96 个头。这种并行计算的设计既增加了模型的表达能力，又保持了计算效率，因为每个头的维度相应减小（总维度 $d_{model}$ 被均分为 $h$ 份）。",
       "keyPoints": [
-        "单个 attention head 只能捕获一种关注模式，类比 CNN 中单个 kernel 只能检测一种特征",
-        "Multi-head attention 并行运行多个 attention head，然后拼接输出",
-        "不同 head 可以学习不同类型的语言关系（语法、语义、位置等），显著增强模型表达能力"
+        "单个注意力头只能捕捉一种关注模式，类比 CNN 中单个卷积核只能检测一种特征",
+        "多头注意力并行运行多个注意力头，每个头学习不同的表示子空间",
+        "各头输出拼接后经过线性变换，增强模型表达能力同时保持计算效率"
       ]
     },
     {
       "page": 20,
-      "explanation": "这张幻灯片介绍了 **Positional Encodings（位置编码）**，解决了 self-attention 中一个关键缺陷。\n\n**核心问题：**\nSelf-attention 的计算本质上是集合操作（set operation）——它对输入序列中的每对元素计算注意力分数，但完全不考虑元素的顺序！这意味着 \"猫追狗\" 和 \"狗追猫\" 在 self-attention 看来是完全一样的。这是一个严重的问题，因为语言中词的顺序至关重要。\n\n对比 RNN 天然具有顺序处理的特性，CNN 通过局部窗口也隐含了位置信息，但 self-attention 是完全置换不变的（permutation invariant）。\n\n**解决方案：Positional Encoding**\n在输入 embedding 上加上位置编码向量：\n$$\\text{input}_i = \\text{word\\_embedding}_i + \\text{positional\\_encoding}_i$$\n\n原始 Transformer 论文（Vaswani et al., 2017）使用正弦/余弦函数生成位置编码：\n$$PE_{(pos, 2i)} = \\sin\\left(\\frac{pos}{10000^{2i/d_{model}}}\\right)$$\n$$PE_{(pos, 2i+1)} = \\cos\\left(\\frac{pos}{10000^{2i/d_{model}}}\\right)$$\n\n其中 $pos$ 是位置索引（location index），$i$ 是维度索引。\n\n**为什么用正弦函数？**\n- 可以处理任意长度的序列（不受训练时序列长度限制）\n- 不同频率的正弦波可以编码不同尺度的位置信息\n- 相对位置可以通过线性变换得到：$PE_{pos+k}$ 可以表示为 $PE_{pos}$ 的线性函数\n\n**其他方案：**\n- 可学习的位置编码（learned positional embeddings）：BERT、GPT 系列使用\n- RoPE（Rotary Position Embedding）：LLaMA 等现代模型使用\n- ALiBi：通过注意力偏置编码位置\n\n幻灯片提到 \"location index\"，即每个 token 在序列中的位置索引（0, 1, 2, ...），这就是位置编码需要编码的信息。",
+      "explanation": "## 位置编码 (Positional Encodings)\n\n这张幻灯片揭示了自注意力机制的一个重要缺陷，并引入解决方案。\n\n### 问题：注意力机制是置换不变的\n\n回顾自注意力的计算过程：对于序列中的每个元素，我们计算它与所有其他元素的注意力权重。这个过程本质上是**集合操作** (set operation)——它不关心元素的顺序！也就是说，\"猫吃鱼\" 和 \"鱼吃猫\" 在纯自注意力机制中是无法区分的，因为同样的词产生同样的 Q、K、V，注意力分数也完全相同。\n\n这在 NLP 中是灾难性的，因为词序对语义至关重要。相比之下，RNN 天然具有序列性，CNN 通过局部感受野隐含位置信息。\n\n### 解决方案：位置编码\n\n给每个位置分配一个**位置编码向量** (positional encoding vector)，然后将其**加到**词嵌入向量上：\n\n$$\\text{input}_i = \\text{embedding}_i + \\text{PE}(i)$$\n\n其中 $i$ 是位置索引 (location index)。原始 Transformer 使用基于正弦和余弦函数的固定编码：\n\n$$PE(pos, 2i) = \\sin\\left(\\frac{pos}{10000^{2i/d_{model}}}\\right)$$\n$$PE(pos, 2i+1) = \\cos\\left(\\frac{pos}{10000^{2i/d_{model}}}\\right)$$\n\n这样每个位置都获得了一个唯一的向量，模型就可以利用位置信息了。后来的模型如 BERT 使用可学习的位置编码，而 RoPE (Rotary Position Embedding) 则是更现代的方案。",
       "keyPoints": [
-        "Self-attention 本身是置换不变的，完全忽略词的顺序，这对语言处理是致命缺陷",
-        "位置编码通过将位置信息加到输入 embedding 上来解决这个问题",
-        "原始 Transformer 使用正弦/余弦函数，现代模型也有可学习编码、RoPE 等替代方案"
+        "自注意力机制天然对输入顺序不敏感（置换不变性），无法区分不同词序",
+        "解决方法是将位置编码向量加到词嵌入上，为每个位置注入唯一的位置信息",
+        "原始 Transformer 使用基于 sin/cos 函数的固定位置编码"
       ]
     },
     {
       "page": 21,
-      "explanation": "## Self-Attention: 位置编码的设计动机\n\n这张幻灯片解释了为什么位置编码（Positional Encoding）使用那些看起来\"神秘\"的正弦和余弦公式。回顾一下，位置编码的公式为：\n\n$$PE_{(pos, 2i)} = \\sin\\left(\\frac{pos}{10000^{2i/d_{model}}}\\right)$$\n$$PE_{(pos, 2i+1)} = \\cos\\left(\\frac{pos}{10000^{2i/d_{model}}}\\right)$$\n\n选择这些公式是因为它们满足几个重要的性质：\n\n1. **一致的编码（Consistent encoding）**：每个位置都有一个唯一且确定性的编码，不依赖于序列长度。无论序列多长，同一位置的编码始终相同。\n\n2. **平滑性（Smooth）**：相邻位置的编码在数值上是接近的，位置编码随位置变化是连续的，不会出现突变。这类似于\"位置越近，编码越相似\"的直觉。\n\n3. **位置间的线性关系（Linearity across positions）**：任意两个位置之间的相对距离可以通过线性变换来表示。这意味着模型可以轻松学习到\"相对位置\"的概念。\n\n4. **交替的 sin 和 cos 实现旋转矩阵位移**：这是最精妙的性质。由于 $\\sin$ 和 $\\cos$ 交替使用，位置 $pos + k$ 的编码可以表示为位置 $pos$ 编码乘以一个只依赖于 $k$ 的旋转矩阵。具体来说：\n$$PE(pos+k) = R_k \\cdot PE(pos)$$\n其中 $R_k$ 是一个旋转矩阵。这使得模型能够通过简单的线性变换捕捉相对位置信息。\n\n这种设计的直觉类似于二进制计数器：低维度变化快（如个位），高维度变化慢（如百位），从而在不同频率上编码位置信息。",
+      "explanation": "## 位置编码的设计原理\n\n这张幻灯片深入解释了为什么选择正弦/余弦函数作为位置编码，而不是其他方案（如简单的整数编码）。\n\n### 四个理想属性\n\n**1. 一致性编码 (Consistent Encoding)**：相同的位置始终对应相同的编码向量，不受序列长度影响。如果我们用 $PE(pos) = pos / L$（$L$ 为序列长度）进行归一化，那么位置 5 在长度为 10 和长度为 100 的序列中编码不同，这是不好的。正弦/余弦函数不依赖序列长度。\n\n**2. 平滑性 (Smooth)**：相邻位置的编码应该相似，而不是突变。正弦和余弦函数是连续且平滑的，位置 $pos$ 和 $pos+1$ 的编码差异是渐进的。\n\n**3. 位置间的线性关系 (Linearity across positions)**：不同位置之间的关系应该可以通过简单的线性变换来表达。\n\n**4. sin/cos 交替与旋转矩阵**：这是最精妙的性质。由于三角函数的加法公式：\n$$\\sin(\\alpha + \\beta) = \\sin\\alpha \\cos\\beta + \\cos\\alpha \\sin\\beta$$\n$$\\cos(\\alpha + \\beta) = \\cos\\alpha \\cos\\beta - \\sin\\alpha \\sin\\beta$$\n\n位置 $pos + k$ 的编码可以表示为位置 $pos$ 的编码乘以一个只依赖于偏移量 $k$ 的**旋转矩阵**。这意味着模型可以轻松学会\"关注相对位置为 $k$ 的元素\"，因为相对位置关系是线性的。\n\n这种设计思想后来演变为 RoPE (Rotary Position Embedding)，被广泛用于 LLaMA、GPT-NeoX 等现代大语言模型中。",
       "keyPoints": [
-        "位置编码公式的设计满足一致性、平滑性、位置间线性关系等关键性质",
-        "sin 和 cos 交替使用使得位置偏移可以通过旋转矩阵表示，模型因此能学习相对位置关系",
-        "不同维度对应不同频率，类似于多尺度的位置表示"
+        "位置编码需要满足一致性、平滑性、位置间线性关系等关键属性",
+        "sin/cos 交替设计使得相对位置偏移可以用旋转矩阵表示，模型能轻松学习相对位置关系",
+        "这种旋转思想是现代 RoPE 位置编码（用于 LLaMA 等模型）的理论基础"
       ]
     },
     {
       "page": 22,
-      "explanation": "## 现代位置编码：从正弦编码到 RoPE\n\n这张幻灯片讨论了位置编码的演进，从原始 Transformer 论文中的正弦位置编码到现代的变体。\n\n### 原始正弦位置编码的特点\n原始 Transformer（Vaswani et al. 2017）中的正弦位置编码有一个关键特征：**只在输入进入第一层之前添加一次**。也就是说，token embedding 加上 positional encoding 后，就直接送入所有的 Transformer 层，后续层不再重新注入位置信息。\n\n### 现代变体\n随着研究的发展，出现了许多新的位置编码方案：\n\n1. **乘法而非加法（Multiplicative instead of additive）**：原始方案是将位置编码加到 token embedding 上（$x + PE$），而有些方案改为乘法操作，可能提供更好的位置-内容交互。\n\n2. **旋转位置编码（Rotary Positional Encoding, RoPE）**：这是当前最流行的方案之一，被 LLaMA、GPT-NeoX 等主流大模型广泛采用。RoPE 的核心思想是对 Query 和 Key 向量施加基于位置的旋转变换，使得两个位置的 attention score 自然地只依赖于它们的相对距离。\n\n3. **关键区别——每层都执行**：与原始编码只加一次不同，RoPE 在**每个 attention 层**中都对 Q 和 K 进行位置旋转。这确保了位置信息在深层网络中不会随着层数增加而衰减或丢失。\n\n这一演进反映了社区对位置编码重要性认识的深化：位置信息不应只是输入的\"附加品\"，而应深度融入 attention 计算的核心机制中。",
+      "explanation": "这张幻灯片介绍了从原始Transformer论文中的正弦位置编码（sinusoidal positional embeddings）到现代位置编码变体的发展。\n\n**原始正弦位置编码的特点：**\n- 在原始Transformer论文（\"Attention Is All You Need\"）中定义\n- 只在第一层之前添加一次（additive），即 $x' = x + PE(pos)$\n- 使用正弦和余弦函数的不同频率来编码位置信息\n\n**现代位置编码的演进：**\n随着研究的深入，出现了许多行为略有不同的位置编码变体：\n\n1. **乘法 vs 加法（Multiplicative vs Additive）：** 原始方法是将位置编码加到token embedding上，但有些新方法采用乘法方式来融合位置信息。\n\n2. **Rotary Positional Encoding (RoPE)：** 这是目前非常流行的一种位置编码方法，被广泛应用于现代大语言模型中（如LLaMA、Qwen等）。RoPE的核心思想是通过旋转矩阵将位置信息编码到query和key向量中。具体来说，对于位置 $m$ 的向量，RoPE应用一个与位置相关的旋转变换，使得两个token的注意力分数自然地依赖于它们的相对位置差 $m - n$。\n\n3. **关键区别——逐层应用：** 与原始正弦编码只在输入层添加一次不同，RoPE等现代方法在**每一个attention层**都执行位置编码操作。这意味着位置信息在网络的每一层都被重新注入，而不是依赖于输入时添加的位置信号在深层网络中逐渐衰减。\n\n这一演进反映了研究社区对位置信息如何最有效地融入Transformer架构的持续探索。RoPE之所以流行，是因为它既能捕获相对位置关系，又能很好地外推到训练时未见过的序列长度。",
       "keyPoints": [
-        "原始正弦位置编码只在第一层前添加一次，可能导致深层位置信息衰减",
-        "RoPE（旋转位置编码）是当前主流方案，被 LLaMA 等大模型广泛采用",
-        "RoPE 在每个 attention 层都执行，通过旋转 Q 和 K 向量来编码相对位置信息"
+        "原始Transformer使用正弦位置编码，仅在第一层之前加法添加一次",
+        "RoPE（旋转位置编码）是当前最流行的现代位置编码方法，被LLaMA等模型广泛采用",
+        "现代位置编码（如RoPE）在每一个attention层都执行，而非仅在输入时添加一次",
+        "位置编码从加法方式演进到乘法/旋转方式，更好地捕获相对位置关系"
       ]
     },
     {
@@ -198,89 +205,93 @@
     },
     {
       "page": 24,
-      "explanation": "课程行政信息，跳过。",
-      "keyPoints": []
+      "explanation": "这张幻灯片展示了本次课程（Transformers and Attention I）的整体大纲，帮助学生了解课程的结构和进展。\n\n**课程大纲分为三个主要部分：**\n\n1. **Basic Attention（基础注意力）：** 这部分已经讲完，涵盖了注意力的基本概念（notions of attention）、自注意力（self-attention）、基础注意力层（basic attention layer）、以及QKV（Query-Key-Value）的设置和直觉理解。\n\n2. **Additional Elements（附加元素）：** 这部分也已经讲完，包括多头注意力（multi-head attention）和位置编码（positional encodings）。这些是将基础注意力机制扩展为实用模块的关键组件。\n\n3. **Transformers（Transformer架构）：** 这是接下来要讲的部分，将把前面学到的所有组件组合成完整的Transformer架构，并讨论encoder和decoder两种设置。这部分将解释如何将注意力层、前馈网络、残差连接和层归一化等组合成我们熟知的Transformer模型。\n\n从学习路径来看，课程遵循自底向上的逻辑：先理解注意力这一核心操作，再添加多头和位置编码等增强组件，最后将它们组装成完整的Transformer架构。这种由简入繁的教学方式有助于深入理解每个组件的作用。",
+      "keyPoints": [
+        "课程采用自底向上的结构：基础注意力 → 附加组件 → 完整Transformer架构",
+        "接下来将讲解Transformer的完整架构，包括encoder和decoder两种设置"
+      ]
     },
     {
       "page": 25,
-      "explanation": "## Transformer 模型架构概述\n\n这张幻灯片引入了 Transformer 的整体模型架构，来自经典论文 Vaswani et al. 2017（\"Attention Is All You Need\"）。\n\n### 设计初衷\nTransformer 最初的设计目标是用于**机器翻译**任务，因此采用了经典的 **Encoder-Decoder 架构**：\n- **Encoder**：接收源语言输入（如英语句子），将其编码为高维表示\n- **Decoder**：基于 Encoder 的输出，逐步生成目标语言输出（如法语句子）\n\n### 核心创新：去除循环（Get rid of recurrence）\n在 Transformer 之前，序列建模主要依赖 RNN/LSTM 等递归结构。这些结构的核心问题是：\n1. **无法并行化**：必须按时间步顺序处理，$h_t$ 依赖于 $h_{t-1}$\n2. **长距离依赖困难**：信息需要通过多个时间步传递，容易衰减\n\nTransformer 的革命性在于**用 Self-Attention 完全替代 Recurrence**。Self-Attention 允许序列中任意两个位置直接交互，不需要中间传递，同时计算可以完全并行化。\n\n### 架构概览\n幻灯片提到了 Transformer 论文中那张著名的架构图（几乎所有学过深度学习的人都见过）。整个架构的核心是 **Self-Attention 模块**的堆叠：\n- Encoder 由多个相同的层堆叠，每层包含 Multi-Head Self-Attention + Feed-Forward Network\n- Decoder 类似，但额外包含对 Encoder 输出的 Cross-Attention\n\n这个设计后来衍生出三大范式：Encoder-only（BERT）、Decoder-only（GPT）、Encoder-Decoder（T5），奠定了整个 Foundation Model 时代的基础。",
+      "explanation": "这张幻灯片介绍了Transformer模型架构的核心设计理念，出自Vaswani等人2017年的经典论文《Attention Is All You Need》。\n\n**设计目标与动机：**\n\nTransformer的最初目标是构建一个encoder-decoder（编码器-解码器）架构，用于序列到序列（seq2seq）的任务，比如机器翻译。但关键的创新在于：**完全抛弃循环结构（recurrence）**，用**自注意力（self-attention）**机制取而代之。\n\n**为什么要去掉循环？**\n回忆RNN/LSTM的问题：它们必须按时间步顺序处理序列，这意味着第$t$步的计算依赖于第$t-1$步的结果，无法并行化。这导致训练速度慢，且在长序列上容易出现梯度消失/爆炸问题。Self-attention机制则允许序列中的每个位置直接关注（attend to）所有其他位置，不需要逐步传递信息，从而实现了高度并行化。\n\n**架构概览：**\n这张幻灯片提到了那张著名的Transformer架构图（论文中的Figure 1）。整个模型以self-attention块为核心构建。左半部分是encoder，右半部分是decoder，它们通过attention机制连接。这张图几乎出现在所有深度学习教材和课程中，是现代基础模型（Foundation Models）的基石。\n\n**为什么重要：**\nTransformer架构是GPT、BERT、T5、ViT等几乎所有现代基础模型的核心。理解它的设计理念——用attention替代recurrence——是理解整个基础模型领域的关键第一步。",
       "keyPoints": [
-        "Transformer 最初设计为 Encoder-Decoder 架构用于机器翻译",
-        "核心创新是用 Self-Attention 完全替代 RNN 的循环结构，实现并行化和直接长距离依赖",
-        "整个架构以 Self-Attention 模块为核心，后来衍生出 BERT（Encoder-only）、GPT（Decoder-only）、T5（Encoder-Decoder）三大范式"
+        "Transformer的核心创新：用self-attention完全替代RNN中的循环结构（recurrence）",
+        "采用encoder-decoder架构，整个模型以self-attention块为中心构建",
+        "去掉recurrence的好处：支持并行计算，解决长距离依赖问题",
+        "Transformer是GPT、BERT等现代基础模型的架构基石"
       ]
     },
     {
       "page": 26,
-      "explanation": "## Transformer 架构概览：编码器-解码器堆叠结构\n\n这张幻灯片介绍了 Transformer 的整体架构，它是一种 **序列到序列（Sequence-to-Sequence）** 模型，由多个编码器（Encoder）和解码器（Decoder）堆叠而成。\n\n### 核心思想\n\nTransformer 最初由 Vaswani et al. 在 2017 年的论文 \"Attention is All You Need\" 中提出，用于机器翻译任务。幻灯片以法语到英语翻译为例来说明：\n\n- **编码器端（Encoder Stack）**：接收法语句子作为输入，将其编码为一系列隐藏表示（hidden representations）。多个编码器层堆叠在一起，每一层的输出作为下一层的输入。\n- **解码器端（Decoder Stack）**：接收编码器的输出，并逐步生成英语翻译。同样由多个解码器层堆叠。\n\n### 为什么要堆叠？\n\n类似于深度神经网络的思想，堆叠多层可以让模型学习越来越抽象、高层次的表示。原始论文中使用了 6 层编码器和 6 层解码器。可以把它想象成一条\"流水线\"：每一层编码器都在对输入进行更深层次的理解和抽象。\n\n### 与其他模型的关系\n\n这种 encoder-decoder 结构是许多后续模型的基础：\n- **BERT** 主要使用编码器部分\n- **GPT** 主要使用解码器部分\n- **T5、BART** 使用完整的编码器-解码器结构\n\n理解这个基本架构对于理解整个 Foundation Model 生态系统至关重要。",
+      "explanation": "这张幻灯片展示了Transformer作为**序列到序列（sequence-to-sequence）模型**的整体结构，并以法英翻译为例进行说明。\n\n**堆叠的编码器和解码器：**\n\nTransformer由多个encoder层堆叠而成的编码器栈（encoder stack）和多个decoder层堆叠而成的解码器栈（decoder stack）组成。在原始论文中，encoder和decoder各有$N=6$层。\n\n**工作流程（以法英翻译为例）：**\n1. **输入端（Encoder侧）：** 法语句子（如\"Je suis étudiant\"）被输入到encoder栈中。每一层encoder对输入进行处理，逐层提取越来越高层次的表示。最终encoder栈输出一组上下文表示向量。\n2. **输出端（Decoder侧）：** Decoder栈接收encoder的输出，并逐步生成英语翻译（如\"I am a student\"）。Decoder在生成每个词时，既会关注之前已生成的词（通过masked self-attention），也会关注encoder的输出（通过cross-attention）。\n\n**直观类比：**\n可以把encoder想象成一个\"理解者\"——它读完整个法语句子并形成深度理解；decoder则是一个\"翻译者\"——它基于encoder的理解，一个词一个词地生成英语翻译。\n\n**与基础模型的联系：**\n- BERT只使用了encoder栈\n- GPT只使用了decoder栈\n- T5和原始Transformer使用完整的encoder-decoder结构\n\n理解这种堆叠结构对于理解不同基础模型的变体至关重要。",
       "keyPoints": [
-        "Transformer 是由多个编码器和解码器堆叠组成的序列到序列模型",
-        "编码器负责将输入序列编码为隐藏表示，解码器负责从隐藏表示生成输出序列",
-        "堆叠多层可以学习更深层次的抽象表示，原始论文使用6层编码器和6层解码器"
+        "Transformer由堆叠的encoder层和decoder层组成（原论文各6层）",
+        "以机器翻译（法→英）为典型应用场景，encoder处理源语言，decoder生成目标语言",
+        "不同基础模型使用Transformer的不同部分：BERT用encoder，GPT用decoder，T5用完整encoder-decoder"
       ]
     },
     {
       "page": 27,
-      "explanation": "## Transformer 编码器内部结构：两大核心组件\n\n这张幻灯片深入到编码器的内部，揭示每个编码器单元由什么构成。答案非常简洁：**只有两个组件**。\n\n### 编码器的两个组件\n\n1. **Self-Attention Block（自注意力模块）**：\n   - 这是 Transformer 最核心的创新。自注意力允许输入序列中的每个位置\"关注\"序列中的所有其他位置。\n   - 例如在处理句子 \"The animal didn't cross the street because it was too tired\" 时，自注意力可以让 \"it\" 这个词关注到 \"animal\"，从而理解 \"it\" 指代的是动物。\n   - 这就是之前课程中已经介绍过的注意力机制的应用。\n\n2. **Fully-Connected Layers / MLP（全连接层）**：\n   - 也称为前馈网络（Feed-Forward Network, FFN）。\n   - 对自注意力的输出进行非线性变换，增加模型的表达能力。\n   - 通常包含两层线性变换，中间有 ReLU 或 GELU 激活函数：$$\\text{FFN}(x) = W_2 \\cdot \\text{ReLU}(W_1 x + b_1) + b_2$$\n\n### 直觉理解\n\n可以这样理解：**Self-Attention 负责\"看\"（信息交互和聚合）**，而 **MLP 负责\"想\"（信息处理和变换）**。每一层编码器都先让所有 token 互相交流信息，然后各自独立地进行处理和变换。\n\n这种设计的优雅之处在于它的简洁性——不需要 RNN 的循环结构，也不需要 CNN 的卷积操作，却能处理任意长度的序列。",
+      "explanation": "这张幻灯片深入到Transformer内部，揭示了每个encoder单元的内部结构。重点先关注encoder，因为它的结构更简单。\n\n**Encoder的内部组成：**\n\n每个encoder层（block）由两个核心组件构成：\n\n1. **Self-Attention Block（自注意力块）：** 这是Transformer的灵魂。对于输入序列中的每个位置，self-attention计算该位置与序列中所有其他位置的关联程度（attention权重），然后用这些权重对所有位置的表示进行加权求和，得到该位置的新表示。数学上，对于输入$X$，self-attention计算：\n$$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$\n其中$Q$、$K$、$V$都是从$X$通过线性变换得到的。\n\n2. **Fully-Connected Layers / MLP（全连接层）：** 也称为Feed-Forward Network (FFN)，通常由两层线性变换和一个非线性激活函数（如ReLU）组成：\n$$\\text{FFN}(x) = \\max(0, xW_1 + b_1)W_2 + b_2$$\n这个MLP对每个位置独立且相同地应用（position-wise），为模型增加非线性变换能力。\n\n**直观理解：**\nSelf-attention负责\"信息交流\"——让序列中的不同位置互相传递信息；MLP负责\"信息处理\"——对每个位置收集到的信息进行非线性变换和特征提取。两者交替堆叠，使模型能逐层构建越来越复杂的表示。\n\n**注意：** 这里还省略了一些重要细节（如残差连接和层归一化），后续幻灯片可能会补充。\n\n**为什么先讲encoder？** 因为encoder结构是理解decoder的基础。Decoder在encoder的两个组件之外，还额外增加了一个cross-attention层和masking机制。",
       "keyPoints": [
-        "每个编码器单元由两个组件组成：Self-Attention 和 MLP（全连接层）",
-        "Self-Attention 负责序列内的信息交互，MLP 负责对每个位置进行独立的非线性变换",
-        "结构设计简洁优雅，不依赖 RNN 的循环或 CNN 的卷积"
+        "每个encoder层由两个组件构成：Self-Attention块 + 全连接层（MLP/FFN）",
+        "Self-attention负责序列内各位置间的信息交流，MLP负责对每个位置的信息进行非线性变换",
+        "Encoder结构是理解Transformer的基础，decoder在此之上增加了cross-attention和masking"
       ]
     },
     {
       "page": 28,
-      "explanation": "## 深入编码器内部：Self-Attention + 独立前馈网络\n\n这张幻灯片进一步展开编码器的两个组件，并强调了前馈网络的一个关键特性——**\"Independent\"（独立性）**。\n\n### 组件 1：Self-Attention Layer\n\n自注意力层已经在之前的课程中详细讲解过。核心计算为：\n$$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$\n\n在 Self-Attention 中，$Q$、$K$、$V$ 都来自同一个输入序列，只是通过不同的线性变换矩阵 $W^Q$、$W^K$、$W^V$ 得到。这使得每个 token 都能\"看到\"序列中所有其他 token 的信息。\n\n### 组件 2：\"Independent\" Feedforward Nets\n\n这里的 **\"Independent\"** 是关键词，意思是：\n- 同一个前馈网络（相同的参数）被**独立地**应用到每个位置的表示上\n- 不同位置之间在这一步**不进行信息交换**\n- 可以理解为一个 position-wise 的操作\n\n具体来说，对于序列中位置 $i$ 的表示 $x_i$，前馈网络的计算为：\n$$\\text{FFN}(x_i) = W_2 \\cdot \\text{ReLU}(W_1 x_i + b_1) + b_2$$\n\n所有位置共享相同的 $W_1, W_2, b_1, b_2$ 参数，但每个位置独立计算。\n\n### 信息流的直觉\n\n可以把编码器的工作想象成一个会议：\n- **Self-Attention** = 大家围坐讨论，每个人听取所有人的意见\n- **FFN** = 讨论结束后，每个人回去独立思考和消化信息\n\n这两步交替进行，通过多层堆叠，实现信息的深度交互和处理。",
+      "explanation": "这张幻灯片深入探讨了 Transformer **Encoder（编码器）** 的内部结构，指出它由两个核心组件构成：\n\n**1. Self-Attention Layer（自注意力层）**\n前面的课程已经详细讲解了自注意力机制。每个输入 token 通过 Query、Key、Value 矩阵生成对应的向量，然后通过注意力分数加权求和，得到上下文感知的表示。这一层的核心作用是让每个位置的表示都能\"看到\"序列中所有其他位置的信息，从而捕获全局依赖关系。\n\n**2. \"Independent\" Feedforward Networks（独立的前馈网络）**\n这里的\"Independent\"非常关键——它意味着同一层中的前馈网络对每个位置（token）**独立地、相同地**应用。具体来说，这通常是一个两层的全连接网络，中间用 ReLU（或 GELU）激活函数：\n$$\\text{FFN}(x) = W_2 \\cdot \\text{ReLU}(W_1 x + b_1) + b_2$$\n\n这个前馈网络的作用可以理解为：Self-Attention 层负责\"信息交流\"——让 token 之间互相传递信息；而 FFN 层负责\"信息处理\"——对每个 token 收集到的信息进行非线性变换和特征提取。\n\n一个有用的类比：Self-Attention 像是一个会议，大家互相分享信息；FFN 像是会后每个人独立地消化和整理收到的信息。\n\n在实际的 Transformer 模型（如 BERT、GPT）中，FFN 的隐藏层维度通常是模型维度的 4 倍（例如模型维度 768，FFN 隐藏维度 3072），这为模型提供了更大的表达能力。编码器由多个这样的 (Self-Attention + FFN) 块堆叠而成（如 BERT-base 有 12 层）。",
       "keyPoints": [
-        "前馈网络是 position-wise 的，即对每个位置独立应用相同的网络",
-        "Self-Attention 负责跨位置的信息交互，FFN 负责单个位置内的信息变换",
-        "两个组件的分工明确：先交流后思考，通过多层堆叠实现深度处理"
+        "Encoder 由两个核心组件组成：Self-Attention 层和独立的前馈网络（FFN）",
+        "FFN 对每个 token 位置独立且相同地应用，通常是两层全连接网络加 ReLU 激活",
+        "Self-Attention 负责 token 间信息交流，FFN 负责对每个 token 的信息进行非线性变换"
       ]
     },
     {
       "page": 29,
-      "explanation": "## Transformer 的额外技巧：残差连接和层归一化\n\n这张幻灯片介绍了 Transformer 编码器中两个非常重要的辅助技术：**残差连接（Residual Connections）** 和 **层归一化（Layer Normalization）**。\n\n### 残差连接（Residual Connections）\n\n残差连接最早在 ResNet 中被提出，是深度学习领域的重大突破之一。其核心思想非常简单：\n$$\\text{output} = F(x) + x$$\n\n即将层的输入 $x$ 直接加到层的输出 $F(x)$ 上。在 Transformer 中：\n- Self-Attention 层周围有残差连接：$x + \\text{SelfAttn}(x)$\n- FFN 层周围也有残差连接：$x + \\text{FFN}(x)$\n\n**为什么需要？** 残差连接解决了深层网络中的**梯度消失**问题，使得梯度可以直接通过\"跳跃连接\"传播到更早的层。没有残差连接，堆叠 6 层甚至更多层的 Transformer 将非常难以训练。\n\n### 层归一化（Layer Normalization）\n\n层归一化对每个样本的隐藏层激活进行归一化：\n$$\\text{LayerNorm}(x) = \\frac{x - \\mu}{\\sigma} \\cdot \\gamma + \\beta$$\n\n其中 $\\mu$ 和 $\\sigma$ 是对单个样本在特征维度上计算的均值和标准差，$\\gamma$ 和 $\\beta$ 是可学习的参数。\n\n**注意：** Layer Norm 不同于 Batch Norm。Layer Norm 在特征维度上归一化，不依赖于 batch 中的其他样本，更适合序列数据。\n\n### 在编码器中的应用\n\n完整的编码器子层计算变为：\n$$\\text{LayerNorm}(x + \\text{Sublayer}(x))$$\n\n其中 Sublayer 可以是 Self-Attention 或 FFN。这被称为 **Post-Norm** 结构（也有 Pre-Norm 变体在 GPT 等模型中使用）。",
+      "explanation": "这张幻灯片介绍了 Transformer 中借鉴自其他架构的两个重要技巧（tricks），这些技巧对于训练深层 Transformer 至关重要：\n\n**1. Residual Connections（残差连接）**\n这一概念最早在 ResNet（2015）中被提出，是深度学习的重大突破之一。核心思想是：每一层的输出不仅包含该层的变换结果，还加上了该层的输入：\n$$\\text{output} = F(x) + x$$\n其中 $F(x)$ 是子层（Self-Attention 或 FFN）的输出，$x$ 是子层的输入。\n\n残差连接解决了深层网络中的**梯度消失/爆炸**问题。直观地理解：信息可以通过\"跳跃连接\"直接从浅层传到深层，梯度也可以直接回流，这使得训练非常深的网络（如 100+ 层 Transformer）成为可能。\n\n**2. Layer Normalization（层归一化）**\n与 Batch Normalization 不同，Layer Norm 是对单个样本的所有特征维度进行归一化：\n$$\\text{LayerNorm}(x) = \\gamma \\cdot \\frac{x - \\mu}{\\sqrt{\\sigma^2 + \\epsilon}} + \\beta$$\n其中 $\\mu$ 和 $\\sigma^2$ 是在特征维度上计算的均值和方差，$\\gamma$ 和 $\\beta$ 是可学习参数。\n\nLayer Norm 相比 Batch Norm 的优势在于它不依赖 batch size，更适合序列模型和变长输入。\n\n将这两个技巧应用到 Encoder 中，每个子层的完整计算变为：\n$$\\text{output} = \\text{LayerNorm}(x + \\text{Sublayer}(x))$$\n\n在实践中，还存在 Pre-Norm（先归一化再计算子层）和 Post-Norm（先计算子层再归一化）两种变体，GPT 系列采用 Pre-Norm 以获得更稳定的训练。",
       "keyPoints": [
-        "残差连接（来自 ResNet）解决梯度消失问题，使深层 Transformer 可以有效训练",
-        "层归一化对每个样本的特征维度进行归一化，稳定训练过程",
-        "编码器中每个子层（Self-Attention 和 FFN）都配有残差连接和层归一化"
+        "残差连接（来自 ResNet）让信息和梯度可以直接跨层传递，解决深层网络训练困难问题",
+        "Layer Normalization 对每个样本的特征维度归一化，不依赖 batch size，适合序列模型",
+        "每个子层的完整操作为：LayerNorm(x + Sublayer(x))，这是 Transformer 能够堆叠很深的关键"
       ]
     },
     {
       "page": 30,
-      "explanation": "## Transformer 解码器内部结构：三大组件\n\n这张幻灯片介绍了解码器（Decoder）的内部结构。与编码器的两个组件不同，解码器有**三个组件**，多出了一个关键的 Encoder-Decoder Attention 层。\n\n### 组件 1：Self-Attention Layer（自注意力层）\n\n与编码器中的 Self-Attention 类似，但有一个关键区别：**Masked Self-Attention**。\n- 在解码时，模型是自回归的（autoregressive），即逐个 token 生成\n- 因此，位置 $i$ 只能关注位置 $1, 2, \\ldots, i$，不能\"偷看\"未来的 token\n- 通过在 attention score 矩阵中将未来位置设为 $-\\infty$（mask）来实现\n\n$$\\text{MaskedAttn}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T + M}{\\sqrt{d_k}}\\right)V$$\n\n其中 $M$ 是一个上三角掩码矩阵，上三角部分为 $-\\infty$。\n\n### 组件 2：Encoder-Decoder Attention（编码器-解码器注意力）\n\n这是解码器独有的组件，也是连接编码器和解码器的桥梁：\n- **Query ($Q$)** 来自解码器的前一层\n- **Key ($K$) 和 Value ($V$)** 来自编码器的最终输出\n\n直觉上：解码器在生成每个目标词时，通过这个注意力层\"查阅\"源语言句子的编码表示，决定应该关注源句子的哪些部分。例如在翻译时，生成英语词 \"cat\" 时，模型会关注法语输入中对应的 \"chat\"。\n\n### 组件 3：Independent Feedforward Nets\n\n与编码器中完全相同，对每个位置独立应用相同的前馈网络。\n\n### 整体数据流\n\n解码器中的数据流为：\n$$\\text{Input} \\rightarrow \\text{Masked Self-Attn} \\rightarrow \\text{Enc-Dec Attn} \\rightarrow \\text{FFN} \\rightarrow \\text{Output}$$\n\n每个子层同样配有残差连接和层归一化。这种三组件设计使得解码器既能理解自身已生成的内容（Self-Attention），又能参考源序列信息（Encoder-Decoder Attention），并进行独立的信息处理（FFN）。\n\nGPT 系列模型只使用了解码器部分（去掉 Encoder-Decoder Attention），因为它们是纯语言模型，不需要编码外部输入。",
+      "explanation": "这张幻灯片介绍了 Transformer **Decoder（解码器）** 的内部结构。与 Encoder 的两个组件不同，Decoder 包含**三个**组件：\n\n**1. Self-Attention Layer（自注意力层）**\n与 Encoder 中的自注意力类似，但有一个关键区别：Decoder 的自注意力是 **Masked Self-Attention（掩码自注意力）**。在生成序列时，位置 $i$ 的 token 只能注意到位置 $1, 2, \\ldots, i$ 的 token，不能\"偷看\"未来的 token。这通过在注意力分数矩阵的上三角部分填充 $-\\infty$（softmax 后变为 0）来实现：\n$$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}} + \\text{Mask}\\right)V$$\n这确保了自回归生成的正确性。\n\n**2. Encoder-Decoder Attention（编码器-解码器注意力）**\n这是 Decoder 独有的组件，也是 Encoder 和 Decoder 之间的桥梁。其机制与标准注意力完全相同，但 **Key（K）和 Value（V）来自 Encoder 的输出**，而 **Query（Q）来自 Decoder 的前一层**。\n\n直观理解：这一层让 Decoder 在生成每个 token 时能够\"查询\"源序列的信息。例如在机器翻译中，生成目标语言每个词时，Decoder 通过这一层决定应该关注源语言句子的哪些部分。这就是经典的注意力思想——将源序列的相关信息\"注入\"到目标序列的生成过程中。\n\n**3. Independent Feedforward Networks（独立的前馈网络）**\n与 Encoder 中的 FFN 完全相同，对每个位置独立应用。\n\n这三层组件同样配合残差连接和层归一化使用。在 GPT 等纯 Decoder 模型中，由于没有 Encoder，Encoder-Decoder Attention 层被移除，只保留 Masked Self-Attention 和 FFN。而在原始 Transformer（如用于翻译的模型）和 T5 等 Encoder-Decoder 模型中，三个组件全部使用。",
       "keyPoints": [
-        "解码器有三个组件：Masked Self-Attention、Encoder-Decoder Attention 和 FFN",
-        "Encoder-Decoder Attention 中 Q 来自解码器，K 和 V 来自编码器，是两端的桥梁",
-        "Masked Self-Attention 防止解码器在生成时看到未来的 token，保证自回归生成的因果性",
-        "GPT 等纯解码器模型去掉了 Encoder-Decoder Attention，只保留 Masked Self-Attention 和 FFN"
+        "Decoder 有三个组件：Masked Self-Attention、Encoder-Decoder Attention 和 FFN",
+        "Encoder-Decoder Attention 的 K 和 V 来自 Encoder 输出，Q 来自 Decoder，是连接编码器和解码器的桥梁",
+        "Masked Self-Attention 确保生成时只能看到已生成的 token，不能看到未来信息",
+        "纯 Decoder 模型（如 GPT）移除了 Encoder-Decoder Attention，只保留 Masked Self-Attention 和 FFN"
       ]
     },
     {
       "page": 31,
-      "explanation": "## Transformer 的最后几层\n\n这张幻灯片讲解了 Transformer 架构的输出端（最后几层），并将其与 CNN 的输出端进行类比。\n\n### 核心内容\n\n在 Transformer 的最后阶段，经过多层 encoder/decoder 的注意力机制和前馈网络处理之后，我们需要将最终的隐藏表示转换为实际的输出（比如下一个单词的预测）。这个过程包含两个关键步骤：\n\n**1. Linear Layer（线性层）**\n\n最后的隐藏状态向量（维度为 $d_{model}$）通过一个线性变换层，将其映射到一个维度等于词汇表大小 $|V|$ 的向量：\n\n$$\\mathbf{z} = W \\cdot \\mathbf{h} + \\mathbf{b}$$\n\n其中 $W \\in \\mathbb{R}^{|V| \\times d_{model}}$。这个向量中的每个元素对应词汇表中一个单词的未归一化分数（logits）。\n\n**2. Softmax 层**\n\n将 logits 通过 softmax 函数转换为概率分布：\n\n$$P(w_i) = \\frac{e^{z_i}}{\\sum_{j=1}^{|V|} e^{z_j}}$$\n\n这样我们就得到了每个单词作为下一个输出单词的概率。\n\n### 与 CNN 的类比\n\n这个设计与 CNN 用于分类任务时的最后几层非常相似。在 CNN 中，卷积层提取特征后，也是通过全连接层（Linear）映射到类别数量的维度，再用 softmax 得到分类概率。Transformer 在这里的思路完全一致——只是「类别」变成了词汇表中的所有单词。\n\n### 在实际模型中的应用\n\n在 GPT 系列模型中，这个 linear + softmax 的组合被称为 \"language model head\"（LM head）。值得注意的是，很多现代模型中，这个线性层的权重与输入端的 embedding 层权重是共享的（weight tying），即 $W = W_{embed}^T$，这既减少了参数量，又提升了性能。",
+      "explanation": "## Transformer的最后几层\n\n这张幻灯片讲解Transformer架构的输出端（最后几层），这与CNN分类器的末端结构非常相似。\n\n### 两个关键步骤\n\n**1. Linear Layer（线性层）**\n\nTransformer的最终输出经过一个线性变换层（全连接层），将Decoder最后一层的隐藏状态向量映射到词汇表大小的维度。假设隐藏状态维度为 $d_{model}$，词汇表大小为 $|V|$，则这一步的操作为：\n$$z = W \\cdot h + b$$\n其中 $W \\in \\mathbb{R}^{|V| \\times d_{model}}$，$h$ 是最后一层的输出向量，$z$ 是一个 $|V|$ 维的logits向量。\n\n**2. Softmax**\n\n将logits向量通过Softmax函数转换为概率分布：\n$$P(w_i) = \\frac{e^{z_i}}{\\sum_{j=1}^{|V|} e^{z_j}}$$\n\n这样我们就得到了词汇表中每个词的生成概率。模型选择概率最高的词作为下一个预测词（贪心解码），或者使用beam search、top-k sampling等策略进行更复杂的解码。\n\n### 与CNN的类比\n\n这个结构与CNN用于图像分类时的末端非常相似：CNN最后也是通过一个全连接层将特征映射到类别数量的维度，再用Softmax得到各类别的概率。区别在于，CNN输出的是图像类别的概率，而Transformer输出的是下一个词的概率。\n\n### 在实际模型中的体现\n\n在GPT系列模型中，这个\"Linear + Softmax\"结构被称为Language Model Head（LM Head）。值得注意的是，很多实现中Linear层的权重矩阵与输入端的词嵌入矩阵是共享的（weight tying），这既减少了参数量，又能提升性能。",
       "keyPoints": [
-        "Transformer 最后通过 Linear 层将隐藏表示映射到词汇表大小的向量（logits）",
-        "Softmax 将 logits 转换为单词概率分布，结构与 CNN 分类头类似",
-        "这种 Linear + Softmax 的输出头在 GPT 等模型中称为 LM head，常与 embedding 层共享权重"
+        "Transformer最后通过Linear层将隐藏状态映射到词汇表大小的维度，再用Softmax得到每个词的概率",
+        "这一结构与CNN分类器末端（全连接层+Softmax）非常类似",
+        "实际模型中常使用权重共享（weight tying），让LM Head的权重与输入嵌入矩阵共享"
       ]
     },
     {
       "page": 32,
-      "explanation": "## Transformer 完整架构总览\n\n这张幻灯片将之前逐步讲解的各个组件整合在一起，展示 Transformer 的完整架构。\n\n### 完整架构回顾\n\n一个完整的 Transformer（以原始论文 \"Attention Is All You Need\" 为例）包含以下从输入到输出的完整流程：\n\n**输入端：**\n1. **Token Embedding**：将输入的 token（单词/子词）转换为 $d_{model}$ 维的向量\n2. **Positional Encoding**：加入位置信息，因为注意力机制本身不包含顺序信息\n\n**中间处理（重复 $N$ 层）：**\n3. **Multi-Head Self-Attention**：通过 Query、Key、Value 的多头注意力机制捕获序列中各 token 之间的关系\n4. **Add & Norm**：残差连接 + Layer Normalization\n5. **Feed-Forward Network (FFN)**：两层全连接网络，对每个位置独立处理\n6. **Add & Norm**：再次残差连接 + Layer Normalization\n\n**输出端：**\n7. **Linear Layer**：映射到词汇表大小\n8. **Softmax**：得到输出概率分布\n\n### 数学上的完整表达\n\n对于每一层 $l$：\n$$\\mathbf{h}_l' = \\text{LayerNorm}(\\mathbf{h}_{l-1} + \\text{MultiHeadAttn}(\\mathbf{h}_{l-1}))$$\n$$\\mathbf{h}_l = \\text{LayerNorm}(\\mathbf{h}_l' + \\text{FFN}(\\mathbf{h}_l'))$$\n\n### 为什么这个架构如此成功\n\nTransformer 的核心优势在于：（1）自注意力机制允许任意位置之间直接交互，解决了 RNN 的长距离依赖问题；（2）高度并行化，训练效率远超 RNN；（3）模块化设计使其容易扩展（如 BERT 只用 encoder，GPT 只用 decoder）。这张幻灯片帮助学生建立对整体架构的宏观理解。",
+      "explanation": "## Transformer：完整架构总览\n\n这张幻灯片将前面所有讲过的组件汇总，展示Transformer的完整架构。\n\n### 完整架构回顾\n\n一个标准的Transformer（以原始论文\"Attention Is All You Need\"为例）包含以下核心组件，从输入到输出依次为：\n\n**输入端：**\n1. **Token Embedding**：将输入词转换为稠密向量表示\n2. **Positional Encoding**：注入位置信息（因为Attention本身不感知顺序）\n\n**中间层（重复 $N$ 次的Transformer Block）：**\n3. **Multi-Head Self-Attention**：通过Query、Key、Value的注意力机制捕获序列中token之间的依赖关系\n4. **Add & Norm**：残差连接 + Layer Normalization\n5. **Feed-Forward Network (FFN)**：两层全连接网络，对每个位置独立做非线性变换\n6. **Add & Norm**：再一次残差连接 + Layer Normalization\n\n**输出端：**\n7. **Linear Layer**：将最终隐藏状态映射到词汇表维度\n8. **Softmax**：得到下一个词的概率分布\n\n### 信息流的直觉理解\n\n可以把整个Transformer想象成一个流水线：输入的文本首先被\"数字化\"（Embedding），然后被\"标记位置\"（Positional Encoding），接着经过多轮\"讨论\"（Attention让每个词了解其他词的信息），每轮讨论后进行\"个人思考\"（FFN独立处理），最终产出预测结果。\n\n### 架构变体\n\n原始Transformer有Encoder-Decoder结构（用于翻译等seq2seq任务），而GPT只用Decoder部分，BERT只用Encoder部分。这些变体我们后续会详细讨论。",
       "keyPoints": [
-        "完整 Transformer 包含：Embedding + Positional Encoding → N 层(Attention + FFN + 残差 + LayerNorm) → Linear + Softmax",
-        "每层的核心计算是多头自注意力和前馈网络，配合残差连接和层归一化",
-        "这种模块化架构是 BERT、GPT 等基础模型的共同基础"
+        "完整Transformer包含：Embedding + Positional Encoding → N层(Multi-Head Attention + FFN + 残差+LayerNorm) → Linear + Softmax",
+        "Encoder-Decoder是原始架构，GPT只用Decoder，BERT只用Encoder",
+        "理解完整架构的信息流对后续学习各种Foundation Model至关重要"
       ]
     },
     {
       "page": 33,
-      "explanation": "## 下节课预告：Transformer 的使用、训练与变体\n\n这张幻灯片是一个过渡性幻灯片，预告下一节课将要覆盖的三个重要主题：\n\n### 1. How to use it（如何使用 Transformer 的输出）\n\n这涉及到 Transformer 输出的不同使用方式。例如：\n- **自回归生成（Autoregressive Generation）**：像 GPT 那样，每次预测下一个 token，逐步生成序列\n- **分类任务**：使用特殊 token（如 BERT 的 [CLS]）的输出表示来做分类\n- **序列到序列任务**：如翻译，使用完整的 encoder-decoder 架构\n\n### 2. How to train it（如何训练 Transformer）\n\n训练方式与模型的用途密切相关：\n- **Causal Language Modeling（因果语言建模）**：GPT 使用的方式，预测下一个 token\n- **Masked Language Modeling（掩码语言建模）**：BERT 使用的方式，预测被遮盖的 token\n- 训练技巧包括 learning rate warmup、特殊的优化器（如 AdamW）等\n\n### 3. How to rip it apart and build other models（如何拆解并构建其他模型）\n\n这是 Foundation Models 课程中非常核心的主题。原始 Transformer 是 encoder-decoder 结构，但后续研究者们将其拆解：\n- **只用 Encoder**：BERT、RoBERTa 等，擅长理解任务\n- **只用 Decoder**：GPT 系列，擅长生成任务\n- **Encoder-Decoder**：T5、BART 等，适合序列到序列任务\n\n这些变体构成了现代基础模型生态系统的基石。",
+      "explanation": "## Transformer：后续内容预告\n\n这张幻灯片预告了下一节课将要覆盖的三个重要主题：\n\n### 1. 如何使用Transformer（即输出方式）\n\nTransformer的输出可以用于多种任务。在语言建模中，输出是下一个token的概率分布；在分类任务中，可以取特殊token（如BERT的[CLS]）的表示做分类；在生成任务中，通过自回归方式逐步生成文本。不同的使用方式对应不同的应用场景。\n\n### 2. 如何训练Transformer\n\n训练Transformer涉及多个关键问题：\n- **预训练目标**：如GPT使用的Causal Language Modeling（预测下一个词），BERT使用的Masked Language Modeling（预测被遮盖的词）\n- **优化策略**：学习率warm-up、Adam优化器等\n- **大规模训练的工程挑战**：数据并行、模型并行等\n\n### 3. 如何\"拆解\"并构建其他模型\n\n这是Foundation Models课程最核心的理念之一——Transformer不是一个固定的黑盒，而是可以被拆解、重组、修改的模块化架构。例如：\n- 只用Encoder → BERT（用于理解任务）\n- 只用Decoder → GPT（用于生成任务）\n- Encoder-Decoder → T5、BART（用于seq2seq任务）\n- 将Transformer应用到视觉领域 → ViT\n\n这种\"拆解重组\"的思维方式是理解当今各种Foundation Model的关键。",
       "keyPoints": [
-        "下节课将讲解 Transformer 的三大核心问题：输出使用方式、训练方法、架构变体",
-        "拆解 Transformer 产生了 BERT（encoder-only）、GPT（decoder-only）、T5（encoder-decoder）等重要变体",
-        "理解这些变体是掌握现代基础模型生态的关键"
+        "下一节课将覆盖Transformer的使用方式、训练方法以及如何拆解构建新模型",
+        "Transformer是模块化架构，可以被拆解重组为BERT、GPT、ViT等不同模型",
+        "理解训练目标（如CLM、MLM）对理解不同Foundation Model的差异至关重要"
       ]
     }
   ]

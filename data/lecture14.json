@@ -5,8 +5,12 @@
   "slides": [
     {
       "page": 1,
-      "explanation": "课程行政信息，跳过。",
-      "keyPoints": []
+      "explanation": "这是本讲的标题页，主题为 **Prompting（提示）和 In-Context Learning（上下文学习，ICL）**。这是Foundation Models课程中关于如何**使用**基础模型的核心内容。\n\n在基础模型的生态中，训练模型（pre-training）和使用模型（inference/deployment）是两个关键阶段。Prompting 和 ICL 属于使用阶段的核心技术——即在**不修改模型参数**的前提下，通过精心设计输入（prompt）来引导模型完成各种下游任务。\n\n这一主题非常重要，因为：\n1. **Prompting** 是当前使用 GPT、Claude 等大语言模型最直接的方式，用户通过自然语言指令与模型交互。\n2. **In-Context Learning (ICL)** 是指在 prompt 中提供少量示例（few-shot examples），让模型在推理时\"学会\"新任务，而无需梯度更新。这是 GPT-3 论文中展示的核心能力之一。\n3. 相比于传统的 fine-tuning，prompting 和 ICL 的成本更低、更灵活，是当前实际应用中最广泛的使用范式。\n\n本讲将探讨 prompting 的各种策略、ICL 的工作原理及其理论解释。",
+      "keyPoints": [
+        "本讲主题：如何通过 Prompting 和 In-Context Learning 使用基础模型",
+        "Prompting 和 ICL 是不修改模型参数就能完成下游任务的关键技术",
+        "ICL 是 GPT-3 等大模型展现出的核心涌现能力之一"
+      ]
     },
     {
       "page": 2,
@@ -20,359 +24,403 @@
     },
     {
       "page": 4,
-      "explanation": "这张幻灯片展示了本节课的大纲（Outline），涵盖三大主题：\n\n**1. 上节课回顾：其他模态和领域（Other Modalities and Domains）**\n包括音频（Audio）、视频（Video）、强化学习/机器人（RL/Robotics）等。Foundation Models 不仅限于文本，还可以扩展到多种模态，这是理解基础模型通用性的关键。\n\n**2. Prompting 基础**\n这是本节课的核心内容之一。涉及以下关键术语和概念：\n- **Zero-shot prompting**：不提供任何示例，直接让模型完成任务。例如直接问 GPT \"翻译这句话\"。\n- **Few-shot prompting**：在 prompt 中提供少量示例（如2-5个），让模型从中学习任务模式。\n- **In-context learning (ICL)**：模型在推理时通过 prompt 中提供的上下文示例来学习，而无需更新模型参数。这是 GPT-3 论文中提出的核心能力之一。\n- **Prompt 特性**：包括格式（format）、示例选择（examples）、示例顺序（orders）等，这些因素都会显著影响模型的表现。\n\n**3. 改进和扩展 Prompting**\n包括更高级的技术：\n- **搜索好的 prompts**：通过自动化方法寻找最优 prompt。\n- **Continuous/Soft prompts**：不使用离散的文本 token，而是在嵌入空间中优化连续向量作为 prompt（如 Prefix Tuning、Prompt Tuning）。\n- **Ensembling**：组合多个 prompt 的输出以提高鲁棒性。\n- **Prompt optimization**：系统化地优化 prompt。\n- **Chain-of-thought (CoT)**：让模型逐步推理，显著提升复杂推理任务的表现。\n\n这个大纲从基础到高级，系统地构建了 prompting 和 in-context learning 的知识体系。",
+      "explanation": "这张幻灯片展示了本次讲座的大纲（Outline），涵盖三大主题模块：\n\n**1. 上次课程回顾：其他模态与领域**\n包括音频（Audio）、视频（Video）、强化学习/机器人（RL/Robotics）等模态的基础模型应用。这部分承接上一讲的内容，说明 Foundation Model 不仅限于文本和图像。\n\n**2. Prompting 基础**\n这是本讲的核心内容之一。涉及以下关键术语和概念：\n- **Zero-shot**：不提供任何示例，直接让模型完成任务\n- **Few-shot**：提供少量示例（如1-5个）来引导模型\n- **In-context learning（上下文学习）**：将示例直接放入 prompt 中，模型无需更新参数即可\"学习\"新任务\n- **Prompt 的特征**：包括格式（format）、示例选择（examples）、示例排列顺序（orders），这些都会显著影响模型表现\n\n**3. 改进和扩展 Prompting 技术**\n更高级的 prompting 方法：\n- **搜索好的 prompt**：自动化寻找最优 prompt\n- **Continuous/Soft prompts**：不使用离散文本，而是在连续嵌入空间中优化 prompt 向量\n- **Ensembling（集成）**：组合多个 prompt 的结果\n- **Prompt optimization**：系统优化 prompt 的方法\n- **Chain-of-thought（思维链）**：让模型逐步推理，显著提升复杂推理任务的表现，这是 GPT-4 等大模型的重要技术\n\n这个大纲清晰地从基础到高级递进，为理解 prompting 这一 Foundation Model 核心使用范式提供了完整框架。",
       "keyPoints": [
-        "本节课涵盖 Prompting 基础（zero-shot、few-shot、ICL）和高级 Prompting 技术",
-        "In-context learning 是模型在推理时通过上下文示例学习，无需参数更新",
-        "高级技术包括 soft prompts、prompt 优化、ensembling 和 chain-of-thought 推理"
+        "本讲涵盖三大主题：其他模态回顾、Prompting 基础、高级 Prompting 技术",
+        "Prompting 基础包括 zero-shot、few-shot、in-context learning 等核心术语",
+        "高级技术包括 soft prompts、prompt 优化、集成方法和 chain-of-thought 推理"
       ]
     },
     {
       "page": 5,
-      "explanation": "这张幻灯片与上一张（第4页）内容完全相同，是课程大纲的重复展示，可能用于讲师在讲完第一部分后回到大纲页面标记进度。\n\n大纲结构不变，依然是三部分：\n1. **其他模态和领域回顾**（Audio, Video, RL/Robotics）\n2. **Prompting 基础**：zero-shot、few-shot、in-context learning 等术语，以及 prompt 的格式、示例、顺序等特性\n3. **改进和扩展 Prompting**：搜索好的 prompts、continuous/soft prompts 技术、ensembling、prompt optimization、chain-of-thought\n\n这种在讲座中反复展示大纲的做法是常见的教学手法，帮助学生了解当前讲到了哪个部分，保持对整体结构的把握。值得注意的是，这些主题代表了使用基础模型（而非训练或微调模型）的主要方法论。Prompting 是使用预训练大模型最直接、成本最低的方式，理解其原理和最佳实践对于有效利用 GPT、Claude 等模型至关重要。",
+      "explanation": "这张幻灯片与第4页内容几乎完全相同，是同一个大纲页面，只是高亮/强调的部分有所不同。在课堂演示中，这种重复的大纲页通常用于标记讲座进度——告诉学生\"我们现在要开始讲第一个主题了\"。\n\n从幻灯片的结构来看，此处高亮的应该是第一个模块\"From Last Time: Other Modalities and Domains\"，即接下来要先回顾上次课关于音频、视频、RL/机器人等其他模态的 Foundation Model 内容，然后再进入 Prompting 的正式讲解。\n\n这种大纲导航的设计在课堂教学中很常见，帮助学生在长讲座中保持对整体结构的把握。",
       "keyPoints": [
-        "与第4页相同的大纲页，用于标记讲课进度",
-        "Prompting 是使用基础模型最直接的方式，无需训练或微调"
+        "这是大纲导航页，标记讲座即将进入第一个主题模块：其他模态与领域",
+        "内容与上一页相同，用于课堂进度指示"
       ]
     },
     {
       "page": 6,
-      "explanation": "## 其他模态：音频（Audio）\n\n这张幻灯片介绍了基础模型如何扩展到音频模态。核心思想是：我们在视觉-语言模型上学到的多模态方法可以迁移到音频领域。\n\n### 音频处理的关键技巧\n\n一个巧妙的方法是将音频信号转换为**频谱图（spectrogram）**。频谱图本质上是一张图像——横轴是时间，纵轴是频率，颜色/亮度表示能量强度。通过这种转换，音频问题就变成了图像问题，可以直接利用已有的多模态视觉-语言模型来处理。\n\n### Whisper 模型\n\n幻灯片重点提到了 **Whisper**（Radford et al., 2022），这是 OpenAI 开发的语音识别模型。Whisper 使用了高达 **680K 小时**的音频监督数据进行训练，这是一个巨大的规模。Whisper 的关键创新在于：\n\n1. **弱监督（weak supervision）**：利用互联网上大量的音频-文本配对数据，而非人工精标注数据\n2. **多任务训练**：同一个模型可以完成语音识别、语言识别、语音翻译等多种任务\n3. **鲁棒性**：由于训练数据的多样性，Whisper 在各种噪声环境和口音下都表现良好\n\nWhisper 的架构基于 Transformer 的 encoder-decoder 结构，输入端将音频转为 log-Mel 频谱图，然后用类似视觉模型的方式处理。\n\n### 与基础模型的联系\n\n这体现了基础模型的一个重要趋势：**模态统一（modality unification）**。通过将不同模态的数据转换为共同的表示形式（如图像），可以复用已有的强大模型架构和预训练方法。这种思路在后来的多模态大模型（如 GPT-4o）中得到了进一步发展。",
+      "explanation": "这张幻灯片介绍了 Foundation Model 在**音频模态（Audio）**上的应用，核心思想是模态之间的技术可迁移性。\n\n**核心观点：模态转换策略**\n音频数据可以被转换为**频谱图（Spectrograms）**，而频谱图本质上就是图像——横轴为时间，纵轴为频率，颜色/亮度表示能量强度。这意味着我们可以直接将多模态视觉模型应用到音频任务上，无需从零设计专用的音频架构。这体现了 Foundation Model 的一个重要理念：**统一不同模态的表示**。\n\n**关键示例：Whisper 模型**\n- 来自 OpenAI，由 Radford 等人于 2022 年提出\n- 使用了高达 **680,000 小时**的音频监督数据进行训练，数据规模极为庞大\n- Whisper 是一个通用语音识别模型，支持多语言转录、翻译等任务\n- 其架构基于 Transformer 的 encoder-decoder 结构：encoder 接收 log-Mel 频谱图（一种特殊的频谱图），decoder 以自回归方式生成文本\n\n**为什么这很重要？**\n这说明 Foundation Model 的核心架构（如 Transformer）和训练范式（大规模监督/自监督预训练）具有**跨模态的通用性**。音频、图像、文本甚至视频都可以在统一框架下处理。这与我们之前学到的视觉 Transformer（ViT）将图像 patch 当作 token 的思路一脉相承——关键在于找到合适的方式将不同模态的数据\"翻译\"成模型能理解的表示形式。\n\n同时，680K 小时的训练数据量也体现了 Foundation Model 的典型特征：通过海量数据的 scaling 来获得强大的泛化能力。",
       "keyPoints": [
-        "音频可以通过转换为频谱图（spectrogram）变成图像，从而利用多模态视觉模型处理",
-        "Whisper 使用 680K 小时音频数据进行弱监督训练，实现了强大的语音识别能力",
-        "模态统一是基础模型的重要趋势：将不同模态映射到共同表示空间"
+        "音频可以转换为频谱图（Spectrogram），从而利用现有的多模态视觉模型处理音频任务",
+        "Whisper 是 OpenAI 的通用语音模型，使用 680K 小时音频数据训练，基于 Transformer encoder-decoder 架构",
+        "这体现了 Foundation Model 跨模态通用性的核心理念：统一架构 + 模态转换 + 大规模数据"
       ]
     },
     {
       "page": 7,
-      "explanation": "## 其他模态：音频 + 视频 + 文本\n\n这张幻灯片介绍了 **MERLOT**（Zellers et al., 2021），一个同时处理视频、音频和文本三种模态的基础模型。\n\n### MERLOT 的核心思想\n\n与之前讨论的双模态模型（如 CLIP 处理图像+文本）不同，MERLOT 将模态扩展到了三种：**视频（video）+ 音频（audio）+ 文本（text）**。视频本身就是一个复杂的模态，因为它包含了时间维度的视觉信息。\n\nMERLOT 的训练方式是从大量的网络视频（如 YouTube）中学习。这些视频自然地包含了视觉帧序列（视频）、语音/音效（音频）和字幕/转录文本（文本），因此提供了丰富的多模态监督信号。\n\n### 为什么视频+文本很重要？\n\n1. **时间推理**：视频要求模型理解事件的时间顺序，这比静态图像更具挑战性\n2. **跨模态对齐**：模型需要学习视觉场景、语音内容和文本描述之间的对应关系\n3. **更丰富的语义理解**：结合多种模态可以获得更全面的世界知识\n\n### 与基础模型发展的联系\n\n这反映了基础模型从单模态（纯文本的 GPT/BERT）→ 双模态（CLIP 的图像+文本）→ 多模态（MERLOT 的视频+音频+文本）的演进趋势。后来的模型如 GPT-4o 和 Gemini 更是将这种多模态融合推到了极致，能够同时处理文本、图像、音频和视频。",
+      "explanation": "这张幻灯片介绍了基础模型在**多模态**领域的扩展，特别是音频（Audio）、视频（Video）和文本（Text）的结合。具体提到了 **Merlot**（Zellers et al., 2021），这是一个处理视频和文本的多模态基础模型。\n\n**为什么这很重要？**\n基础模型不仅限于单一模态（如纯文本的GPT或纯图像的ViT）。现实世界的信息是多模态的——视频包含视觉帧序列、音频轨道和可能的字幕/文本。Merlot 的核心思想是从视频中联合学习视觉和语言表示，通过观看大量带有文本（如字幕、转录）的视频来进行预训练。\n\n**Merlot 的关键设计思路：**\n- 视频被分解为帧序列（视觉模态）和对应的文本（语言模态）\n- 模型学习帧与文本之间的时序对齐关系\n- 预训练任务可能包括：给定部分帧和文本，预测缺失的帧或文本片段\n\n**与基础模型大图景的联系：**\n这体现了基础模型从单模态向多模态演进的趋势。类似的工作还包括 CLIP（图像+文本）、DALL-E（文本→图像）、Flamingo（视觉+语言）等。视频模态的加入引入了**时序维度**，这比静态图像+文本的对齐更具挑战性。在 Prompting 和 In-Context Learning 的语境下，多模态基础模型使得我们可以用自然语言 prompt 来查询和推理视频内容，例如视频问答（Video QA）。",
       "keyPoints": [
-        "MERLOT 是一个同时处理视频、音频和文本三种模态的基础模型",
-        "从网络视频中可以自然获得多模态监督信号（视觉帧+语音+字幕）",
-        "多模态基础模型的演进趋势：从单模态到双模态再到多模态融合"
+        "Merlot 是一个结合视频和文本的多模态基础模型（Zellers et al., 2021）",
+        "基础模型正从单模态扩展到多模态（音频+视频+文本），处理更丰富的现实世界信息",
+        "视频模态引入了时序维度，比静态图像+文本的对齐更具挑战性"
       ]
     },
     {
       "page": 8,
-      "explanation": "## 基础模型在机器人领域的应用\n\n这张幻灯片引入了一个重要话题：如何将大语言模型（LLM）应用于**机器人规划（planning）**和控制。\n\n### 核心挑战：Grounding 问题\n\n语言模型可以生成看起来合理的计划和步骤描述，但存在一个关键问题——**缺乏 grounding（接地性/具身性）**。具体来说：\n\n- LLM 不了解当前的物理环境状态（比如机器人周围有什么物体、有哪些障碍物）\n- LLM 不知道机器人的实际能力（哪些动作是可执行的、哪些技能已经学会）\n- LLM 可能生成在当前环境下不可行的计划\n\n举个直观的例子：如果你问 GPT \"帮我做一杯咖啡\"，它可以列出详细步骤，但它不知道厨房里是否有咖啡机、杯子在哪里、机器人的机械臂能否够到某个柜子。\n\n### 解决思路：结合强化学习\n\n幻灯片提到可以将 LLM 与**强化学习（Reinforcement Learning, RL）**概念结合。RL 的优势在于：\n\n1. RL agent 通过与环境交互获得关于环境的知识\n2. RL 提供了关于动作可行性的评估\n3. RL 的策略（policy）是基于当前状态做决策的\n\n因此，LLM 提供高层次的语言规划能力，RL 提供底层的环境感知和动作执行能力。这种结合是 Ahn et al., 2022（SayCan）的核心思想，下一张幻灯片将详细介绍。\n\n### 更广泛的意义\n\n这代表了基础模型从\"纯数字世界\"走向\"物理世界\"的重要一步，是**具身智能（Embodied AI）**的核心研究方向。",
+      "explanation": "这张幻灯片介绍了**基础模型在机器人学（Robotics）中的应用**，指出了核心挑战和解决思路。\n\n**核心问题：Grounding（接地）**\n语言模型（如 GPT）可以生成看起来合理的计划步骤，例如\"拿起杯子，走到桌子旁，放下杯子\"。但问题在于，语言模型**不了解物理环境的实际状态**——它不知道杯子在哪里、桌子是否可达、机器人手臂能否完成某个动作。这就是所谓的 **\"not grounded\"（未接地）** 问题。\n\n可以用一个直觉类比来理解：语言模型就像一个从未离开过书房的理论家，能写出完美的旅行计划，但不知道某条路是否真的存在、某个航班是否已取消。\n\n**解决思路：结合强化学习（RL）**\n幻灯片提出可以将语言模型与**强化学习（Reinforcement Learning）**概念结合。RL 天然地与环境交互，了解状态（state）、动作（action）和奖励（reward）。通过将 LLM 的高层规划能力与 RL 的环境感知能力相结合，可以弥补 grounding 的缺失。\n\n这项工作出自 **Ahn et al., 2022**，即后续幻灯片将详细介绍的 SayCan 系统。这展示了基础模型作为通用推理引擎的潜力——不仅用于文本生成，还可以作为机器人系统的\"大脑\"进行任务规划。",
       "keyPoints": [
-        "LLM 可用于机器人规划，但核心挑战是缺乏 grounding——模型不了解物理环境和机器人能力",
-        "解决方案是将 LLM 的语言规划能力与 RL 的环境感知和动作执行能力结合",
-        "这代表基础模型从纯数字世界走向物理世界的具身智能方向"
+        "语言模型可用于机器人任务规划，但存在「未接地」问题——不了解物理环境的实际状态",
+        "解决思路是将语言模型的高层规划能力与强化学习的环境感知能力相结合",
+        "这体现了基础模型作为通用推理引擎在非传统NLP领域的应用潜力"
       ]
     },
     {
       "page": 9,
-      "explanation": "## SayCan：基础模型与机器人的结合\n\n这张幻灯片详细介绍了 **SayCan**（Ahn et al., 2022）的核心机制，这是 Google 提出的将 LLM 与机器人控制结合的经典方法。\n\n### SayCan 的核心公式\n\nSayCan 的基本思想可以用贝叶斯式的分解来理解。对于选择下一步动作，模型考虑两个概率的组合：\n\n1. **LLM 提供的概率**：下一步骤是否在语义上合理（\"say\" 部分）\n   - 即给定任务描述和已完成步骤，LLM 认为某个动作是合理下一步的概率\n   - 这利用了 LLM 的语言理解和常识推理能力\n\n2. **完成技能/步骤的概率**：从当前状态 $s$ 出发，机器人能否成功执行该动作（\"can\" 部分）\n   - 这个概率来自 RL 训练得到的 affordance function（可供性函数）\n   - 它评估在当前物理状态下，某个动作的可行性\n\n最终的动作选择可以表示为：\n$$a^* = \\arg\\max_a \\underbrace{P_{\\text{LLM}}(a | \\text{task, history})}_{\\text{语义合理性}} \\cdot \\underbrace{P_{\\text{affordance}}(a | s)}_{\\text{物理可行性}}$$\n\n### 直观理解\n\n\"Say\" = 模型说什么有道理（语言层面的规划）\n\"Can\" = 机器人实际能做什么（物理层面的约束）\n\n两者相乘实现了高层语言智能与底层物理能力的优雅结合。比如 LLM 可能认为\"拿起杯子\"是合理的下一步，但如果杯子不在机器人可达范围内，affordance 概率会很低，系统就会选择其他可行的动作。\n\n### 意义\n\nSayCan 展示了基础模型不需要直接被 grounded——通过模块化组合，可以让不同组件各司其职。",
+      "explanation": "这张幻灯片详细介绍了 **SayCan**（Ahn et al., 2022）的核心思想，它是将基础模型应用于机器人规划的代表性工作。\n\n**SayCan 的核心公式思想：**\nSayCan 巧妙地将两个概率结合起来进行决策：\n\n1. **LLM 提供的概率（\"Say\"）**：语言模型评估下一步操作在语义上是否合理。例如，给定任务\"帮我拿一杯水\"，LLM 会给\"走向厨房\"较高的概率，而给\"跳舞\"较低的概率。这可以表示为某种 $P(\\text{step is valid} | \\text{task description, history})$。\n\n2. **完成技能的概率（\"Can\"）**：基于当前机器人状态 $s$，评估机器人实际上能否成功执行某个技能/步骤。这来自 RL 训练的价值函数或策略，可以表示为 $P(\\text{completing skill} | s)$。\n\n**组合方式：**\n最终选择的动作是两个概率的乘积或加权组合：\n$$\\text{score}(\\text{action}) = P_{\\text{LLM}}(\\text{action is useful}) \\times P_{\\text{affordance}}(\\text{action is feasible} | s)$$\n\n这就是 SayCan 名称的由来：**\"Say\"** 代表语言模型说什么是合理的，**\"Can\"** 代表机器人实际能做什么。只有当一个动作既语义合理（Say）又物理可行（Can）时，才会被选择。\n\n**直觉类比：**\n想象你请一位不了解你厨房的美食专家（LLM）给你做饭建议，同时有一位了解你冰箱里有什么食材的助手（affordance model）。最佳选择是两者意见的交集——既是好菜谱，又是你能做的。\n\n这种设计解决了前一张幻灯片提到的 grounding 问题：LLM 负责高层语义推理，affordance model 负责物理世界的约束。",
       "keyPoints": [
-        "SayCan 将动作选择分解为两个概率的乘积：LLM 提供的语义合理性概率（Say）和 RL 提供的物理可行性概率（Can）",
-        "公式：$a^* = \\arg\\max_a P_{\\text{LLM}}(a) \\cdot P_{\\text{affordance}}(a|s)$，实现语言智能与物理能力的结合",
-        "模块化设计使 LLM 不需要直接感知环境，而是通过与可供性函数的组合实现 grounding"
+        "SayCan 将 LLM 的语义合理性概率（Say）与机器人执行可行性概率（Can）相乘来选择动作",
+        "\"Say\" 来自语言模型对任务步骤的评估，\"Can\" 来自基于当前状态 s 的强化学习策略",
+        "这种设计优雅地解决了 grounding 问题：语义推理与物理约束各司其职",
+        "SayCan 是基础模型与具身智能（Embodied AI）结合的经典范例"
       ]
     },
     {
       "page": 10,
-      "explanation": "## 基础模型在导航中的应用\n\n这张幻灯片介绍了 **Shah et al., 2022** 的工作，展示了如何在机器人导航任务中连接多个基础模型。\n\n### 核心架构：多基础模型的组合\n\n与 SayCan 将 LLM 与单一 RL 策略结合不同，这个导航系统连接了**多种不同类型的基础模型**：\n\n1. **语言模型（Language FM）**：理解自然语言指令，进行高层次推理和规划\n2. **视觉模型（Vision FM）**：处理视觉观察，理解当前环境（如识别物体、地标、障碍物）\n3. **动作模型（Action FM）**：将高层计划转化为具体的导航动作序列\n\n### 输入与输出\n\n- **输入（Inputs）**：\n  - 观察（observations）：机器人传感器（如摄像头）获取的环境信息\n  - 指令（instructions）：用自然语言给出的导航目标，如 \"去厨房拿一杯水\"\n\n- **输出（Output）**：\n  - 计划（plan）：具体的导航路径和动作序列\n\n### 多模型组合的优势\n\n这种方法体现了一个重要的设计哲学：**不是训练一个万能模型，而是将多个专长模型组合起来**。每个基础模型在其擅长的领域（语言理解、视觉感知、动作规划）提供能力，通过接口连接形成完整的系统。\n\n### 与 SayCan 的对比\n\n- SayCan 主要是 LLM + RL affordance 的两方组合\n- 导航系统则是语言 + 视觉 + 动作三种 FM 的多方组合\n- 两者都体现了 \"组合多个模型\" 而非 \"训练单一端到端模型\" 的思路\n\n### 更广泛的启示\n\n这种多 FM 组合的范式后来在许多具身智能系统中得到广泛采用。它暗示了未来 AI 系统可能不是单一巨大模型，而是多个专业化基础模型的协同工作。",
+      "explanation": "这张幻灯片介绍了基础模型（Foundation Models）在机器人导航领域的应用。核心思想是将多个不同类型的基础模型**连接**起来，形成一个协同工作的系统。\n\n具体来说，这里涉及三类基础模型：\n- **语言模型（Language FM）**：理解自然语言指令，例如\"去厨房拿一杯水\"\n- **视觉模型（Vision FM）**：处理机器人的视觉观测（observations），理解当前环境\n- **动作模型（Action FM）**：将高层次的理解转化为具体的运动规划\n\n整个系统的工作流程是：\n1. **输入**：机器人接收两类输入——当前的环境观测（如摄像头画面）和用户的自然语言指令\n2. **处理**：多个FM协同工作，语言模型解析指令，视觉模型理解环境，动作模型生成可执行的计划\n3. **输出**：一个具体的导航计划（plan），指导机器人如何行动\n\n这项工作来自 Shah et al. 2022，体现了一个重要趋势：**组合式AI系统（Compositional AI Systems）**。与其训练一个端到端的巨大模型来处理所有事情，不如利用各个领域已经训练好的基础模型，通过适当的接口将它们连接起来。这种方法的优势在于：\n- 每个模块都可以利用各自领域的大规模预训练\n- 系统更加模块化，便于调试和升级\n- 减少了对机器人领域大规模标注数据的需求\n\n这也是 Prompting 和 In-Context Learning 的一个延伸应用——通过合理的提示设计，让预训练的语言模型能够参与到机器人任务的规划中，而不需要对模型进行微调。",
       "keyPoints": [
-        "导航系统通过连接语言、视觉和动作三种基础模型，将自然语言指令和视觉观察转化为导航计划",
-        "多 FM 组合的设计哲学：让每个模型发挥各自专长，而非训练单一端到端模型",
-        "输入为观察和指令，输出为可执行的导航计划，体现了基础模型在具身智能中的应用潜力"
+        "机器人导航通过连接语言、视觉、动作三类基础模型实现协同工作",
+        "输入为环境观测和自然语言指令，输出为导航计划",
+        "组合式架构利用各领域预训练模型的优势，避免端到端训练的数据瓶颈"
       ]
     },
     {
       "page": 11,
-      "explanation": "Content generation failed for this slide.",
-      "keyPoints": []
+      "explanation": "这张幻灯片是前一张（Slide 10）的延续，很可能展示了 Shah et al. 2022 论文中的系统架构图或具体实验示例。\n\n核心概念保持一致：在机器人导航任务中，**连接多个基础模型**（语言、视觉、动作）来完成复杂的导航任务。\n\n从论文 Shah et al. 2022（LM-Nav）的角度来看，该系统的具体架构通常包括：\n1. **大语言模型（LLM）**：如 GPT-3，将自然语言导航指令分解为一系列地标（landmarks）。例如，指令\"经过喷泉，然后右转到图书馆\"会被解析为 [喷泉, 右转, 图书馆] 这样的序列。\n2. **视觉-语言模型（VLM）**：如 CLIP，将文本描述的地标与视觉观测进行匹配，在预构建的视觉地图中找到对应的节点。\n3. **视觉导航模型（VNM）**：根据匹配到的路径点序列，生成具体的低层动作指令来控制机器人移动。\n\n这个例子很好地展示了 Prompting 的强大之处：我们不需要重新训练任何一个模型，只需要通过合理的 prompting 策略，就能让这些预训练的基础模型在一个全新的下游任务（机器人导航）中协同工作。这是 zero-shot 或 few-shot 能力在实际系统中的典型体现。\n\n这种多模型组合的范式也被称为\"FM as a service\"或\"chaining FMs\"，是当前AI系统设计的重要趋势。",
+      "keyPoints": [
+        "LM-Nav系统展示了如何不经微调，通过prompting将预训练FM应用于机器人导航",
+        "语言模型解析指令、视觉语言模型匹配地标、导航模型生成动作，三者协同工作",
+        "体现了基础模型链式组合（chaining FMs）的系统设计范式"
+      ]
     },
     {
       "page": 12,
-      "explanation": "Content generation failed for this slide.",
+      "explanation": "课程行政信息，跳过。",
       "keyPoints": []
     },
     {
       "page": 13,
-      "explanation": "Content generation failed for this slide.",
-      "keyPoints": []
+      "explanation": "这是本次讲座的大纲/目录幻灯片，概述了本讲的三大主题模块：\n\n**1. 上次课的回顾：其他模态和领域**\n包括音频（Audio）、视频（Video）、强化学习/机器人（RL/Robotics）等非文本模态的基础模型应用。\n\n**2. Prompting 基础**\n这是本讲的核心起点。涵盖了关键术语的定义——zero-shot（零样本）、few-shot（少样本）、in-context learning（上下文学习）等概念，以及 prompt 的关键特征：格式（format）、示例（examples）、顺序（orders）。这些概念是理解现代大语言模型（如 GPT-3/4）使用方式的基础。\n\n**3. 改进和扩展 Prompting**\n深入探讨更高级的技术，包括：\n- 搜索好的 prompt（prompt search）\n- 连续/软提示（continuous/soft prompts）技术\n- 集成方法（ensembling）\n- Prompt 优化（prompt optimization）\n- 思维链（Chain-of-Thought, CoT）\n\n这个大纲展示了一个从基础到高级的递进结构。Prompting 是基础模型时代最重要的交互范式之一——与传统机器学习需要重新训练模型不同，prompting 允许用户通过自然语言指令来引导预训练模型完成各种下游任务，这彻底改变了 AI 系统的使用方式。",
+      "keyPoints": [
+        "本讲从 Prompting 基础概念出发，逐步深入到高级 prompting 技术",
+        "关键术语包括 zero-shot、few-shot、in-context learning 等",
+        "高级主题涵盖 soft prompts、prompt 优化、Chain-of-Thought 等前沿技术"
+      ]
     },
     {
       "page": 14,
-      "explanation": "Content generation failed for this slide.",
-      "keyPoints": []
+      "explanation": "这张幻灯片介绍了 **Prompting（提示）** 的核心思想：本质上就是\"向你的模型提问\"，让模型去执行你想要的目标任务。\n\n**核心概念：**\nPrompting 的革命性在于，你不需要为每个特定任务重新训练模型。相反，你通过精心设计的自然语言输入（即 prompt），引导一个通用的预训练语言模型完成特定任务。这是基础模型时代的核心范式转变——从 \"train a model for each task\" 到 \"prompt one model for all tasks\"。\n\n**具体示例：情感分析任务（Sentiment Analysis）**\n- **Prompt（输入）**: \"Text: The visuals were lacking and the characters felt flat. Sentiment:\"\n- **Result（模型输出）**: \"Negative\"\n\n这个例子非常巧妙地展示了 prompting 的工作方式：\n1. 我们将任务隐式编码在 prompt 的格式中——通过 \"Text:\" 和 \"Sentiment:\" 这样的标签结构，模型理解了它需要做什么。\n2. 模型利用其预训练阶段学到的世界知识和语言理解能力，判断出这段文本表达的是负面情感。\n3. 注意 \"Sentiment:\" 后面留空，这引导模型在这个位置生成答案——本质上是利用了语言模型的自回归补全（autoregressive completion）能力。\n\n这种方式将传统的分类任务重新表述为文本生成任务，是 GPT 系列模型的典型使用方式。",
+      "keyPoints": [
+        "Prompting 的核心思想是通过自然语言输入引导预训练模型完成特定任务，无需重新训练",
+        "示例展示了如何将情感分析任务转化为文本补全问题",
+        "Prompt 的格式设计隐式传达了任务要求，模型利用预训练知识生成答案"
+      ]
     },
     {
       "page": 15,
-      "explanation": "Content generation failed for this slide.",
-      "keyPoints": []
+      "explanation": "这张幻灯片介绍了 Prompting 中两个最基本也最重要的术语：**Zero-shot** 和 **Few-shot/In-context Learning**。\n\n**Zero-shot（零样本）：**\n不向模型提供任何示例（examples），直接让模型执行任务。就像上一张幻灯片的情感分析例子那样——我们只给了模型一个待分析的文本和任务格式，没有提供任何\"这是正面/负面\"的参考示例。模型完全依赖预训练阶段获得的知识来完成任务。\n\n**Few-shot / In-context Learning（少样本/上下文学习）：**\n在 prompt 中提供若干个\"示例\"（通常是输入-输出对），然后让模型对新的输入做出预测。例如，在情感分析中，你可以先给出几个标注好的例子：\"Text: Great movie! Sentiment: Positive\" 等，然后再给出待分析的文本。\n\n**为什么 Few-shot 有效？**\nFew-shot learning 是 GPT-3 论文（Brown et al., 2020）的核心贡献之一。模型在 inference time 通过上下文中的示例\"学习\"到任务模式，而无需更新模型参数。这与传统的 fine-tuning 形成鲜明对比——fine-tuning 需要梯度更新，而 in-context learning 完全在前向传播中完成。\n\n引用的 Zhao et al. 2021 是一篇重要论文，研究了 few-shot prompting 中的各种偏差和不稳定性问题，例如示例的选择和排列顺序会显著影响模型性能。\n\n**直观类比：**\nZero-shot 就像告诉一个聪明的学生\"做这道题\"但不给任何参考；Few-shot 则像先给几道例题和答案，再让他做新题——后者通常效果更好。",
+      "keyPoints": [
+        "Zero-shot 不提供示例，完全依赖模型预训练知识；Few-shot 在 prompt 中提供若干示例",
+        "In-context learning 是 Few-shot 的核心机制，模型在推理时通过上下文示例学习任务模式，无需参数更新",
+        "Zhao et al. 2021 揭示了 few-shot prompting 中示例选择和顺序对性能有显著影响"
+      ]
     },
     {
       "page": 16,
-      "explanation": "Content generation failed for this slide.",
-      "keyPoints": []
+      "explanation": "## Few-shot Prompting vs. In-Context Learning 的术语辨析\n\n这张幻灯片澄清了一个在基础模型领域中非常容易混淆的术语问题：**Few-shot** 和 **In-Context Learning (ICL)** 的区别。\n\n### 核心区别\n\n关键在于**模型权重是否改变**：\n\n- **Few-shot (历史含义)**：在早期的机器学习文献中，few-shot learning 通常指的是在少量标注数据上进行 **fine-tuning**（微调），即模型的权重会被更新。你有一小组标注样本，然后用这些数据对模型进行梯度更新，之后再进行推理。\n\n- **In-Context Learning (ICL)**：**不进行任何微调**，模型权重完全不变。你只是将示例（demonstrations）放入 prompt 中，让模型在推理时通过上下文来\"学习\"如何完成任务。这是一种纯粹的推理时（inference-time）能力。\n\n### 现代用法的融合\n\n在现代大语言模型（LLM）的使用中，**few-shot prompting ≈ in-context learning**。当人们说\"few-shot GPT-4\"时，通常指的就是在 prompt 中提供几个示例，而不是微调模型。这种术语的演变反映了 LLM 范式转移的影响——由于大模型的 fine-tuning 成本高昂，且 ICL 效果已经足够好，\"few-shot\"在 LLM 语境下几乎默认指 ICL。\n\n### 为什么重要？\n\n理解这个区别在阅读论文时至关重要。如果你看到一篇 2019 年的论文提到 few-shot，它可能指微调；而 2023 年的论文提到 few-shot，几乎肯定指 in-context learning。GPT-3 论文（Brown et al., 2020）正是推广了这种术语转变的里程碑。\n\n参考文献 Dong et al., '23 是一篇关于 ICL 的综述论文，SST 是情感分析的标准数据集。",
+      "keyPoints": [
+        "Few-shot 历史上指在少量数据上微调模型（权重改变），而 In-Context Learning 不改变模型权重",
+        "在现代 LLM 用法中，few-shot prompting 和 in-context learning 基本等价",
+        "阅读论文时需注意术语的时代背景，避免混淆"
+      ]
     },
     {
       "page": 17,
-      "explanation": "Content generation failed for this slide.",
-      "keyPoints": []
+      "explanation": "## Few-Shot 的关键选择：格式、示例、顺序\n\n这张幻灯片强调了 few-shot prompting 中三个影响性能的关键因素，并指出 prompting 可能出人意料地**脆弱（brittle）**。\n\n### 三个关键选择\n\n1. **Prompt 格式（Prompt Format）**：如何组织和呈现 prompt 的结构。这影响一切——同样的任务，用不同的措辞可能导致截然不同的结果。例如，\"判断以下文本的情感\" vs \"这段话是正面还是负面的？\" 可能产生显著差异。\n\n2. **示例的选择（Choice of Examples）**：从可用的标注样本中选择哪些作为 demonstration。不同的示例可能激活模型的不同\"知识路径\"。例如，选择与测试样本语义相近的示例通常效果更好（这引出了后续研究如 KATE 等检索增强方法）。\n\n3. **示例的顺序（Order of Examples）**：即使是同一组示例，不同的排列顺序（permutation）也会导致不同的性能。这是非常反直觉的——如果模型真正\"理解\"了任务，顺序不应该那么重要，但实验证明它确实很重要。\n\n### Prompting 的脆弱性\n\n**Zhao et al., 2021** 的研究揭示了这些问题。他们发现 GPT-3 的 few-shot 性能可能因为示例顺序的变化而从接近随机猜测到接近 SOTA 大幅波动。这说明模型并不像我们想象的那样稳健地\"理解\"了 prompt。\n\n幻灯片特别指出：\"Still a problem 5 years later!\" 这意味着即使到了 2026 年，prompting 的鲁棒性问题仍未完全解决。这对实际应用有重要启示：**在部署 LLM 时，需要仔细调试 prompt，并对其稳定性进行验证。**",
+      "keyPoints": [
+        "Few-shot 性能受三个因素影响：prompt 格式、示例选择、示例顺序",
+        "Prompting 出人意料地脆弱，微小变化可能导致性能大幅波动",
+        "Zhao et al., 2021 表明示例顺序的不同排列可以让性能从接近随机到接近 SOTA",
+        "这个脆弱性问题至今仍未完全解决，实际应用中需要仔细调试"
+      ]
     },
     {
       "page": 18,
-      "explanation": "Content generation failed for this slide.",
-      "keyPoints": []
+      "explanation": "## Prompt 格式：Cloze 风格 vs. Prefix 风格\n\n这张幻灯片介绍了不同语言模型架构如何影响 prompt 的格式设计，这是理解 prompting 历史演进的重要内容。\n\n### 两种模型，两种 Prompt 格式\n\n**1. Masked Language Model (MLM) → Cloze-style Prompt**\n\n以 BERT 为代表的 MLM 在预训练时使用 [MASK] token 进行填空。因此，prompt 需要设计成**填空题**的形式：\n\n> \"I love this movie, it is a **[Z]** movie.\"\n\n模型需要预测 [Z] 位置的词（如 \"great\"、\"wonderful\"），然后将预测的词映射到类别标签（如 positive/negative）。这种方式被称为 **Cloze prompt**，名字来源于语言学中的 cloze test（完形填空测试）。这种方法在 2020-2021 年非常流行（如 PET、LMBFF 等工作），但现在已经是\"old\"的方法了。\n\n**2. Left-to-Right Language Model (自回归模型) → Prefix Prompt**\n\n以 GPT 系列为代表的自回归模型从左到右生成文本，因此 prompt 设计为**前缀+问题**的形式：\n\n> \"I love this movie. What is the sentiment of this review?\"\n\n模型在这个前缀之后继续生成答案。这是现代 LLM 的主流方式。\n\n### 评估数据集\n\n**LAMA (LAnguage Model Analysis)** 是一个经典的评估数据集，它使用 Cloze-style prompt 来探测语言模型中存储了多少世界知识。例如：\"Paris is the capital of [MASK].\" 用来测试模型是否\"知道\"巴黎是法国的首都。\n\n幻灯片还提到，评估数据集通常有预先创建的标准化 prompt 模板，以确保实验的可复现性。\n\n### 为什么重要？\n\n理解这段历史帮助我们理解为什么现在的 prompt 都是 prefix 风格——因为现代基础模型几乎都是自回归的（GPT-4、LLaMA、Claude 等）。",
+      "keyPoints": [
+        "Masked LM（如 BERT）使用 Cloze 填空式 prompt，自回归 LM（如 GPT）使用 Prefix 前缀式 prompt",
+        "Cloze prompt 是早期方法，现代 LLM 几乎全部使用 prefix prompt",
+        "LAMA 是用 Cloze prompt 探测语言模型知识的经典评估数据集",
+        "Prompt 格式必须与模型的预训练目标相匹配才能有效工作"
+      ]
     },
     {
       "page": 19,
-      "explanation": "Content generation failed for this slide.",
-      "keyPoints": []
+      "explanation": "## Instruction-Based Prompt 格式\n\n这张幻灯片介绍了现代 instruction-tuned 模型中更复杂的提示格式。随着 ChatGPT、GPT-4 等指令微调模型（instruction-tuned models）的出现，用户可以用更自然的语言向模型下达指令，而不再局限于传统的 fill-in-the-blank 或 cloze 格式。\n\n### 优点与挑战\n\n**优点（The good）**：指令式提示更加自然，用户可以像与人对话一样告诉模型要做什么。这大大降低了使用门槛，使非技术用户也能有效地与模型交互。\n\n**缺点（The bad）**：由于指令格式的自由度极高，搜索最优的 prompt 格式和模板变得更加困难。在传统的 cloze prompt 中，模板空间相对有限；但在指令式提示中，表达同一意图的方式几乎无穷多，这使得 prompt engineering 和自动化 prompt 搜索更具挑战性。\n\n### 示例分析\n\n幻灯片引用了 White et al., 2023 的例子：用户要求模型扮演一个交互式助手，通过提问来收集部署 Python 应用到 AWS 所需的信息，最终生成自动化部署脚本。这展示了指令式提示的强大表达能力——它不仅可以指定任务，还可以定义交互流程和输出格式。\n\n这种 \"meta-prompting\" 或 \"flipped interaction\" 模式是 prompt engineering 中的高级技巧，体现了从单轮提示到多轮交互式提示的演进。在实际应用中，如何设计有效的指令格式仍然是一个活跃的研究领域。",
+      "keyPoints": [
+        "指令微调模型允许用户用自然语言下达复杂指令，降低了使用门槛",
+        "指令格式自由度高导致搜索最优 prompt 模板更加困难",
+        "高级指令可以定义交互流程（如让模型反过来提问），展示了 prompt engineering 的丰富可能性"
+      ]
     },
     {
       "page": 20,
-      "explanation": "Content generation failed for this slide.",
-      "keyPoints": []
+      "explanation": "## Few-Shot 中示例的选择策略\n\n这张幻灯片讨论了 few-shot prompting 中一个关键问题：**如何选择合适的示例（examples）**。在 few-shot 学习中，由于上下文窗口的限制，只能展示少量示例（不像监督学习那样有大量训练数据），因此每个示例的选择都至关重要。\n\n### 三种主要策略\n\n**1. 语义相似性采样（Liu et al., 2021）**：利用 kNN（k-Nearest Neighbors）在 embedding 空间中找到与测试输入语义最相似的示例。直觉是：如果示例与当前问题越相似，模型就越容易从中学到正确的输入-输出映射关系。具体做法是将所有候选示例和测试输入编码为向量，然后选择距离最近的 $k$ 个示例。\n\n**2. 多样性采样（Su et al., 2022）**：鼓励在 embedding 空间中选择多样化的示例。如果所有示例都过于相似，模型可能只学到局部模式。通过增加多样性，可以让模型更全面地理解任务。\n\n**3. Active Prompting（Diao et al., 2023）**：借鉴主动学习（active learning）的思想，选择模型最不确定的示例进行标注和展示。这种方法动态地根据模型的反馈来决定哪些示例最有信息量。\n\n这三种方法体现了一个核心权衡：**相关性 vs 多样性 vs 信息量**。在实践中，选择策略对 few-shot 性能有显著影响，有时甚至比增加示例数量更重要。",
+      "keyPoints": [
+        "Few-shot 中示例数量有限，因此选择策略至关重要",
+        "三种主要策略：基于语义相似性的 kNN 采样、多样性采样、以及基于模型不确定性的 active prompting",
+        "核心权衡在于相关性、多样性和信息量之间的平衡"
+      ]
     },
     {
       "page": 21,
-      "explanation": "这张幻灯片讨论了 few-shot prompting 中的第三个关键维度：**示例的顺序（Order of Examples）**。当我们在 prompt 中提供多个示例时，这些示例的排列顺序会显著影响模型的表现。\n\n幻灯片列出了四个重要的研究发现：\n\n1. **模型规模不保证低方差（Model size doesn't guarantee low-variance）**：即使是非常大的模型（如 GPT-3 175B），对示例顺序的敏感性也不会自动降低。你可能直觉上认为更大的模型更\"稳健\"，但实验表明并非如此。\n\n2. **增加更多示例不会降低方差（Adding more examples doesn't reduce variance）**：这与统计学中\"更多数据 → 更低方差\"的直觉相矛盾。在 in-context learning 中，增加示例数量可能改变平均性能，但不会使模型对顺序变化更鲁棒。\n\n3. **好的 prompt 不能在模型间迁移（Good prompts don't transfer from one model to another）**：在 Model A 上效果很好的 prompt 排列，换到 Model B 上可能效果很差。这意味着 prompt engineering 是高度模型特定的。\n\n4. **好的顺序也不能迁移（Good orders don't transfer）**：类似地，对一个任务有效的排序策略不一定适用于另一个任务或模型。\n\n这些发现共同揭示了 in-context learning 的一个深层问题：它对 prompt 的设计（包括格式、示例选择和顺序）高度敏感，而且这种敏感性难以通过简单方法（如增大模型或增加示例）来缓解。这也是后续研究\"如何系统性地优化 prompt\"这一主题的动机之一。",
+      "explanation": "## 示例顺序的影响\n\n这张幻灯片探讨了 few-shot prompting 中另一个看似细微但影响巨大的问题：**示例的排列顺序（order of examples）**。研究发现，即使使用完全相同的示例集合，仅仅改变它们在 prompt 中的排列顺序，就可能导致模型性能发生剧烈变化。\n\n### 关键发现\n\n**1. 模型规模不保证低方差**：直觉上我们可能认为更大的模型会更稳健，对示例顺序不那么敏感。但实验表明，即使是非常大的模型，其性能仍然会因示例顺序的变化而产生显著波动。\n\n**2. 增加示例数量不能降低方差**：这是一个违反直觉的发现。在传统统计学中，增加样本量通常能降低估计的方差。但在 few-shot prompting 中，增加示例并不能消除顺序敏感性问题。\n\n**3. 好的 prompt 不能跨模型迁移**：在一个模型上表现优异的 prompt 格式，换到另一个模型上可能效果大打折扣。这意味着 prompt engineering 在很大程度上是模型特定的。\n\n**4. 好的顺序不能迁移**：同样，在一个模型上找到的最优示例顺序，不一定适用于其他模型。\n\n这些发现揭示了 in-context learning 的脆弱性（brittleness），也说明了为什么 prompt engineering 仍然是一个充满挑战的领域。这与 Transformer 中位置编码（positional encoding）对序列顺序的敏感性有关——模型对信息出现的位置有隐含的偏好（如 recency bias）。",
       "keyPoints": [
-        "示例顺序对 ICL 性能有显著影响，即使大模型也无法避免这种方差",
-        "增加示例数量不能降低对顺序的敏感性",
-        "好的 prompt 和排序策略在不同模型和任务之间不可迁移，prompt engineering 具有高度特异性"
+        "示例顺序对 few-shot 性能影响巨大，且这种敏感性不会随模型增大或示例增多而消失",
+        "好的 prompt 和好的顺序都不能跨模型迁移，说明 prompt engineering 具有强烈的模型特异性",
+        "这些发现揭示了 in-context learning 的脆弱性，是当前研究的重要挑战"
       ]
     },
     {
       "page": 22,
-      "explanation": "课程行政信息，跳过。",
+      "explanation": "课程休息与问答环节，跳过。",
       "keyPoints": []
     },
     {
       "page": 23,
-      "explanation": "课程行政信息，跳过。",
-      "keyPoints": []
+      "explanation": "这是一张大纲/目录幻灯片，概述了本次课程的结构和主题。本节课分为三个主要部分：\n\n**第一部分：上次课程回顾 — 其他模态和领域**\n涉及音频（Audio）、视频（Video）、强化学习/机器人（RL/Robotics）等模态的基础模型应用。\n\n**第二部分：Prompting 基础**\n这是本节课的核心入门内容，涵盖了关键术语的定义：\n- **Zero-shot prompting**：不提供任何示例，直接向模型提问\n- **Few-shot prompting**：提供少量示例后再提问\n- **In-context learning (ICL)**：模型通过 prompt 中提供的上下文信息来学习任务，无需更新参数\n- Prompt 的特性包括：格式（format）、示例选择（examples）、示例顺序（orders）等，这些因素都会显著影响模型性能\n\n**第三部分：改进和扩展 Prompting**\n这是本节课的进阶内容，涵盖了多种高级技术：\n- 搜索好的 prompt（prompt search/discovery）\n- **Continuous/soft prompts**：在连续嵌入空间中优化 prompt，而非使用离散的自然语言 token\n- **Ensembling**：集成多个 prompt 的结果\n- **Prompt optimization**：系统化地优化 prompt\n- **Chain-of-thought (CoT)**：让模型逐步推理，显著提升复杂推理任务的表现\n\n从这张大纲可以看出，Prompting 是使用基础模型（Foundation Models）的核心交互方式。与传统机器学习需要 fine-tuning 不同，prompting 允许用户通过设计输入来引导模型行为，这是 GPT、Claude 等大语言模型的关键使用范式。",
+      "keyPoints": [
+        "本节课从 prompting 基础术语（zero-shot、few-shot、in-context learning）讲到高级技术（soft prompts、chain-of-thought）",
+        "Prompt 的格式、示例选择和顺序都会显著影响模型表现",
+        "进阶技术包括 prompt 搜索、连续/软提示、集成方法和 chain-of-thought 推理"
+      ]
     },
     {
       "page": 24,
-      "explanation": "这张幻灯片引入了 **Hard Prompting（硬提示）** 的概念，即如何通过搜索和优化来发现更好的自然语言 prompt。\n\n**核心思想**：我们希望对 prompt 进行优化，但优化的搜索空间是自然语言/离散 token，而不是连续的参数空间。这就是\"hard\"的含义——prompt 由离散的词或 token 组成，无法直接用梯度下降等连续优化方法。与之对应的是后面会讲到的 soft prompting（连续提示），其中 prompt 被表示为可学习的连续向量。\n\n幻灯片引用了 Wen et al. (2023) 的一句话：\"Hard prompt discovery is a specialized alchemy\"——硬提示的发现是一种专门的\"炼金术\"，很多好的 prompt 是通过**试错（trial and error）**或**纯粹的直觉（sheer intuition）**发现的。这生动地说明了当前 prompt engineering 的现状：它更像一门艺术而非科学，缺乏系统的方法论。\n\n一个重要的补充说明是：**Hard prompting 不仅适用于语言模型！** 在视觉模型（如 CLIP）、多模态模型等场景中，prompt 设计同样至关重要。例如在 CLIP 中，如何设计文本 prompt（如 \"a photo of a {class}\"）直接影响零样本分类的效果。\n\n这张幻灯片设定了后续几页的讨论框架：既然手动设计 prompt 不可靠，我们能否用算法来自动搜索最优 prompt？",
+      "explanation": "这张幻灯片介绍了 **Hard Prompting（硬提示）** 的概念及其优化方法。\n\n## 什么是 Hard Prompting？\n\nHard prompt 指的是由离散的自然语言 token 组成的提示。与之相对的是 soft prompt（软提示），后者是在连续的嵌入空间中定义的向量，不一定对应于人类可读的文本。Hard prompt 就是我们日常使用 ChatGPT 时输入的那些自然语言指令。\n\n## Hard Prompt Discovery（硬提示发现）\n\n核心问题是：**如何找到更好的 prompt？** 一种方法是通过搜索（search）来发现更优的 prompt。\n\n这里的优化目标是在自然语言/token 的离散空间中进行优化。这与传统的连续优化（如梯度下降）有本质区别——我们不能简单地对离散的文本 token 求梯度。这使得 prompt 优化成为一个组合优化问题，搜索空间极其庞大。\n\n## \"炼金术\" 的比喻\n\n幻灯片引用了 Wen et al. (2023) 的一句话，将 hard prompt discovery 比作一种 **\"专门的炼金术\"（specialized alchemy）**。这个比喻非常生动：很多优秀的 prompt 是通过反复试验（trial and error）或纯粹的直觉（sheer intuition）发现的，而非通过系统化的科学方法。这反映了当前 prompt engineering 领域的一个重要现实——它仍然在很大程度上依赖经验和直觉。\n\n## 不仅限于语言模型\n\n幻灯片特别提醒：hard prompting 不仅适用于语言模型！在视觉模型（如 DALL-E、Stable Diffusion 的文本提示）、多模态模型等场景中，prompt 设计同样至关重要。\n\n这为后续介绍更系统化的 prompt 优化方法（如 soft prompting、自动 prompt 搜索）奠定了动机基础。",
       "keyPoints": [
-        "Hard prompting 指在离散的自然语言空间中搜索最优 prompt",
-        "当前 prompt 发现更多依赖试错和直觉，缺乏系统方法",
-        "Hard prompting 不限于语言模型，也适用于视觉和多模态模型"
+        "Hard prompt 是由离散自然语言 token 组成的提示，优化它本质上是一个离散空间的搜索/组合优化问题",
+        "当前 hard prompt 的发现很大程度上依赖试错和直觉，被比喻为\"炼金术\"",
+        "Hard prompting 不仅限于语言模型，也适用于视觉、多模态等其他类型的基础模型",
+        "这种方法的局限性为后续引入 soft prompting 等系统化优化方法提供了动机"
       ]
     },
     {
       "page": 25,
-      "explanation": "这张幻灯片进一步探讨了 **Hard Prompting 的离散优化方法（Discrete Optimization）**，特别是在不使用梯度的情况下如何搜索好的 prompt。\n\n由于 hard prompt 是离散的 token 序列，传统的基于梯度的优化方法（如 SGD、Adam）无法直接应用——你不能对离散 token 求导。因此需要使用**无梯度优化（gradient-free optimization）**方法。\n\n幻灯片提到了两种基本策略：\n\n1. **Random Search（随机搜索）**：从 prompt 空间中随机采样候选 prompt，评估其在目标任务上的表现，保留最好的。这是最简单的方法，但在高维离散空间中效率很低。\n\n2. **Greedy（贪心搜索）**：逐步构建或修改 prompt，每一步选择当前最优的 token 或修改。例如，可以逐个位置替换 token，每次保留使性能提升最大的替换。这比随机搜索更有方向性，但可能陷入局部最优。\n\n这些方法来自 Prasad et al. (2023) 的工作。虽然简单，但它们代表了自动化 prompt 设计的第一步。相比人工试错，即使是随机搜索也能在大量候选中找到比人类直觉更好的 prompt。\n\n在更高级的方法中（后续幻灯片可能会涉及），可以使用强化学习、进化算法，甚至通过连续松弛（continuous relaxation）来近似梯度优化离散 prompt。这些方法构成了 prompt optimization 这一研究方向的核心。",
+      "explanation": "## Hard Prompting: 离散优化方法\n\n这张幻灯片介绍了 Hard Prompting 中**避免使用梯度**的离散优化策略。前面我们讨论了 AutoPrompt 等基于梯度的方法来搜索离散 token，但有时候我们可以完全绕开梯度计算，使用更简单的优化方法。\n\n### 两种无梯度方法\n\n1. **Random Search（随机搜索）**：在离散的 token 空间中随机采样不同的 prompt 组合，评估它们在验证集上的表现，保留最优的那个。这种方法虽然看起来粗暴，但在搜索空间不太大时可以出奇地有效。\n\n2. **Greedy Search（贪心搜索）**：逐步构建 prompt，每一步选择当前最优的 token，然后固定该 token 继续选下一个。这种方法比穷举更高效，但可能陷入局部最优。\n\n### 为什么要避免梯度？\n\n- 离散 token 空间本质上不可微，梯度方法（如 AutoPrompt）需要通过近似技巧（如投影到最近的 embedding）来处理，这引入了额外的误差\n- 对于黑盒模型（如通过 API 访问的 GPT-4），我们根本无法获取梯度信息\n- 随机搜索和贪心搜索在实现上更简单，计算开销也可能更低\n\n这项工作来自 Prasad et al. 2023，反映了 prompt 优化领域中一个重要趋势：不一定需要复杂的优化算法，简单的搜索策略在某些场景下也能取得不错的效果。这与 Foundation Models 的实际应用场景高度相关——当模型是黑盒 API 时，离散无梯度方法是唯一可行的选择。",
       "keyPoints": [
-        "Hard prompt 是离散 token，无法直接使用梯度优化",
-        "基本的无梯度方法包括随机搜索和贪心搜索",
-        "这些方法虽然简单但为自动化 prompt 设计提供了基础框架"
+        "Hard Prompting 可以使用无梯度的离散优化方法，如随机搜索和贪心搜索",
+        "这些方法特别适用于无法获取梯度的黑盒模型（如 API 访问的大模型）",
+        "简单的搜索策略在某些场景下可以替代复杂的梯度近似方法"
       ]
     },
     {
       "page": 26,
-      "explanation": "## Soft Prompting（软提示）\n\n这张幻灯片介绍了 **Soft Prompting**（软提示），也称为 **continuous prompting**（连续提示）。这是对传统离散提示（discrete/hard prompting）的一个重要扩展。\n\n### 核心思想\n\n在传统提示中，我们用自然语言文本来引导模型输出。但 Soft Prompting 的做法不同：它在输入的 embedding 空间中插入一些**可训练的连续参数**（continuous parameters），这些参数**不对应任何实际的词汇**。\n\n### 直觉理解\n\n可以这样理解：传统 prompting 就像你用人类语言告诉模型该做什么，但人类语言的表达空间是离散的、有限的。Soft Prompting 则是直接在模型\"听得懂\"的向量空间中寻找最优的\"指令\"。这些向量可能不对应任何人类可理解的单词，但它们能更精确地引导模型行为。\n\n### 工作方式\n\n假设模型的输入 embedding 维度为 $d$，我们插入 $k$ 个可训练的向量 $\\{p_1, p_2, \\ldots, p_k\\}$，其中 $p_i \\in \\mathbb{R}^d$。这些向量被拼接到正常的输入 embedding 之前（或之中），然后通过反向传播来优化这些参数，而**模型本身的参数保持冻结**（frozen）。\n\n### 为什么重要\n\nSoft Prompting 是 parameter-efficient fine-tuning（参数高效微调）的重要方法之一。相比于 full fine-tuning 需要更新模型所有参数（可能数十亿），Soft Prompting 只需要训练少量的额外参数，大大降低了计算和存储成本。这与 LoRA、Adapter 等方法属于同一大类。",
+      "explanation": "## Soft Prompting（软提示）\n\n这张幻灯片引入了一个与 Hard Prompting 完全不同的范式——**Soft Prompting（也叫 Continuous Prompting，连续提示）**。\n\n### 核心思想\n\nSoft Prompting 的基本理念是：与其在离散的词汇空间中搜索最优的 token 序列，不如直接在**连续的嵌入空间**中插入一些可训练的参数向量。这些参数：\n\n1. **被插入到 prompt 中**：它们像普通 token 的 embedding 一样被输入到模型中\n2. **通过反向传播训练**：可以使用标准的梯度下降来优化\n3. **不对应任何实际的词语**：它们是纯数学意义上的向量，没有人类可读的语义对应\n\n### 与 Hard Prompting 的对比\n\n| 特性 | Hard Prompting | Soft Prompting |\n|------|--------------|----------------|\n| 搜索空间 | 离散（token 空间） | 连续（embedding 空间） |\n| 可解释性 | 高（是真实的词） | 低（不对应词语） |\n| 优化方式 | 梯度近似/搜索 | 标准梯度下降 |\n| 需要模型权重 | 不一定 | 通常需要 |\n\n### 为什么这很重要？\n\nSoft Prompting 解决了 Hard Prompting 中离散优化的核心困难。在连续空间中优化比在离散空间中容易得多——我们可以直接计算梯度并更新参数。这使得 prompt 优化变得更加稳定和高效。同时，由于不受限于词汇表中已有的词语，soft prompts 具有更强的表达能力，可以编码出人类语言难以表达的「指令」。这种方法是参数高效微调（Parameter-Efficient Fine-Tuning, PEFT）的重要先驱。",
       "keyPoints": [
-        "Soft Prompting 在输入中插入不对应实际词汇的可训练连续向量，通过优化这些参数来引导模型",
-        "与 hard prompting（离散文本提示）不同，soft prompting 在连续 embedding 空间中搜索最优提示",
-        "模型参数保持冻结，只训练少量额外参数，属于参数高效微调方法"
+        "Soft Prompting 在连续嵌入空间中插入可训练参数，而非搜索离散 token",
+        "这些参数不对应实际词语，但可以通过标准梯度下降高效优化",
+        "相比 Hard Prompting，Soft Prompting 优化更稳定、表达能力更强，但可解释性较低"
       ]
     },
     {
       "page": 27,
-      "explanation": "## Soft Prompting: Prefix-Tuning（前缀微调）\n\n这张幻灯片介绍了 Soft Prompting 的一个具体实现方法：**Prefix-Tuning**，由 Li 和 Liang 在 2021 年提出。\n\n### 方法细节\n\nPrefix-Tuning 的核心思路是：为 Transformer 模型的每一层的注意力机制前面添加**可训练的前缀向量**（prefix）。具体来说：\n\n- 对于每一层 Transformer，在 key 和 value 矩阵前面拼接一组可训练的前缀参数\n- 形式上，原始的注意力计算从 $\\text{Attention}(Q, K, V)$ 变为 $\\text{Attention}(Q, [P_K; K], [P_V; V])$，其中 $P_K, P_V$ 是可训练的前缀\n\n### 关键设计特点\n\n1. **每个任务训练一个前缀**：不同的下游任务有不同的前缀参数，但共享同一个冻结的基础模型\n2. **只存储新参数**：由于基础模型不变，只需为每个任务存储少量的前缀参数（通常只占模型总参数的约 0.1%）\n3. **冻结语言模型**：基础 LM 的参数完全不变，实现了**廉价的模型适配**（cheap adaptation）\n\n### 实际意义\n\n想象你有一个巨大的预训练模型（如 GPT-3），你想让它同时服务于翻译、摘要、问答等多个任务。Full fine-tuning 需要为每个任务存储一份完整的模型副本。而 Prefix-Tuning 只需存储每个任务的前缀（几 MB），极大节省了存储和部署成本。这使得**多任务服务**变得非常高效。\n\n### 在 FM 生态中的位置\n\nPrefix-Tuning 是 PEFT（Parameter-Efficient Fine-Tuning）方法家族的重要成员，与 Prompt Tuning、Adapter、LoRA 等方法并列，是现代大模型适配的核心技术之一。",
+      "explanation": "## Soft Prompting: Prefix-Tuning\n\n这张幻灯片介绍了 Soft Prompting 最经典的实现之一——**Prefix-Tuning**，由 Li and Liang 在 2021 年提出。\n\n### 核心方法\n\nPrefix-Tuning 的目标是创建可训练的**前缀（prefix）**来引导模型的行为：\n\n- 在模型的输入序列前面（甚至在每一层 Transformer 的 key-value 前面）添加一组可训练的连续向量，称为 prefix\n- 这些 prefix 是**可训练参数**，在训练过程中通过反向传播更新\n- 模型本身的所有参数保持**冻结（frozen）**，不做任何修改\n\n### 任务适配的高效性\n\n这种方法的核心优势在于其高效的适配方式：\n\n1. **每个任务训练一组独立的 prefix**：对于不同的下游任务（如翻译、摘要、问答），只需训练不同的 prefix 向量\n2. **只存储新参数**：一个预训练模型可以服务多个任务，每个任务只额外存储少量 prefix 参数（通常只占模型总参数的 0.1% 左右）\n3. **廉价适配冻结语言模型**：无需对整个大模型进行微调，极大降低了计算和存储成本\n\n### 在 Foundation Models 中的地位\n\nPrefix-Tuning 是**参数高效微调（PEFT）**领域的先驱工作。后续的 LoRA、Adapter 等方法都沿着类似的思路——用极少量的可训练参数来适配大型冻结模型。在实际应用中，当我们需要在同一个大模型上部署多个任务时，Prefix-Tuning 的方案非常实用：只需维护一个冻结模型和多组轻量级 prefix，就能高效地支持多任务服务。\n\n这种思路与当前大模型的部署实践高度一致——模型太大无法为每个任务单独微调和存储，因此参数高效的适配方法变得至关重要。",
       "keyPoints": [
-        "Prefix-Tuning 为每层 Transformer 添加可训练的前缀向量，引导模型完成特定任务",
-        "每个任务训练独立的前缀参数，基础模型保持冻结，实现廉价的多任务适配",
-        "只需存储少量额外参数（约占模型参数 0.1%），极大节省存储成本"
+        "Prefix-Tuning 在模型输入前添加可训练的连续前缀向量，模型本身参数保持冻结",
+        "每个任务只需训练和存储一组轻量级 prefix，实现廉价的多任务适配",
+        "Prefix-Tuning 是参数高效微调（PEFT）的先驱，启发了 LoRA 等后续方法"
       ]
     },
     {
       "page": 28,
-      "explanation": "## Ensembling Prompts（提示集成）\n\n这张幻灯片介绍了如何通过**多次采样和投票**来提高 LLM 输出的可靠性，这是一种非常实用的推理增强策略。\n\n### 问题动机\n\n单次使用一个 prompt 得到的答案可能是错误的。LLM 的输出具有随机性（stochasticity），单次采样可能恰好采到了错误的推理路径。\n\n### 解决方案：多次采样 + 多数投票\n\n获取多个候选答案的方法有：\n\n1. **改变 temperature 参数**：temperature $\\tau$ 控制采样的随机性。softmax 变为 $p_i = \\frac{\\exp(z_i / \\tau)}{\\sum_j \\exp(z_j / \\tau)}$。较高的 $\\tau$ 产生更多样的输出，较低的 $\\tau$ 使输出更确定。通过不同 temperature 可以获得多样化的答案。\n\n2. **变换提示**（vary your prompts）：用不同的措辞、格式或 few-shot 示例来表达同一个问题，获得不同视角的回答。\n\n获得多个答案后，执行 **majority vote**（多数投票）：选择出现频率最高的答案作为最终答案。\n\n### 相关术语\n\n- **Test-time scaling**（测试时缩放）：通过在推理阶段投入更多计算来提升性能\n- **Self-consistency**（自一致性）：Wang et al. 提出的方法，通过采样多条推理链并对最终答案取多数投票\n\n### 直觉类比\n\n就像陪审团制度一样（幻灯片中的 \"Witnesses\" 和 \"Votes\" 暗示了这个类比）：不依赖单个证人的证词，而是综合多个证人的陈述，通过投票得出判决。这样可以减少个体偏差和错误的影响。\n\n### 在现代 AI 中的重要性\n\nTest-time scaling 是当前 LLM 研究的热点方向（如 OpenAI 的 o1 系列模型），其核心思想就是在推理时投入更多计算来提升输出质量。",
+      "explanation": "## Ensembling Prompts（提示集成）\n\n这张幻灯片介绍了一种提升LLM输出质量的关键策略：**提示集成（Prompt Ensembling）**。核心思想是，单个prompt可能给出错误答案，但如果我们获取多个样本并进行投票，就能显著提高准确率。这与传统机器学习中的集成学习（ensemble learning）思想完全一致。\n\n### 获取多个样本的方法\n\n1. **调整temperature参数**：Temperature控制模型输出的随机性。较高的temperature（如0.7-1.0）会让模型产生更多样化的回答，从而获得不同的候选答案。较低的temperature则让输出更确定性。\n\n2. **变换你的prompts**：用不同的措辞、不同的指令格式、不同的few-shot示例来问同一个问题，从而获得多样化的回答。\n\n### 多数投票（Majority Vote）\n\n获取多个回答后，采用**多数投票**机制选择最终答案。这在文献中有专门的术语：\n\n- **Test-time scaling（测试时扩展）**：在推理阶段通过增加计算量来提升性能，而不是增加训练计算。这是近期非常热门的研究方向（如OpenAI的o1模型）。\n- **Self-consistency（自洽性）**：由Wang et al.提出，核心假设是正确答案更可能被多次采样得到。\n\n幻灯片中的图示展示了类似\"见证人投票\"的过程：多个\"witnesses\"（即不同的prompt或采样结果）各自给出回答，然后通过投票机制汇总。\n\n这个方法在数学推理、代码生成等任务上效果显著，因为正确的推理路径虽然可能不同，但最终答案是唯一的。",
       "keyPoints": [
-        "通过多次采样（改变 temperature 或变换 prompt）获得多个候选答案，再用多数投票选出最终答案",
-        "Self-consistency 和 test-time scaling 是该思想的代表性术语，核心是在推理阶段投入更多计算",
-        "类似陪审团机制，集成多个回答可以减少单次采样的随机错误"
+        "单个prompt可能出错，通过多次采样+多数投票可提高准确率",
+        "获取多样化样本的方式：调整temperature参数或变换prompt措辞",
+        "Self-consistency和test-time scaling是这一领域的核心术语，代表在推理阶段增加计算来提升性能"
       ]
     },
     {
       "page": 29,
-      "explanation": "## Ensembling Prompts: Weighted Version（加权版本的提示集成）\n\n这张幻灯片是对上一页多数投票方法的改进，介绍了**加权投票**（weighted voting）策略，来自 Chen et al., 2023。\n\n### 多数投票的缺陷\n\n简单多数投票的一个致命问题是：如果**大多数回答都是错误的**，那么多数投票反而会选中错误答案。例如，假设你采样了 10 个答案，其中 6 个给出了错误答案 A，4 个给出了正确答案 B，多数投票会错误地选择 A。\n\n### 加权投票的思路\n\n解决方法是**不平等对待每个回答**，而是根据每个回答的**准确性或可靠性**来赋予不同的权重。形式上：\n\n$$\\text{answer} = \\arg\\max_a \\sum_{i: \\text{response}_i = a} w_i$$\n\n其中 $w_i$ 是第 $i$ 个回答的权重，反映其可靠程度。\n\n### 如何确定权重？\n\n权重可以基于多种信号：\n- **模型的置信度**（confidence/probability）：模型对某个回答赋予的概率越高，权重越大\n- **推理链的质量**：推理过程更完整、更合理的回答可以获得更高权重\n- **验证器评分**（verifier score）：用另一个模型来评估每个回答的质量\n\n### 直觉类比\n\n这就像专家投票 vs. 一人一票：在医学诊断中，你不会让一个实习生和一位主任医师的意见具有相同权重。加权投票让\"更有把握\"的回答拥有更大的话语权。\n\n### 与更广泛的 ML 联系\n\n这个思想与传统机器学习中的 **boosting**（提升法）和 **ensemble methods**（集成方法）高度一致。AdaBoost 也是通过给不同分类器赋予不同权重来提升整体性能。",
+      "explanation": "## Ensembling Prompts: Weighted Version（加权版本的提示集成）\n\n这张幻灯片指出了简单多数投票的局限性，并引入了**加权投票**的改进方案。\n\n### 多数投票的缺陷\n\n简单多数投票有一个关键问题：如果大多数回答都是错误的，那么多数投票会选出一个错误答案。例如，假设模型对某个困难问题采样10次，其中7次给出了错误答案A，3次给出了正确答案B，多数投票会错误地选择A。\n\n这在实际中很常见——当问题较难时，模型倾向于犯系统性错误，导致错误答案占据多数。\n\n### 加权投票方案\n\n解决方案是**根据每个回答的准确性（可信度）给予不同权重**。这引用了Chen et al., 2023的工作。具体而言：\n\n$$\\text{Final Answer} = \\arg\\max_a \\sum_{i=1}^{n} w_i \\cdot \\mathbb{1}[\\text{answer}_i = a]$$\n\n其中$w_i$是第$i$个回答的权重，反映其可靠性。\n\n关键问题是如何确定权重$w_i$。可能的方法包括：\n- 根据模型对回答的置信度（如token概率）\n- 根据推理链的逻辑完整性评分\n- 使用验证器（verifier）模型来评估每个回答的质量\n\n这与传统集成学习中的**加权投票**（如AdaBoost中对弱分类器加权）思想类似：不是所有\"专家\"的意见都同等重要，应该更信任准确率高的专家。",
       "keyPoints": [
-        "简单多数投票的问题：当大多数回答错误时，投票结果也会错误",
-        "加权投票根据每个回答的准确性/可靠性赋予不同权重，让更可靠的回答影响力更大",
-        "权重可基于模型置信度、推理链质量或验证器评分等信号确定"
+        "简单多数投票在大多数回答都错误时会失败",
+        "加权投票根据每个回答的准确性/可信度赋予不同权重，可有效缓解此问题",
+        "权重的确定方式是关键，可基于模型置信度或验证器评分"
       ]
     },
     {
       "page": 30,
-      "explanation": "## LLMs as Optimizers: Example（LLM 作为优化器：示例）\n\n这张幻灯片展示了一个将 **LLM 当作优化器**（optimizer）的具体示例，这是 prompting 研究中的一个前沿方向。\n\n### 核心概念\n\n传统优化器（如 SGD、Adam）通过计算梯度来更新参数。而 \"LLM as Optimizer\" 的思路是：让 LLM 自己根据反馈来迭代改进解决方案，**不需要梯度计算**。这是一种基于自然语言的优化范式。\n\n### 幻灯片中的三个关键组成部分\n\n1. **Meta-instructions（元指令）**：告诉 LLM 它的角色是一个优化器，以及优化的目标是什么。这是设定整体框架的高层指令。\n\n2. **Trajectory points（轨迹点）**：之前尝试过的解决方案及其对应的评估结果（例如准确率）。这相当于优化过程中的\"历史记录\"，让 LLM 可以从过去的尝试中学习，知道哪些方向有效、哪些无效。这类似于优化中的梯度信息——虽然不是精确的梯度，但提供了\"改进方向\"的线索。\n\n3. **Problem to be solved（待解决的问题）**：当前需要优化的具体问题实例。\n\n### 工作流程\n\n整个过程是迭代的：\n1. 给 LLM 提供元指令 + 历史轨迹 + 当前问题\n2. LLM 生成一个新的候选解\n3. 评估该候选解的质量\n4. 将结果加入轨迹\n5. 重复以上步骤\n\n### 为什么重要\n\n这展示了 LLM 的一种全新使用范式：不仅是回答问题的工具，更是一个**通用优化引擎**。它可以优化 prompt 本身（自动 prompt 工程）、优化代码、优化超参数等。这代表了 Foundation Model 能力的进一步泛化——从\"理解和生成语言\"扩展到\"解决优化问题\"。\n\n### 与课程的联系\n\n这个方向与 AutoML、Neural Architecture Search 等领域交叉，展示了 LLM 在 meta-learning（元学习）层面的潜力。",
+      "explanation": "## LLMs as Optimizers: Example（LLM作为优化器：示例）\n\n这张幻灯片展示了一个将LLM用作优化器的具体示例，这是一种非常前沿的思路——不是用传统的梯度下降来优化，而是用LLM的自然语言理解能力来进行优化。\n\n### 三个关键组成部分\n\n1. **Meta-instructions（元指令）**：这是给LLM的高层指令，告诉它\"你的任务是找到更好的解决方案\"。元指令定义了优化的目标和约束条件。\n\n2. **Trajectory points（轨迹点）**：这是之前尝试过的解及其评估结果。类似于优化算法中的历史搜索点。例如，可能包含之前尝试的prompt及其在验证集上的准确率。LLM可以从这些历史数据中学习到什么有效、什么无效。\n\n3. **Problem to be solved（待解决的问题）**：当前需要优化的具体问题。\n\n### 工作原理\n\n整体流程类似于：\n- 将历史尝试（轨迹点）和问题描述一起输入LLM\n- LLM根据历史尝试的成功/失败模式，生成新的候选解\n- 评估新解的质量，将结果加入轨迹\n- 重复这个过程\n\n这种方法的深层意义在于：LLM不仅是一个被优化的对象，它本身也可以**充当优化器**。这与传统的prompt优化（如自动搜索最佳prompt）密切相关。例如，Google的OPRO（Optimization by PROmpting）就是这一思路的代表性工作，让LLM通过观察之前的prompt及其效果，自动生成更好的prompt。\n\n这代表了一种范式转变：从人工设计prompt到让LLM自动发现最优prompt。",
       "keyPoints": [
-        "LLM as Optimizer 让语言模型根据历史反馈迭代改进解决方案，无需梯度计算",
-        "三个关键组成：元指令（定义优化目标）、轨迹点（历史尝试及结果）、待解决问题",
-        "展示了 LLM 从\"语言工具\"到\"通用优化引擎\"的能力泛化，可用于自动 prompt 工程等任务"
+        "LLM可以充当优化器，通过分析历史尝试的成功与失败来生成更好的解",
+        "核心组件包括：元指令（目标定义）、轨迹点（历史尝试）、待解决问题",
+        "这一范式实现了从人工prompt设计到自动化prompt优化的转变，代表作如OPRO"
       ]
     },
     {
       "page": 31,
-      "explanation": "## LLMs作为优化器：Prompt优化的轨迹\n\n这张幻灯片展示了使用LLM进行prompt优化（如OPRO方法）的**优化轨迹（trajectory）**。在前面的讨论中，我们知道OPRO等方法利用LLM自身来迭代搜索更好的prompt——将之前的prompt及其评估分数作为上下文，让LLM生成新的候选prompt。\n\n所谓\"resulting trajectory\"指的是在整个优化过程中，prompt质量（以某种评估指标衡量）随迭代次数变化的曲线。通常我们期望看到：\n\n1. **初始阶段**：随机或简单的初始prompt，性能较低\n2. **快速提升阶段**：LLM根据历史反馈快速找到更好的prompt表述\n3. **收敛阶段**：性能趋于稳定，进一步改进变得困难\n\n这个轨迹可视化了一个关键洞察：**LLM本身可以作为一个黑箱优化器**。与传统的梯度下降优化不同，这里没有显式的梯度计算，而是通过LLM的语言理解和生成能力来\"导航\"离散的prompt空间。\n\n这种方法的优势在于它完全不需要访问模型的内部参数或梯度，只需要API级别的访问（输入prompt，获得输出），因此特别适用于闭源模型（如GPT-4）的prompt优化。其局限性在于优化轨迹可能不稳定，且依赖于LLM自身的推理质量。",
+      "explanation": "这张幻灯片展示了 LLMs as Optimizers（大语言模型作为优化器）进行 Prompt Optimization（提示优化）的结果轨迹（resulting trajectory）。\n\n在前面的内容中，我们已经了解到可以利用 LLM 本身来优化 prompt——即让 LLM 根据当前 prompt 的表现反馈，迭代地生成更好的 prompt。这张幻灯片展示的是这一优化过程的轨迹，即随着迭代次数增加，prompt 的质量（通常用下游任务的准确率等指标衡量）如何变化。\n\n这个思路来自 Yang et al. 提出的 OPRO（Optimization by PROmpting）框架。其核心理念是：\n1. 给定一个初始 prompt 和一组训练样本\n2. 用当前 prompt 在任务上评估，得到分数\n3. 将历史 prompt 和对应分数作为上下文，让 LLM 生成新的候选 prompt\n4. 重复此过程，形成优化轨迹\n\n优化轨迹通常呈现出逐步上升并趋于收敛的趋势，类似于传统优化算法中的收敛曲线。这说明 LLM 确实能够从历史反馈中\"学到\"什么样的 prompt 表述更有效，并逐步改进。\n\n这种方法的革命性在于：它将 prompt engineering 从人工试错转变为自动化的优化过程，而且优化器本身就是一个 LLM，不需要梯度信息，是一种 derivative-free（无导数）优化方法。这在 Foundation Model 的实际应用中具有重要意义，因为很多场景下我们只能通过 API 访问模型，无法获取梯度。",
       "keyPoints": [
-        "OPRO等方法的优化轨迹展示了prompt质量随迭代的提升过程",
-        "LLM可以作为黑箱优化器，无需梯度即可在离散prompt空间中搜索",
-        "这种方法特别适用于无法访问模型内部参数的闭源模型"
+        "LLM 可以作为优化器，通过迭代反馈自动改进 prompt",
+        "优化轨迹展示了 prompt 质量随迭代逐步提升并收敛的过程",
+        "这是一种无需梯度的优化方法，适用于只有 API 访问权限的场景"
       ]
     },
     {
       "page": 32,
-      "explanation": "## 更多自动Prompt搜索方法：经典搜索算法的应用\n\n这张幻灯片讨论了将**经典搜索/优化算法**应用于hard prompt搜索的思路。\n\n### 核心问题回顾\n搜索hard prompt（即离散的文本token序列）是一个困难的**组合优化问题**。与soft prompt不同，hard prompt无法直接用梯度下降优化，因为文本空间是离散的。\n\n### 经典搜索方法的适用性\n幻灯片指出，许多经典搜索方法**只需要两个要素**：\n1. **邻居概念（notion of neighbors）**：给定一个prompt，如何定义它的\"邻近\"候选（如替换一个词、增删一个句子等）\n2. **评估函数访问（evaluation function access）**：能够评估一个prompt的好坏（如在验证集上的准确率）\n\n具体方法包括：\n- **Hill-climbing（爬山法）**：每次选择邻居中最好的，贪心前进\n- **Simulated Annealing（模拟退火）**：允许以一定概率接受较差的解，避免陷入局部最优\n- **Genetic Algorithms（遗传算法）**：维护一个prompt\"种群\"，通过交叉（crossover）和变异（mutation）产生新的候选\n\n### Promptbreeder\n**Promptbreeder**是基于遗传算法的代表性工作。幻灯片展示了一个通过遗传算法优化后得到的prompt示例，这个prompt包含详细的答题指令（如\"展示所有计算过程\"、\"使用正确的数学符号\"等）。这说明遗传算法可以\"进化\"出人类可能不会自然想到的、但效果很好的prompt。",
+      "explanation": "这张幻灯片介绍了更多的 Auto-Prompting（自动提示生成）工作，特别是利用经典搜索方法来寻找最优 hard prompt 的思路。\n\n**核心问题回顾**：搜索 hard prompt（离散的文本提示）是一个困难的优化问题，因为文本空间是离散的，无法直接使用梯度下降等连续优化方法。\n\n**经典搜索方法的适用性**：幻灯片指出，许多经典搜索方法只需要两个基本要素：\n1. **\"邻居\"的概念（notion of neighbors）**：即给定一个 prompt，如何定义与它相近的其他 prompt（例如替换某个词、添加/删除短语等）\n2. **评估函数访问（evaluation function access）**：即能够评估一个 prompt 的好坏（例如在验证集上的准确率）\n\n具体提到的方法包括：\n- **Hill-climbing（爬山法）**：每次选择邻居中最好的，贪心地前进\n- **Simulated annealing（模拟退火）**：允许以一定概率接受更差的解，避免局部最优\n- **Genetic algorithms（遗传算法）**：维护一个 prompt 种群，通过选择、交叉、变异来进化\n\n**Promptbreeder** 就是一种基于遗传算法的方法。幻灯片展示了一个进化后的 prompt 示例，该 prompt 详细指导模型展示工作过程、使用正确的数学符号、用完整句子作答、举例说明等。这说明遗传算法能够自动\"进化\"出结构化且有效的提示。\n\n这种方法的优势在于不依赖梯度，也不要求 LLM 自身参与优化过程，只需要黑盒评估能力。",
       "keyPoints": [
-        "Hard prompt搜索是离散组合优化问题，可用经典搜索方法（爬山、模拟退火、遗传算法）解决",
-        "这些方法只需要定义邻居关系和评估函数，不需要梯度信息",
-        "Promptbreeder使用遗传算法进化prompt，能生成结构化的高效指令",
-        "进化出的prompt可能包含人类不会自然编写但有效的详细指令"
+        "Hard prompt 搜索是离散优化问题，经典搜索方法（爬山、模拟退火、遗传算法）只需邻居定义和评估函数即可应用",
+        "Promptbreeder 使用遗传算法自动进化 prompt，能生成结构化且高效的提示",
+        "这些方法属于黑盒优化，不需要模型梯度信息"
       ]
     },
     {
       "page": 33,
-      "explanation": "## Promptbreeder：基于遗传算法的Prompt进化\n\n这张幻灯片详细介绍了**Promptbreeder**（Fernando et al., 2023）的方法框架。\n\n### 遗传算法在Prompt优化中的应用\n\nPromptbreeder将prompt优化类比为生物进化过程：\n\n1. **种群（Population）**：维护一组prompt候选\n2. **适应度（Fitness）**：通过在目标任务上的表现来评估每个prompt的质量\n3. **选择（Selection）**：保留表现好的prompt\n4. **交叉（Crossover）**：将两个好的prompt的部分组合成新prompt\n5. **变异（Mutation）**：对prompt进行随机修改\n\n### 关键创新\n\nPromptbreeder的一个独特之处在于它不仅进化**任务prompt（task prompt）**，还同时进化**变异prompt（mutation prompt）**——即用来指导LLM如何修改现有prompt的元指令。这是一种**自我参照（self-referential）**的进化机制：进化过程本身也在被进化。\n\n### 与其他方法的对比\n\n相比于OPRO等方法直接让LLM生成新prompt，Promptbreeder通过遗传算法框架提供了更系统化的搜索策略：\n- 种群多样性有助于避免陷入局部最优\n- 交叉操作可以组合不同prompt的优点\n- 变异操作可以探索新的prompt空间\n\n这种方法体现了将传统优化理论与LLM能力结合的趋势。",
+      "explanation": "这张幻灯片进一步详细介绍了 **Promptbreeder**（Fernando et al., 2023），一种基于遗传算法（genetic algorithms）的自动 prompt 优化方法。\n\n**遗传算法在 Prompt 优化中的应用框架**：\n\n遗传算法模拟自然选择的过程，其核心步骤包括：\n1. **初始化种群（Population Initialization）**：生成一组初始的候选 prompt\n2. **适应度评估（Fitness Evaluation）**：在目标任务上评估每个 prompt 的表现（如准确率）\n3. **选择（Selection）**：根据适应度选出表现较好的 prompt 作为\"父代\"\n4. **交叉（Crossover）**：将两个优秀 prompt 的部分组合，产生\"子代\" prompt\n5. **变异（Mutation）**：对 prompt 进行随机微调（如词汇替换、句子重组）\n6. **迭代（Iteration）**：重复以上过程，逐代进化\n\nPromptbreeder 的独特之处在于它不仅进化 task prompt（任务提示），还同时进化 mutation prompt（变异提示）——即用于指导如何变异的元提示。这是一种 self-referential（自引用）的设计，变异操作本身也在进化中被优化，形成了一种\"进化如何进化\"的元学习机制。\n\n在 Foundation Model 的大背景下，Promptbreeder 代表了一类重要的研究方向：将传统优化和搜索算法与 LLM 的生成能力结合。与 OPRO 等方法相比，遗传算法维护一个种群，能够更好地探索 prompt 空间的多样性，避免过早收敛到局部最优。\n\n这种方法的实际意义在于：对于需要精心设计 prompt 的应用场景（如数学推理、代码生成等），自动化的进化搜索可以发现人类难以手动设计的高效 prompt。",
       "keyPoints": [
-        "Promptbreeder使用遗传算法框架进化prompt种群，包含选择、交叉、变异操作",
-        "独特之处在于同时进化任务prompt和变异prompt（自我参照进化）",
-        "种群多样性和交叉操作有助于更全面地探索prompt空间"
+        "Promptbreeder（Fernando et al. 2023）使用遗传算法进化 prompt，包括选择、交叉、变异等操作",
+        "其独特之处在于同时进化任务提示和变异提示，形成自引用的元学习机制",
+        "遗传算法维护种群多样性，相比贪心方法能更好地探索 prompt 空间"
       ]
     },
     {
       "page": 34,
-      "explanation": "## GEPA：遗传算法 + 反思迭代\n\n这张幻灯片介绍了**GEPA**（Agrawal et al., 2026），一种结合**遗传算法（Genetic Algorithms）**和**反思迭代（Reflective Iteration）**的prompt优化方法。\n\n### 方法概述\n\nGEPA在Promptbreeder等纯遗传算法方法的基础上，增加了**反思（reflection）**机制。这意味着在每一轮进化之后，系统不仅仅依靠随机变异和交叉来产生新的prompt候选，还会让LLM**反思当前prompt的不足之处**，并提出有针对性的改进建议。\n\n### 反思迭代的价值\n\n纯遗传算法的变异本质上是相对\"盲目\"的——它不理解为什么某个prompt好或不好。而反思迭代引入了一种**有方向性的改进**：\n\n1. **评估**：在任务上测试当前prompt\n2. **反思**：让LLM分析失败案例，理解prompt的薄弱环节\n3. **改进**：基于反思结果有针对性地修改prompt\n4. **进化**：将改进后的prompt纳入遗传算法的种群中\n\n这种结合方式融合了两种优化范式的优势：\n- **遗传算法**提供了全局搜索能力和种群多样性\n- **反思迭代**提供了局部的、有方向性的精细改进\n\n### 与更广泛的趋势的联系\n\n反思（reflection）是近年来LLM研究中的一个重要主题（如Reflexion、Self-Refine等）。GEPA将这种自我改进能力与进化搜索结合，代表了prompt优化方法的进一步成熟。",
+      "explanation": "这张幻灯片介绍了自动提示（Auto-Prompting）领域的更多研究工作，特别是**GEPA**方法。GEPA 结合了**遗传算法（Genetic Algorithms）**和**反思迭代（Reflective Iteration）**来自动优化提示。\n\n### 核心思想\n\n遗传算法是一种受生物进化启发的优化方法，其基本流程是：\n1. **初始化**：生成一组候选提示（\"种群\"）\n2. **评估**：在目标任务上评估每个提示的表现（\"适应度\"）\n3. **选择**：保留表现最好的提示\n4. **交叉与变异**：将优秀提示组合或微调，产生新一代候选提示\n5. **迭代**：重复上述过程直到收敛\n\nGEPA 在此基础上加入了**反思迭代**机制。这意味着系统不仅通过遗传算法搜索提示空间，还会对生成的提示进行\"反思\"——分析为什么某些提示效果好、某些效果差，并利用这些反思信息指导下一轮搜索。这与近期 LLM 研究中流行的 self-reflection 思想一脉相承。\n\n### 在更广泛背景中的位置\n\n这项工作属于**自动提示工程（Automatic Prompt Engineering）**的范畴。之前我们已经看到了如 APE（Automatic Prompt Engineer）等方法，GEPA 提供了另一种搜索策略。与基于梯度的 soft prompt tuning 不同，遗传算法是一种**无梯度（gradient-free）**的优化方法，适用于离散的文本提示空间，且不需要访问模型内部参数——这对于黑盒 API（如 GPT-4）特别有价值。\n\n论文标注为 Agrawal et al '26，说明这是一项非常前沿的工作。",
       "keyPoints": [
-        "GEPA结合遗传算法的全局搜索与反思迭代的有方向改进",
-        "反思机制让LLM分析失败案例并有针对性地改进prompt",
-        "融合了进化搜索的多样性和反思的精细调整两种优化范式"
+        "GEPA 使用遗传算法（进化搜索）+ 反思迭代来自动优化提示",
+        "遗传算法是无梯度优化方法，适合在离散文本提示空间中搜索，对黑盒模型友好",
+        "反思机制让系统能分析提示优劣原因，指导后续搜索，体现了 self-reflection 思想"
       ]
     },
     {
       "page": 35,
-      "explanation": "## 在VLM和多模态模型中的Prompting\n\n这张幻灯片开始讨论**视觉-语言模型（Vision-Language Models, VLMs）**中的prompting技术，特别是以**CLIP**为代表的模型。\n\n### CLIP模型回顾\n\nCLIP（Contrastive Language-Image Pretraining）是OpenAI提出的经典VLM，其核心思想是：\n\n1. **双编码器架构**：\n   - **Image Encoder**：将图像编码为向量表示\n   - **Text Encoder**：将文本编码为向量表示\n\n2. **对比学习训练**：\n   - 使用大量（图像，文本）配对进行训练\n   - 训练目标：匹配的图像-文本对的向量相似度应高，不匹配的应低\n   - 损失函数为对比损失（contrastive loss），通常使用InfoNCE：\n   $$\\mathcal{L} = -\\log \\frac{\\exp(\\text{sim}(v_i, t_i)/\\tau)}{\\sum_j \\exp(\\text{sim}(v_i, t_j)/\\tau)}$$\n\n3. **零样本预测（Zero-shot Prediction）**：\n   - 给定一张图像和一组类别描述（如\"a photo of a cat\"，\"a photo of a dog\"），计算图像向量与每个类别描述向量的相似度\n   - 选择相似度最高的类别作为预测结果\n\n### 与Prompting的联系\n\n在CLIP中，**文本模板本身就是一种prompt**。例如，\"a photo of a {class}\"就是一个prompt template。不同的文本模板（如\"a drawing of a {class}\"、\"a blurry photo of a {class}\"）会显著影响分类性能。这自然引出了一个问题：**如何为VLM设计或学习最优的prompt？**\n\n这为后续讨论VLM中的prompt learning（如CoOp、CoCoOp等方法）奠定了基础。",
+      "explanation": "这张幻灯片将讨论的焦点从纯文本的 LLM 提示转向了**视觉-语言模型（Vision-Language Models, VLMs）和多模态模型的提示方法**，并回顾了 CLIP 风格的 VLM 的训练和预测流程。\n\n### CLIP 回顾\n\nCLIP（Contrastive Language-Image Pretraining）是 OpenAI 提出的经典视觉-语言模型。其核心思想是：\n\n1. **双编码器架构**：一个**图像编码器**（如 ViT 或 ResNet）和一个**文本编码器**（如 Transformer）分别将图像和文本映射到同一个共享嵌入空间。\n\n2. **对比学习训练**：给定一批 $(image, text)$ 配对，训练目标是让匹配的图文对在嵌入空间中距离近，不匹配的距离远。数学上，对于 $N$ 个配对，计算 $N \\times N$ 的相似度矩阵，最大化对角线上的相似度：\n$$\\mathcal{L} = -\\frac{1}{N}\\sum_{i=1}^{N}\\log\\frac{\\exp(\\text{sim}(\\mathbf{v}_i, \\mathbf{t}_i)/\\tau)}{\\sum_{j=1}^{N}\\exp(\\text{sim}(\\mathbf{v}_i, \\mathbf{t}_j)/\\tau)}$$\n\n3. **零样本预测**：在推理时，对于一个分类任务，将每个类别名填入模板（如 \"a photo of a [class]\"），用文本编码器编码，然后计算测试图像与所有类别文本的相似度，选择最相似的类别。\n\n### 为什么要讨论 VLM 的提示？\n\n既然 CLIP 的预测依赖于文本输入（模板 + 类别名），那么**文本提示的选择**就直接影响零样本性能。这就引出了接下来的问题：如何为 VLM 设计更好的提示？",
       "keyPoints": [
-        "CLIP使用双编码器+对比学习，将图像和文本映射到共享向量空间",
-        "零样本预测时，文本模板（如'a photo of a {class}'）本质上就是prompt",
-        "不同的文本prompt会显著影响VLM的分类性能，引出VLM prompt优化问题",
-        "这为后续的VLM prompt learning方法（如CoOp等）铺垫"
+        "CLIP 使用双编码器将图像和文本映射到共享嵌入空间，通过对比学习训练",
+        "CLIP 的零样本分类依赖文本提示模板，提示的质量直接影响分类性能",
+        "这张幻灯片将提示工程的讨论从纯文本 LLM 扩展到多模态 VLM 场景"
       ]
     },
     {
       "page": 36,
-      "explanation": "## 如何对视觉-语言模型（VLMs）进行提示？\n\n这张幻灯片介绍了视觉-语言模型（如CLIP）的标准提示方式及其局限性。\n\n### 标准模板提示\n\n在CLIP等VLM的零样本分类中，标准做法是使用预定义的文本模板，例如 **\"a photo of a [X]\"**，其中 [X] 是类别名称。CLIP通过计算图像embedding与这些文本embedding之间的余弦相似度来进行分类。\n\n### 存在的问题\n\n然而，这种简单的模板方法可能会遇到困难（\"might struggle\"）：\n\n1. **模板选择敏感性**：不同的模板（如\"a photo of a\"、\"an image of a\"、\"a drawing of a\"）可能导致不同的分类结果\n2. **语义歧义**：某些类别名称本身可能有多重含义，简单的模板无法消除歧义\n3. **领域不匹配**：预定义模板可能不适合特定领域（如医学影像、卫星图像等）\n4. **描述力不足**：仅凭类别名称，文本端无法提供足够丰富的语义信息\n\n这个问题的本质在于：VLM的性能高度依赖于文本端的prompt质量。这与纯LLM的prompt engineering问题类似——如何构造更好的文本描述来引导模型做出正确判断，是VLM应用中的关键挑战。\n\n### 与Prompt Engineering的联系\n\n这也引出了后续幻灯片的核心思路：能否利用LLM的知识来为VLM生成更好的文本提示？这体现了Foundation Model之间的协同——用一种模型来增强另一种模型。",
+      "explanation": "这张幻灯片讨论了**VLM（视觉-语言模型）提示的标准方法及其局限性**。\n\n### 标准提示方法\n\n在 CLIP 等 VLM 中进行零样本分类时，标准做法是使用**预定义的文本模板**。最经典的例子就是：\n\n> \"a photo of a [X]\"\n\n其中 $[X]$ 会被替换为具体的类别名（如 \"dog\"、\"cat\"、\"airplane\" 等）。这样，每个类别对应一个文本描述，通过文本编码器编码后与图像嵌入比较相似度。\n\n### 存在的问题\n\n幻灯片指出这种方法 **\"might struggle\"（可能效果不佳）**，原因包括：\n\n1. **模板选择敏感性**：\"a photo of a [X]\" 这个模板是人为选择的，不同的模板措辞可能导致显著不同的性能。例如，\"a picture of a [X]\"、\"an image showing [X]\"、\"a [X] in a photo\" 等变体可能各有优劣。\n\n2. **领域不匹配**：\"a photo of\" 这个前缀假设输入是自然照片，但如果任务涉及医学影像、卫星图像、素描、纹理等特殊领域，这个模板就不合适了。\n\n3. **语义表达不足**：简单的模板无法捕捉类别的细微差别。例如区分不同鸟类品种时，仅靠 \"a photo of a [bird species]\" 可能不够，更好的描述可能需要包含颜色、形状等视觉属性。\n\n4. **手动设计成本**：如果每个新任务都需要专家手动调整模板，这违背了零样本学习的初衷。\n\n### 这为后续内容铺路\n\n这些问题自然引出了**学习更好的 VLM 提示**的需求，例如 CoOp（Context Optimization）和 CoCoOp 等方法，它们通过可学习的 soft prompt 来替代手动模板，从而在下游任务上获得更好的性能。",
       "keyPoints": [
-        "VLM的标准提示方法使用预定义模板如\"a photo of a [X]\"，但效果可能不理想",
-        "模板选择对分类性能影响很大，简单模板在语义描述和领域适应上存在局限",
-        "这引出了用LLM来改进VLM提示的研究方向"
+        "CLIP 标准做法使用预定义模板如 \"a photo of a [X]\"，但模板选择对性能影响很大",
+        "固定模板在特殊领域（医学影像、卫星图等）或细粒度分类任务中可能表现不佳",
+        "这些局限性引出了对 VLM 自动/可学习提示方法（如 CoOp）的需求"
       ]
     },
     {
       "page": 37,
-      "explanation": "## 使用LLM改进VLM：描述性特征\n\n这张幻灯片介绍了Menon和Vondrick（2023）的工作，核心思想是利用LLM生成更丰富的类别描述来替代静态的类别名称。\n\n### 问题：静态类别描述的失败\n\n传统方法中，我们用\"a photo of a tiger\"来描述老虎类别。但这种静态描述可能不够：\n- 模型可能对\"tiger\"这个词的理解不够精确\n- 不同类别之间的区分度不足\n\n### 解决方案：描述性特征（Descriptive Features）\n\n**关键思路**：用LLM（如GPT-3/4）生成每个类别的描述性特征，然后用这些特征替换原始类别名称。\n\n例如，不再使用\"tiger\"，而是让LLM生成：\n- \"stripes\"（条纹）\n- \"claws\"（爪子）\n- \"orange and black fur\"（橙黑色皮毛）\n- \"large cat\"（大型猫科动物）\n\n然后将这些描述性特征组合成更丰富的文本prompt，计算与图像的相似度。\n\n### 为什么有效？\n\n1. **更细粒度的语义信息**：描述性特征提供了视觉上可区分的属性\n2. **利用LLM的世界知识**：LLM训练了大量文本，知道每个类别的典型视觉特征\n3. **多维度匹配**：多个描述性特征可以从不同角度捕捉类别特征，提高鲁棒性\n\n这是一个典型的**LLM辅助VLM**的范例——利用语言模型的知识来弥补视觉-语言模型在prompt层面的不足。",
+      "explanation": "## 用LLM改进VLM：描述性特征\n\n这张幻灯片介绍了一种利用大语言模型（LLM）来增强视觉语言模型（VLM）性能的方法，出自 Menon and Vondrick (2023) 的工作。\n\n### 核心问题\n\n在使用 CLIP 等视觉语言模型进行零样本分类时，通常会使用静态的类别名称作为文本提示，例如 \"a photo of a tiger\"。但这种简单的类别名称有时不足以捕捉该类别的视觉特征，导致分类失败。\n\n### 解决方案：描述性特征替换\n\n方法的核心思想是：**用 LLM 生成的描述性特征来替换静态的类别名称**。具体来说：\n\n1. 向 LLM（如 GPT-3/4）提问：\"What are the visual features of a tiger?\"（老虎的视觉特征是什么？）\n2. LLM 会返回描述性特征列表，如 \"stripes\"（条纹）、\"claws\"（爪子）、\"orange fur\"（橙色毛发）等\n3. 将这些描述性特征编码为文本嵌入，用于与图像嵌入进行匹配\n\n### 为什么这样做更好？\n\n这种方法利用了 LLM 丰富的世界知识来弥补 VLM 在细粒度视觉理解上的不足。CLIP 的文本编码器对具体的视觉描述（如 \"black and orange stripes\"）可能比抽象的类别名（如 \"tiger\"）产生更有区分度的嵌入表示。这本质上是一种**知识蒸馏**：将 LLM 的语义知识转移到 VLM 的分类流程中。\n\n### 与 Prompting 的联系\n\n这是 prompting 范式的一个跨模态扩展——我们不仅在 prompt 文本模型，还在用 LLM 生成的文本来 prompt 视觉模型，实现了 LLM 和 VLM 之间的协同。",
       "keyPoints": [
-        "用LLM生成类别的描述性视觉特征（如条纹、爪子）来替代简单的类别名称",
-        "这种方法利用LLM的世界知识为VLM提供更丰富的语义信息，提升分类精度",
-        "体现了不同Foundation Model之间的协同：LLM的知识增强VLM的表现"
+        "静态类别名称可能不足以让VLM进行准确的零样本分类",
+        "利用LLM生成描述性视觉特征（如条纹、爪子）来替换简单类别名",
+        "这是一种跨模态的知识转移：LLM的语义知识增强VLM的视觉理解能力"
       ]
     },
     {
       "page": 38,
-      "explanation": "## 使用LLM改进VLM：虚假特征（Spurious Features）\n\n这张幻灯片讨论了一个重要问题：描述性特征解决了正面特征（positive features）的问题，但如何处理**虚假相关性（spurious correlations）**？\n\n### 什么是虚假特征？\n\n虚假特征是指在训练数据中与目标标签相关、但在因果关系上无关的特征。经典例子是**Waterbirds数据集**：\n- 水鸟（waterbirds）在训练数据中通常出现在水面背景上\n- 陆鸟（landbirds）通常出现在陆地背景上\n- CLIP等预训练模型可能学会用**背景**（水面 vs 陆地）来判断鸟类，而非鸟本身的特征\n\n### 虚假相关性的普遍性\n\n幻灯片强调这是**所有预训练模型**的通病（\"generally a problem with all pretrained models\"）。因为：\n- 预训练数据中天然存在各种统计相关性\n- 模型会不加区分地学习这些相关性\n- 在分布偏移（distribution shift）下，这些虚假相关性会导致性能急剧下降\n\n### LLM的解决方案\n\nAdila等人（2023）的工作表明，LLM不仅能告诉我们一个类别的正面特征，还能帮助我们识别**可能的虚假特征**。例如，LLM可以指出：\n- \"waterbird\"常与\"water background\"共现，但背景不是判断鸟类种类的因果特征\n\n这样，我们可以利用LLM的知识来主动去除或降低这些虚假特征的影响，从而提高模型的鲁棒性和公平性。",
+      "explanation": "## 用LLM改进VLM：虚假特征（Spurious Features）\n\n这张幻灯片继续讨论如何用 LLM 改进 VLM，但从正面特征（positive features）转向了一个更深层的问题——**虚假相关性（spurious correlations）**。\n\n### 从正面到负面\n\n上一张幻灯片讨论了如何用描述性特征来增强分类（正面特征）。这张幻灯片提出了一个关键问题：**虚假特征（负面特征）怎么办？**\n\n### Waterbirds 的经典例子\n\n幻灯片以 \"waterbirds\" 数据集配合 CLIP 为例来说明虚假相关性问题。在这个经典的 benchmark 中：\n- 水鸟（waterbirds）通常出现在水面背景中\n- 陆鸟（landbirds）通常出现在陆地/森林背景中\n- 模型可能学到了**背景（水面 vs. 陆地）与类别之间的虚假关联**，而非真正关注鸟本身的特征\n\n### 虚假相关性是普遍问题\n\n幻灯片指出，虚假相关性是**所有预训练模型的通病**——不仅仅是 CLIP。由于预训练数据中存在统计偏差，模型会不可避免地捕获这些虚假关联。例如 CLIP 在大规模互联网数据上训练，图片中的共现模式会被编码进模型。\n\n### LLM 的解决方案\n\n关键 insight 是：**LLM 不仅能告诉我们一个类别\"是什么\"（正面特征），还能告诉我们什么是虚假的关联**（Adila, 2023）。例如，我们可以询问 LLM：\"What are common but misleading features associated with waterbirds?\"，LLM 可能会回答 \"water background\" 等，从而帮助我们识别和缓解虚假特征。",
       "keyPoints": [
-        "虚假相关性（如水鸟总是出现在水面背景上）是所有预训练模型的普遍问题",
-        "LLM不仅能提供正面描述性特征，还能帮助识别虚假特征（Adila '23）",
-        "通过识别并处理虚假特征，可以提高VLM在分布偏移下的鲁棒性"
+        "虚假相关性（如水鸟总与水面背景共现）是所有预训练模型的普遍问题",
+        "LLM不仅能提供正面描述特征，还能识别和揭示虚假关联特征",
+        "Waterbirds+CLIP是展示虚假相关性问题的经典案例"
       ]
     },
     {
       "page": 39,
-      "explanation": "## 修改Embedding以去除虚假特征\n\n这张幻灯片介绍了具体的技术方法：如何在embedding空间中修改预测所用的表示，以消除虚假特征的影响。\n\n### 核心思路\n\n在知道哪些是虚假特征后（由LLM提供），我们可以在CLIP的embedding空间中进行操作：\n\n1. **获取虚假特征的文本embedding**：将LLM识别出的虚假特征（如\"water background\"）通过CLIP的文本编码器得到对应的embedding向量\n\n2. **投影去除**：从图像embedding或类别文本embedding中减去虚假特征方向的分量。数学上，这可以通过正交投影实现：\n\n$$\\mathbf{e}_{\\text{clean}} = \\mathbf{e} - \\sum_i \\frac{\\mathbf{e} \\cdot \\mathbf{s}_i}{\\|\\mathbf{s}_i\\|^2} \\mathbf{s}_i$$\n\n其中 $\\mathbf{e}$ 是原始embedding，$\\mathbf{s}_i$ 是第 $i$ 个虚假特征的embedding方向。\n\n3. **使用清洗后的embedding进行预测**：用修改后的embedding计算相似度，从而做出更鲁棒的分类。\n\n### 方法的优势\n\n- **无需重新训练**：直接在推理时修改embedding，是一种零样本的去偏方法\n- **可解释性强**：明确知道去除了哪些特征\n- **灵活性高**：可以根据不同场景添加或移除不同的虚假特征\n\n这种方法展示了LLM和VLM在embedding空间中的深度协作——LLM提供知识（什么是虚假的），VLM的embedding空间提供操作手段。",
+      "explanation": "## 用LLM改进VLM：修改嵌入以去除虚假特征\n\n这张幻灯片展示了具体的技术方案——**修改用于预测的嵌入表示**，以消除虚假特征的影响。\n\n### 核心思路\n\n在上一张幻灯片中，我们知道 LLM 可以帮助识别虚假特征。现在的问题是：如何在实际预测流程中利用这些信息？答案是：**修改（modify）用于分类的嵌入向量**。\n\n### 技术方法\n\n虽然幻灯片内容简洁，但基本思路如下：\n\n1. **获取虚假特征描述**：利用 LLM 生成可能的虚假特征（如 \"water background\" 对于水鸟分类）\n2. **编码虚假特征**：通过 CLIP 的文本编码器将这些虚假特征描述编码为嵌入向量\n3. **从图像嵌入中去除虚假成分**：在嵌入空间中，将图像嵌入投影到与虚假特征嵌入正交的子空间，或者通过某种形式的减法/正则化来消除虚假特征的影响\n\n从数学角度，一种直观的做法类似于：\n$$\\mathbf{e}_{\\text{modified}} = \\mathbf{e}_{\\text{image}} - \\alpha \\cdot \\text{proj}_{\\mathbf{e}_{\\text{spurious}}}(\\mathbf{e}_{\\text{image}})$$\n\n其中 $\\mathbf{e}_{\\text{image}}$ 是原始图像嵌入，$\\mathbf{e}_{\\text{spurious}}$ 是虚假特征的文本嵌入，投影操作去除了图像嵌入中与虚假特征对齐的成分。\n\n### 与去偏差（Debiasing）的联系\n\n这种方法本质上是一种**嵌入空间中的去偏差技术**，类似于 NLP 中去除词嵌入性别偏见的经典工作（Bolukbasi et al., 2016）。不同之处在于，虚假特征的识别不需要人工标注，而是通过 LLM 自动完成的，大大降低了人力成本。\n\n### 重要意义\n\n这展示了 LLM 和 VLM 之间的深层协同：LLM 提供世界知识来指导 VLM 嵌入空间的修正，从而在不重新训练模型的情况下提升鲁棒性——这是一种纯粹基于 prompting 和推理时干预的方法。",
       "keyPoints": [
-        "通过在embedding空间中投影去除虚假特征方向，可以清洗模型的表示",
-        "该方法无需重新训练，可在推理时直接应用，是零样本的去偏策略",
-        "LLM提供虚假特征的知识，VLM的embedding空间提供修改手段，两者协同工作"
+        "通过修改嵌入向量来去除LLM识别出的虚假特征成分",
+        "本质上是嵌入空间中的去偏差技术，无需重新训练模型",
+        "LLM与VLM的协同：LLM提供知识指导VLM嵌入空间的修正",
+        "类似于词嵌入去偏差的经典方法，但虚假特征识别由LLM自动完成"
       ]
     },
     {
       "page": 40,
-      "explanation": "## VLM的In-Context Learning\n\n这张幻灯片揭示了一个令人惊讶的发现：in-context learning（上下文学习）和few-shot learning不仅适用于语言模型，也适用于视觉模型。\n\n### 什么是VLM的In-Context Learning？\n\n类似于LLM中给出几个示例后让模型推理，VLM的in-context learning指的是在推理时提供少量带标签的视觉示例（image-label pairs），帮助模型更好地完成新的视觉任务。\n\n例如，Zhang et al.（2023）的工作可能探索了如何在视觉prompt中提供几个示例图像及其标签，让VLM据此对新图像进行分类。\n\n### 核心问题与语言模型类似\n\n幻灯片指出，VLM的in-context learning面临的问题与LLM完全一致：\n\n1. **如何选择示例（How to select examples）**：从候选集中选择哪些图像作为上下文？\n   - 与查询图像最相似的？\n   - 最具代表性的？\n   - 多样性最大的？\n\n2. **什么是好的示例（What makes for a good example）**：\n   - 示例的质量、多样性、与任务的相关性\n   - 示例的排列顺序是否重要？\n   - 示例数量对性能的影响\n\n### 更广泛的意义\n\n这表明in-context learning可能是Foundation Model的一种**通用涌现能力**（emergent capability），不局限于语言模态。这也暗示了大规模预训练模型可能在隐式地学习某种通用的\"从少量示例中学习\"的元能力（meta-learning ability）。\n\n在多模态场景中，这一发现也为设计更好的VLM交互范式提供了新方向——不仅通过文本prompt，还可以通过视觉示例来引导模型。",
+      "explanation": "## 视觉语言模型 (VLM) 中的 In-Context Learning\n\n这张幻灯片揭示了一个令人惊讶的发现：**In-Context Learning (ICL) 不仅适用于纯文本的语言模型，也同样适用于视觉语言模型 (Vision-Language Models, VLMs)**。这意味着像 GPT-4V、Flamingo、LLaVA 等多模态模型也能通过在 prompt 中提供少量带有图像和文本的示例来学习新任务，而无需微调模型参数。\n\n### 核心思想\n\n在 VLM 的 few-shot 场景中，我们可以在 prompt 中提供若干「图像-问题-答案」的示例对，然后给模型一个新的图像和问题，期望它能根据这些示例推断出正确的回答模式。\n\n### 关键问题\n\n与文本领域的 ICL 类似，VLM 的 ICL 也面临相同的核心问题：\n\n1. **How to select examples（如何选择示例）**：应该选择哪些图像-文本对作为 few-shot 示例？是选择与查询图像视觉上相似的，还是语义上相关的？\n2. **What makes for a good example（什么是好的示例）**：好的示例应该具备哪些特征？图像的多样性、标注的准确性、与目标任务的相关性等都可能影响效果。\n\n这些问题在视觉领域可能更加复杂，因为图像空间的相似性度量比文本更加多维——颜色、形状、场景、语义内容等都可能是影响因素。\n\n### 研究背景\n\n引用的 Zhang et al. 2023 的工作系统研究了 VLM 中 ICL 的行为和最佳实践。这项研究表明，多模态基础模型的 in-context 能力是一个通用现象，不局限于语言模态，这进一步证明了大规模预训练模型涌现出的强大泛化能力。",
       "keyPoints": [
-        "In-context learning不仅适用于LLM，也能应用于视觉-语言模型，这是一个令人惊讶的发现",
-        "VLM的ICL面临与LLM类似的核心问题：如何选择示例、什么构成好的示例",
-        "这暗示in-context learning可能是大规模预训练模型的一种通用涌现能力"
+        "In-Context Learning 不仅适用于纯文本模型，也适用于视觉语言模型 (VLM)",
+        "VLM 的 ICL 同样面临示例选择和示例质量的核心问题",
+        "视觉模态中的示例选择更复杂，因为图像相似性度量是多维的"
       ]
     },
     {
       "page": 41,
-      "explanation": "## Chain-of-Thought (CoT) 思维链提示\n\n这张幻灯片引入了**Chain-of-Thought (CoT)** prompting 的核心思想，来自 Wei et al. 2022 的开创性工作。\n\n### 核心问题\n大语言模型在处理**复杂推理任务**（如多步数学题、逻辑推理）时表现不佳。直接给出问题让模型回答，模型往往会跳过中间步骤，直接猜测答案，导致错误率很高。\n\n### 解决思路\nCoT 的核心想法非常直觉化：**帮助模型展示中间推理步骤**。就像一个学生做数学题时，如果你要求他\"写出解题过程\"，他的正确率会远高于直接写答案。CoT prompting 通过在 few-shot 示例中展示**详细的推理链条**（而不仅仅是输入-输出对），引导模型在生成答案时也产出类似的中间推理步骤。\n\n### 为什么有效？\n- **分解复杂问题**：将一个多步问题分解为多个简单子步骤\n- **利用模型的语言生成能力**：模型在生成中间步骤的过程中，实际上是在\"自我提示\"，每一步的输出成为下一步推理的上下文\n- **减少推理跳跃**：避免模型直接从问题跳到答案时出现的逻辑漏洞\n\n### 在 Foundation Model 中的意义\nCoT 是 prompting 技术的一个里程碑式进展。它揭示了一个重要发现：大模型（如 GPT-3/4、PaLM）内部已经具备了推理能力，但需要通过适当的提示方式来\"激活\"这种能力。CoT 在模型规模足够大时效果尤为显著，这也是所谓的 **emergent ability**（涌现能力）的一个例证。",
+      "explanation": "## Chain-of-Thought (思维链) 提示\n\n这张幻灯片引入了一个极其重要的 prompting 技术：**Chain-of-Thought (CoT) Prompting**，由 Wei et al. 2022 提出。\n\n### 核心动机\n\n**执行复杂推理对语言模型来说是困难的。** 当面对需要多步逻辑推理的问题时（如数学题、逻辑推理题），如果直接要求模型给出答案，模型往往会犯错。CoT 的核心思想是：**帮助模型（Help the model）**，通过在 prompt 中展示详细的中间推理步骤，引导模型也生成类似的逐步推理过程。\n\n### 直觉类比\n\n想象你在教一个学生解数学题。如果你只给学生看「问题→答案」，学生很难学会解题方法。但如果你展示「问题→步骤1→步骤2→...→答案」的完整解题过程，学生就能模仿这种推理模式。CoT prompting 对 LLM 做的正是同样的事情。\n\n### 具体做法\n\n标准 few-shot prompting 中，示例格式为：\n- Q: [问题] → A: [答案]\n\nCoT prompting 中，示例格式变为：\n- Q: [问题] → A: [推理步骤1]。[推理步骤2]。...因此答案是[答案]\n\n通过这种方式，模型在生成回答时也会产生中间推理步骤，从而显著提高在复杂任务上的准确率。\n\n### 重要性\n\nCoT 是 prompting 领域最具影响力的技术之一。它揭示了一个关键洞察：**LLM 的推理能力可以通过适当的 prompt 设计来激发和引导**，这为后来的 Tree-of-Thought、Self-Consistency 等高级推理技术奠定了基础。",
       "keyPoints": [
-        "Chain-of-Thought prompting 通过在示例中展示中间推理步骤来帮助模型完成复杂推理任务",
-        "核心思想：将复杂问题分解为逐步推理，类似于要求学生\"写出解题过程\"",
-        "CoT 在大规模模型上效果尤为显著，是 prompting 技术的里程碑式进展"
+        "Chain-of-Thought 通过在 prompt 中展示中间推理步骤来引导模型进行逐步推理",
+        "核心动机：复杂推理任务中直接给答案效果差，展示推理过程能显著提升准确率",
+        "CoT 是后续许多高级推理技术（如 Tree-of-Thought、Self-Consistency）的基础"
       ]
     },
     {
       "page": 42,
-      "explanation": "## Chain-of-Thought 的应用场景\n\n这张幻灯片介绍了 CoT prompting 最常见的三大应用领域。\n\n### 1. Math Problems（数学问题）\n这是 CoT 最经典的应用场景。例如 GSM8K 数据集中的小学数学应用题：\n- 问题：\"Roger有5个网球，他又买了2罐，每罐3个，他现在有多少个？\"\n- CoT 推理链：\"Roger一开始有5个球 → 他买了2罐×3个=6个球 → 总共5+6=11个球\"\n\n没有 CoT 时，模型可能直接回答错误的数字；有了 CoT，模型被引导逐步计算。\n\n### 2. Commonsense Reasoning（常识推理）\n涉及对日常世界知识的理解和推理。例如：\n- \"把一个鸡蛋放在桌边，它会怎样？\" 需要理解重力、物体平衡等常识\n- CoT 帮助模型将隐含的常识知识显式化，逐步推导出结论\n\n### 3. Symbolic Reasoning（符号推理）\n涉及对符号和规则的操作，例如：\n- 字符串操作：\"取每个单词的最后一个字母并拼接\"\n- 逻辑链条：需要严格按照规则逐步执行\n\n### 共同特点\n这三类任务都需要**多步推理**，直接 one-step 得到答案非常困难。CoT 的价值在于为模型提供了一个\"草稿纸\"，让它可以逐步思考。",
+      "explanation": "## Chain-of-Thought 的应用场景\n\n这张幻灯片列举了 Chain-of-Thought (CoT) prompting 可以应用的三大类任务：\n\n### 1. Math Problems（数学问题）\n\n数学问题是 CoT 最经典的应用场景。例如多步算术题、代数问题、应用题等。这类问题天然需要逐步推导，CoT 让模型能够将复杂计算分解为多个简单步骤。例如：\n- \"Roger 有5个网球，他又买了2罐网球，每罐3个。他现在有多少个网球？\"\n- CoT 推理：\"Roger 开始有5个球。2罐 × 3个/罐 = 6个新球。5 + 6 = 11。答案是11。\"\n\n在 GSM8K 等数学基准测试上，CoT 带来了显著的性能提升。\n\n### 2. Commonsense Reasoning（常识推理）\n\n常识推理要求模型利用关于世界的背景知识来进行判断。例如理解物理因果关系、社会常识等。CoT 帮助模型将隐含的常识知识显式地表达出来，从而做出更合理的推断。\n\n### 3. Symbolic Reasoning（符号推理）\n\n符号推理包括如字母操作、逻辑链条跟踪等形式化的推理任务。例如\"将每个单词的最后一个字母拼接起来\"这类任务。CoT 让模型能够逐个处理符号，避免跳步导致的错误。\n\n### 总体启示\n\n这三类应用有一个共同特征：它们都需要**多步骤的推理过程**，而不是简单的模式匹配或知识检索。CoT 的价值在于它让 LLM 能够「慢下来思考」，通过生成中间 token 来扩展模型的有效计算深度。这与人类解决复杂问题时的策略——写下中间步骤——不谋而合。\n\n值得注意的是，CoT 在较大的模型（如 100B+ 参数）上效果更加显著，这与 emergent abilities（涌现能力）的概念密切相关。",
       "keyPoints": [
-        "CoT 主要应用于数学问题、常识推理和符号推理三大领域",
-        "这些任务的共同特点是需要多步推理，直接得出答案容易出错",
-        "CoT 相当于给模型提供了一个\"草稿纸\"来逐步展开思考过程"
+        "CoT 的三大应用领域：数学问题、常识推理、符号推理，共同特点是需要多步骤推理",
+        "CoT 的核心价值在于让模型通过生成中间步骤来扩展有效计算深度",
+        "CoT 在大模型上效果更显著，与涌现能力（emergent abilities）密切相关"
       ]
     },
     {
       "page": 43,
-      "explanation": "## Zero-Shot Chain-of-Thought\n\n这张幻灯片介绍了 **Zero-Shot CoT**，来自 Kojima et al. 2023 的工作。这是一种不需要提供任何 few-shot 示例就能触发 CoT 推理的方法。\n\n### 核心方法\n原始的 CoT（Wei et al.）是 few-shot 的——你需要手动编写带有推理链的示例。Zero-Shot CoT 则极其简单：\n\n**只需在 prompt 末尾加上一句 \"Let's think step by step\"（让我们一步步想）。**\n\n这句看似简单的话，却能显著提升模型在推理任务上的表现。\n\n### 两阶段流程\n1. **推理阶段**：在问题后添加 \"Let's think step by step\"，让模型生成推理过程\n2. **答案提取阶段**：在模型生成的推理过程后，添加类似 \"Therefore, the answer (arabic numerals) is\" 的提示，引导模型给出最终答案\n\n这个两阶段设计很重要，因为模型可能在推理过程中产出正确的中间步骤但不明确给出最终答案。\n\n### 为什么有效？\n这揭示了一个深刻的发现：大语言模型在预训练过程中已经学会了逐步推理的模式（可能来自互联网上大量的数学解题过程、教程等）。\"Let's think step by step\" 这个 trigger phrase 相当于激活了模型内部已有的推理能力。\n\n### 与 Few-Shot CoT 的对比\n- **优势**：无需人工编写示例，更加通用、省力\n- **劣势**：通常不如精心设计的 few-shot CoT 效果好\n- **适用场景**：当你没有任务相关的示例时，zero-shot CoT 是一个很好的 baseline",
+      "explanation": "## Chain-of-Thought: Zero-Shot 变体\n\n这张幻灯片介绍了 **Zero-Shot Chain-of-Thought (CoT)** 方法，这是一种无需提供任何示例就能激发模型逐步推理能力的技术。\n\n### 核心思想\n\n与 Few-Shot CoT 不同，Zero-Shot CoT **不需要手动设计带有推理步骤的示例**。其核心技巧极其简单：只需在提示的末尾添加一句 **\"Let's think step by step\"**（让我们一步一步地思考），就能显著提升模型在推理任务上的表现。\n\n### 两阶段过程\n\nKojima et al. (2023) 提出的方法实际上分为两个阶段：\n\n1. **推理提取（Reasoning Extraction）**：在问题后面加上 \"Let's think step by step\"，让模型生成详细的推理过程。\n2. **答案提取（Answer Extraction）**：在模型生成的推理链之后，再追加一个提示，如 \"Therefore, the answer (arabic numerals) is\"，引导模型从推理过程中提取出最终的简洁答案。\n\n### 为什么这很重要？\n\n这个发现令人惊讶，因为**仅仅一句简单的指令就能解锁模型潜在的推理能力**。这说明大型语言模型内部已经学到了分步推理的能力，只是需要适当的 \"触发词\" 来激活。\n\n与 Few-Shot CoT 相比，Zero-Shot CoT 的优势在于：\n- **无需设计示例**：省去了构建高质量推理示例的人工成本\n- **任务无关**：同一个提示可以应用于各种推理任务\n- **更简单**：实现成本几乎为零\n\n当然，Zero-Shot CoT 的效果通常不如精心设计的 Few-Shot CoT，但其简洁性使其成为一个非常实用的基线方法。",
       "keyPoints": [
-        "Zero-Shot CoT 只需在 prompt 末尾加上 \"Let's think step by step\" 即可触发逐步推理",
-        "采用两阶段流程：先生成推理过程，再用特定 prompt 提取最终答案",
-        "揭示了大模型在预训练中已学会逐步推理的模式，特定短语可以激活这种能力"
+        "Zero-Shot CoT 只需在提示中加入 \"Let's think step by step\" 即可激发模型的逐步推理能力，无需提供示例",
+        "答案提取阶段需要额外提示（如 \"Therefore, the answer is\"）来从推理链中提取最终答案",
+        "这表明大模型内部已具备推理能力，适当的触发词即可激活，体现了 prompting 的强大之处"
       ]
     },
     {
       "page": 44,
-      "explanation": "## Chain-of-Thought: Few-Shot 示例选择策略\n\n这张幻灯片讨论了在 Few-Shot CoT 中**如何选择示例**的问题，重点介绍了 Fu et al. 2023 提出的 **Complexity-Based Prompting**（基于复杂度的提示选择）。\n\n### 问题背景\n在 few-shot CoT 中，我们需要选择若干带有推理链的示例。但选哪些示例？这比简单的 few-shot（只有输入-输出对）更复杂，因为推理链本身也有结构。\n\n### Complexity-Based Prompting 核心思想\n\n关键原则非常简洁：**优先选择复杂的示例而非简单的示例。**\n\n具体来说：\n- **Prompting 阶段**：选择包含**最多推理步骤**的示例作为 few-shot 示例\n- **Ensembling 阶段**：对多条推理链进行采样，然后对**最复杂的那些推理链**使用 **majority voting（多数投票）** 来确定最终答案\n\n### 直觉理解\n这就像数学考试的备考策略：如果你练习了复杂的题目，简单的题目自然也能解决。反过来，如果你只练习简单题目，遇到复杂题目可能就无从下手。\n\n同样，展示复杂的推理链给模型看，模型会学到更完整的推理模式，从而在各种难度的问题上都表现更好。\n\n### 与简单语义相似度的区别\n前面讲过 few-shot 示例选择可以用语义相似度（如 KATE）。但对于 CoT，选择标准不仅仅是语义相似，还需要考虑推理链的**结构特征**（如推理步骤数量），这使得选择策略更加 structured。\n\n### Majority Voting + Complexity\n这实际上结合了两个技术：self-consistency（多次采样+投票）和 complexity-based filtering（只对复杂推理链投票），进一步提升了可靠性。",
+      "explanation": "## Chain-of-Thought: Few-Shot 示例选择策略\n\n这张幻灯片讨论了在 Few-Shot CoT 中**如何选择示例**的问题，特别介绍了 **Complexity-based Prompting**（基于复杂度的提示）策略。\n\n### 问题背景\n\n在 Few-Shot CoT 中，我们需要提供带有推理步骤的示例。示例的选择对最终性能影响很大。之前我们讨论过基于语义相似性的示例选择，但 CoT 需要更结构化的方法。\n\n### Complexity-based Prompting（Fu et al., 2023）\n\n核心原则非常直观：**选择复杂的提示而非简单的提示**。具体来说：\n\n1. **提示选择（Prompting）**：在候选示例中，选择**包含最多推理步骤**的示例。例如，如果一道数学题可以用3步或7步解决，优先选择7步的解法作为示例。更多的推理步骤为模型提供了更丰富的推理模式。\n\n2. **集成（Ensembling）**：生成多条推理链后，对**最复杂的推理链集合进行多数投票（Majority Voting, MV）**。即先筛选出推理步骤最多的链，然后在这些链的最终答案中进行投票。\n\n### 直觉理解\n\n为什么复杂的示例更好？可以这样理解：\n- 复杂的推理链包含更多中间步骤，为模型展示了**更细粒度的推理分解**\n- 简单的推理链可能跳过了关键步骤，模型可能无法学习到完整的推理模式\n- 这与人类学习类似——看一个详细的解题过程比看一个省略步骤的解答更有帮助\n\n### 与简单语义相似性的对比\n\n简单的 Few-Shot 选择可能只看输入的语义相似性，但 CoT 的示例选择需要同时考虑**推理过程的结构和复杂度**，这是一种更有针对性的策略。",
       "keyPoints": [
-        "Complexity-Based Prompting：优先选择推理步骤最多的复杂示例作为 few-shot 示例",
-        "Ensembling 阶段对最复杂的推理链使用 majority voting 来确定最终答案",
-        "CoT 的示例选择比普通 few-shot 更加结构化，需要考虑推理链的复杂度而非仅语义相似度"
+        "Complexity-based Prompting 的核心策略：优先选择包含更多推理步骤的复杂示例",
+        "集成时对最复杂的推理链进行多数投票（Majority Voting），进一步提升准确性",
+        "CoT 的示例选择比普通 Few-Shot 更结构化，需要考虑推理过程的复杂度而非仅看语义相似性"
       ]
     },
     {
       "page": 45,
-      "explanation": "## Chain-of-Thought 的推广：超越线性推理链\n\n这张幻灯片引出了 CoT 的一个根本性反思和推广方向，来自 Yao et al. 2023 的工作（即 **Tree of Thoughts**）。\n\n### 核心质疑\n\"我们真正是如何推理的？\" ——人类的推理过程**并非**简单地\"采样一堆线性的推理链\"。\n\n标准的 CoT（包括 self-consistency）本质上是：\n1. 从左到右生成一条线性的推理链 $s_1 \\to s_2 \\to ... \\to s_n \\to \\text{answer}$\n2. 如果结合 self-consistency，就是采样多条这样的链，然后投票\n\n但人类推理的特点是：\n- **探索与回溯**：我们会尝试不同的方向，发现走不通时会回头\n- **分支决策**：在某些关键节点，我们会考虑多个可能性\n- **评估与剪枝**：我们能判断某个中间状态是否有前途\n\n### Tree of Thoughts (ToT)\nYao et al. 2023 提出了将推理过程从**链（chain）扩展为树（tree）** 的框架：\n- 每个节点是一个\"思考状态\"（partial reasoning step）\n- 模型可以在每一步生成多个候选想法（branching）\n- 使用搜索算法（如 BFS、DFS）在思考树中探索\n- 模型自身可以评估每个中间状态的价值，进行剪枝\n\n### 意义\n这标志着 prompting 策略从简单的线性生成向更复杂的**搜索与规划**范式转变。这也连接到了更广泛的 AI 主题：将 LLM 的生成能力与经典 AI 的搜索算法（如 tree search）结合起来，实现更强大的推理能力。后续的 Graph of Thoughts 等工作进一步推广了这一思路。",
+      "explanation": "## Chain-of-Thought 的泛化：超越线性推理链\n\n这张幻灯片提出了一个关键反思：**人类的真实推理过程并不是简单地采样一堆推理链**，引出了 CoT 的泛化方向。\n\n### 核心问题\n\n标准的 Chain-of-Thought 方法（包括 Self-Consistency 等变体）本质上都是**线性的**——从问题出发，一步步走向答案，生成一条链。即使 Self-Consistency 采样多条链，每条链本身仍然是线性序列。\n\n但人类的推理方式更加复杂：\n- 我们会**探索多个分支**，在某些分支走不通时回溯\n- 我们会**评估中间状态**，判断当前的推理方向是否有希望\n- 我们的推理过程更像一棵**树**或**图**，而非一条链\n\n### Tree of Thoughts（Yao et al., 2023）\n\n这张幻灯片引出了 **Tree of Thoughts (ToT)** 的概念（由 Yao et al. 2023 提出）。ToT 将推理过程从链式结构扩展为**树状结构**：\n\n- 每个节点代表一个**中间推理状态（thought）**\n- 模型可以在每个节点**生成多个可能的下一步**\n- 通过**搜索算法**（如 BFS 或 DFS）在树中探索最佳推理路径\n- 可以对中间状态进行**评估和剪枝**，放弃不太有希望的分支\n\n### 更广泛的意义\n\n这代表了 prompting 技术的一个重要演进方向：从简单的输入-输出映射 → 线性推理链 → 树状/图状的结构化搜索。这也反映了 Foundation Model 研究中一个核心问题：**如何让模型进行更接近人类的深度推理？**\n\n后续的研究（如 Graph of Thoughts 等）进一步将这个思想推广到更一般的图结构。",
       "keyPoints": [
-        "标准 CoT 是线性推理链，但人类推理涉及探索、回溯和分支决策",
-        "Tree of Thoughts (Yao et al. 2023) 将推理从链扩展为树结构，支持搜索和剪枝",
-        "代表了 prompting 从线性生成向搜索与规划范式的转变，连接了 LLM 与经典 AI 搜索算法"
+        "标准 CoT 的局限性：线性推理链无法捕捉人类推理中的回溯、分支探索等复杂模式",
+        "Tree of Thoughts (ToT) 将推理从链式扩展为树状结构，支持多分支探索和中间状态评估",
+        "这代表了 prompting 技术从线性到结构化搜索的重要演进方向"
       ]
     },
     {
       "page": 46,
-      "explanation": "这张幻灯片介绍了 **Tree-of-Thoughts (ToT)** 的基本思想，它是 Chain-of-Thought (CoT) 的重要推广。\n\n**核心概念：**\n\n首先回顾符号约定：thoughts $z_1, z_2, \\dots, z_n$ 是连接输入 $x$ 和输出 $y$ 之间的中间推理步骤。\n\n**与其他方法的对比：**\n- **Vanilla CoT（标准思维链）**：按顺序采样每个思维步骤 $z_i \\sim p_\\theta(z_i | x, z_1, \\dots, z_{i-1})$，然后得到最终答案 $y \\sim p_\\theta(y | x, z_1, \\dots, z_n)$。这是一条**线性链**，只有一条推理路径。\n- **CoT Self-Consistency（自一致性）**：多次采样完整的推理链，然后对最终答案进行多数投票（majority vote），利用多样性来提高准确率。\n\n**Tree-of-Thoughts 的创新：**\n\nToT 引入了**状态（state）**的概念：$s = [x, z_1, \\dots, z_n]$，即当前的输入加上已经产生的所有思维步骤。关键创新在于：在每个状态下，**生成多个候选的下一步思维**（而不是只生成一个），从而形成一棵**树结构**。然后在这棵树上运行标准的搜索算法，如 BFS（广度优先搜索）、DFS（深度优先搜索）或 A* 搜索。\n\n**直觉类比：** 想象你在解一道数学题，Vanilla CoT 就像你只想了一种解法一路算下去；Self-Consistency 像你独立算了好几遍取最多的答案；而 ToT 则像你在每一步都考虑多种可能的推理方向，形成一棵决策树，然后用搜索算法找到最优路径。这本质上是将经典 AI 的搜索方法与 LLM 的生成能力结合起来。\n\n幻灯片中引用了一张树结构的图（来自维基百科），直观展示了从根节点（输入）出发，每一步分叉出多个候选思维，形成树状结构的过程。",
+      "explanation": "## Tree-of-Thoughts (ToT) 基本思想\n\n这张幻灯片介绍了 Chain-of-Thought 的一个重要推广——**Tree-of-Thoughts (ToT)**，它将线性的思维链扩展为树状的思维搜索结构。\n\n### 核心概念\n\n**符号定义**：思维步骤 $z_1, z_2, \\ldots, z_n$ 是从输入 $x$ 到输出 $y$ 之间的桥梁（中间推理步骤）。\n\n**与其他方法的对比**：\n\n1. **Vanilla CoT（标准思维链）**：线性地逐步采样，每个思维步骤依赖前面所有步骤：\n   $$z_i \\sim p_\\theta(z_i \\mid x, z_1, \\ldots, z_{i-1})$$\n   最终答案：$y \\sim p_\\theta(y \\mid x, z_1, \\ldots, z_n)$\n   这是一条**单一路径**，一旦某步出错就无法纠正。\n\n2. **CoT Self-Consistency**：多次采样不同的推理路径，然后对最终答案取**多数投票**。这改善了鲁棒性，但每条路径仍然是线性的。\n\n3. **Tree-of-Thoughts**：定义一个**状态** $s = [x, z_1, \\ldots, z_n]$，在每个状态下生成**多个候选**下一步思维，从而构建出一棵树。然后使用经典的搜索算法（如 BFS 广度优先搜索、DFS 深度优先搜索、A* 搜索）来探索这棵树。\n\n### 直觉类比\n\n想象你在解一道复杂数学题：\n- **Vanilla CoT** 就像一条路走到底，不回头\n- **Self-Consistency** 就像走多条路，最后投票选答案\n- **ToT** 就像下棋时的**搜索树**，每一步考虑多种可能，评估哪种最有前途，然后继续探索\n\n这个方法借鉴了传统 AI 中博弈树搜索的思想，将 LLM 的生成过程与经典搜索算法结合起来，使得模型能够**回溯**和**探索**，显著提升了复杂推理任务的表现。",
       "keyPoints": [
-        "Tree-of-Thoughts 将推理过程从线性链扩展为树结构，在每个状态生成多个候选下一步",
-        "引入状态 s=[x, z1,...,zn]，然后使用 BFS、DFS 或 A* 等经典搜索算法在树上寻找最优推理路径",
-        "对比：Vanilla CoT 是单链采样，Self-Consistency 是多链投票，ToT 是树搜索"
+        "ToT 将线性思维链扩展为树状结构，每步生成多个候选思维，再用 BFS/DFS/A* 等搜索算法探索",
+        "状态定义为 s=[x, z1,...,zn]，相比 Vanilla CoT 和 Self-Consistency 提供了更强的探索和回溯能力",
+        "核心思想是将 LLM 推理与经典搜索算法结合，类似于博弈树搜索"
       ]
     },
     {
       "page": 47,
-      "explanation": "这张幻灯片详细介绍了 **Tree-of-Thoughts (ToT)** 的四个关键设计维度，每个维度都需要仔细考虑。\n\n**1. Thought Decomposition（思维分解）**\n决定每个思维单元 $z_i$ 应该有多大。它可以是一个词、一句话、一个段落，甚至是一个完整的解题步骤。粒度选择取决于具体任务：太细会导致搜索空间爆炸，太粗则失去探索多条路径的意义。\n\n**2. Thought Generation（思维生成）**\n如何为当前状态生成下一步的候选思维。可以通过 LLM 采样多次来获得不同的候选，但需要注意**避免重复**（duplication），确保候选之间有足够的多样性。\n\n**3. State Evaluation（状态评估）**\n这是 ToT 中最关键的环节之一：如何评估当前状态距离最终正确答案有多近？这本质上就是搜索算法中的**启发式函数（heuristic）**——回忆 CS 540（人工智能导论）中学过的 A* 搜索中的 $h(n)$。\n- 可以**用 LLM 本身来评估**：让模型判断当前推理路径的前景如何\n- 也可以通过**投票或加权投票**：从当前状态继续完成多条路径，看哪个状态导向更多正确答案\n\n**4. Search（搜索策略）**\n选择 BFS（广度优先，逐层探索）或 DFS（深度优先，深入一条路径再回溯），或更高级的搜索方法如 A*、beam search 等。BFS 适合搜索空间较小但需要全面探索的场景，DFS 适合搜索空间大但解较深的场景。\n\n这四个维度的设计选择共同决定了 ToT 在特定任务上的表现。",
+      "explanation": "## Tree-of-Thoughts 的关键设计方面\n\n这张幻灯片详细介绍了实现 Tree-of-Thoughts 时需要考虑的**四个关键设计决策**。\n\n### 1. Thought Decomposition（思维分解）\n\n决定每个思维步骤 $z_i$ 的**粒度**有多大。例如：\n- 在数学推理中，一个 thought 可能是一个计算步骤\n- 在创意写作中，一个 thought 可能是一段话的大纲\n- 粒度过细会导致搜索空间爆炸，过粗则失去探索的意义\n\n### 2. Thought Generation（思维生成）\n\n如何生成下一个候选思维。关键挑战是**避免重复**——如果多个候选思维本质相同，就浪费了搜索预算。可以通过调节 temperature、使用不同的 prompt 策略等方式增加多样性。\n\n### 3. State Evaluation（状态评估）\n\n这是 ToT 的核心难点：如何评估当前状态离最终解有多近？这类似于 A* 搜索中的**启发式函数 $h(s)$**（回忆 CS 540 人工智能课程中的知识）。两种主要方法：\n- **使用 LM 自身评估**：让语言模型给当前推理状态打分（\"这个推理方向看起来有多有前途？\"）\n- **投票/加权投票**：对从当前状态出发的多条路径的解进行投票\n\n### 4. Search（搜索策略）\n\n选择具体的搜索算法：\n- **BFS**：逐层扩展，适合搜索空间较小的情况\n- **DFS**：深度优先，适合需要快速找到一个解的情况\n- 更高级的方法如 A*、beam search 等\n\n### 与传统 AI 的联系\n\nToT 本质上是将**符号 AI 的搜索范式**与**神经网络的生成能力**相结合。LLM 充当生成器和评估器，经典算法提供搜索框架。这种 neuro-symbolic 的结合是当前 AI 研究的一个重要趋势。",
       "keyPoints": [
-        "ToT 有四个关键设计维度：思维分解粒度、思维生成方式、状态评估方法和搜索策略",
-        "状态评估类似于经典搜索中的启发式函数，可用 LLM 自身或投票方式实现",
-        "搜索策略可选 BFS、DFS 或更高级的方法如 A*，需根据任务特性选择"
+        "四个关键设计决策：思维粒度、思维生成（避免重复）、状态评估（启发式函数）、搜索策略",
+        "状态评估是核心难点，可以用 LM 自身评估或对多条路径的解进行投票",
+        "ToT 体现了符号 AI 搜索与神经网络生成的结合，是 neuro-symbolic 方法的代表"
       ]
     },
     {
       "page": 48,
-      "explanation": "这张幻灯片展示了 **Tree-of-Thoughts (ToT)** 的一个具体示例，通过可视化帮助理解整个过程。\n\n虽然幻灯片中具体图片内容未给出文字描述，但根据 ToT 论文中的经典示例，典型的展示场景包括：\n\n**Game of 24（24点游戏）示例：**\n给定数字如 {4, 9, 10, 13}，目标是通过加减乘除得到 24。\n- 根节点是初始问题\n- 每一步生成多个候选的部分计算（例如：13-9=4, 10-4=6, 13-10=3 等）\n- 对每个候选状态进行评估（\"sure\", \"maybe\", \"impossible\"）\n- 剪枝掉不可能的分支，继续探索有希望的分支\n- 最终找到正确的计算路径\n\n**树结构的可视化展示：**\n从输入 $x$ 出发，每一层展开多个思维节点 $z_i$，形成宽度和深度兼具的树。搜索算法在树上遍历，评估函数帮助剪枝，最终到达正确答案 $y$。\n\n这个示例直观地展示了 ToT 相比普通 CoT 的优势：当一条推理路径走入死胡同时，ToT 可以回溯并尝试其他路径，而 Vanilla CoT 只能一条路走到底。这种能力在需要探索和回溯的复杂推理任务中尤为重要。",
+      "explanation": "## Tree-of-Thoughts 示例\n\n这张幻灯片展示了 Tree-of-Thoughts 的一个具体**示例**，帮助学生直观理解 ToT 的工作流程。\n\n### 工作流程的直观理解\n\n虽然幻灯片上的具体图示细节未完全给出，但一个典型的 ToT 示例如下：\n\n假设任务是 \"24 点游戏\"（Game of 24）：给定四个数字，通过加减乘除得到 24。\n\n1. **初始状态**：$s_0 = [x]$，其中 $x$ 是四个数字，比如 $\\{4, 9, 10, 13\\}$\n2. **第一层展开**：LM 生成多个候选第一步操作：\n   - $z_1^{(a)}$: \"$13 - 9 = 4$，剩余 $\\{4, 4, 10\\}$\"\n   - $z_1^{(b)}$: \"$10 + 13 = 23$，剩余 $\\{4, 9, 23\\}$\"\n   - $z_1^{(c)}$: \"$9 - 4 = 5$，剩余 $\\{5, 10, 13\\}$\"\n3. **状态评估**：LM 评估每个候选的前景（\"sure\", \"maybe\", \"impossible\"）\n4. **搜索继续**：根据评估结果，BFS 保留最有前途的状态继续扩展\n5. **最终到达**解：找到运算组合使结果为 24\n\n### 树状结构的优势\n\n与线性 CoT 相比，ToT 的树状结构使得模型可以：\n- **探索多条路径**：不会因为一步走错而全盘皆输\n- **回溯**：发现某条路径不可行时，可以回到之前的状态尝试其他分支\n- **系统性搜索**：利用搜索算法保证搜索的完整性和效率\n\n这个示例清楚地展示了 ToT 如何在需要多步推理和探索的任务中超越标准 CoT。在 Game of 24 任务上，ToT 的成功率远超标准 CoT 和 Self-Consistency 方法。",
       "keyPoints": [
-        "ToT 示例通常展示树的分支、评估和剪枝过程",
-        "ToT 的核心优势在于可以回溯和探索多条推理路径，避免单链推理的局限性"
+        "ToT 示例（如 Game of 24）展示了树状搜索如何系统地探索多种推理路径",
+        "每一层生成多个候选，通过 LM 评估筛选最有前途的分支继续扩展",
+        "相比线性 CoT，ToT 支持回溯和系统搜索，在复杂推理任务上表现显著提升"
       ]
     },
     {
