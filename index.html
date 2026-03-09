@@ -21,6 +21,7 @@
       <button id="btn-next" title="Next slide">&rarr;</button>
     </div>
     <div class="nav-right">
+      <button id="btn-annotations" title="My annotations">Notes</button>
       <button id="btn-toc" title="Table of contents">TOC</button>
       <button id="btn-theme" title="Toggle dark mode">Dark</button>
     </div>
@@ -39,12 +40,40 @@
     </section>
   </main>
 
+  <div id="context-menu" class="hidden">
+    <button id="ctx-highlight" data-color="yellow">Highlight</button>
+    <button id="ctx-highlight-blue" data-color="blue">Blue</button>
+    <button id="ctx-highlight-green" data-color="green">Green</button>
+    <button id="ctx-note">Add Note</button>
+  </div>
+
+  <div id="note-editor" class="hidden">
+    <div class="note-editor-header">
+      <span class="note-editor-title">Add Note</span>
+      <button id="note-editor-close">&times;</button>
+    </div>
+    <div class="note-editor-quote"></div>
+    <textarea id="note-editor-text" placeholder="Write your note here..." rows="4"></textarea>
+    <div class="note-editor-actions">
+      <button id="note-editor-save">Save</button>
+      <button id="note-editor-cancel">Cancel</button>
+    </div>
+  </div>
+
   <aside id="toc-panel" class="hidden">
     <div class="toc-header">
       <h3>Lectures</h3>
       <button id="toc-close">&times;</button>
     </div>
     <ul id="toc-list"></ul>
+  </aside>
+
+  <aside id="annotations-panel" class="hidden">
+    <div class="toc-header">
+      <h3>My Annotations</h3>
+      <button id="annotations-close">&times;</button>
+    </div>
+    <div id="annotations-list"></div>
   </aside>
 
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs" type="module"></script>
