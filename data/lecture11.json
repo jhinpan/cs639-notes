@@ -1,0 +1,355 @@
+{
+  "lecture": 11,
+  "title": "Attention Variants",
+  "totalPages": 40,
+  "slides": [
+    {
+      "page": 1,
+      "explanation": "这是课程标题幻灯片，介绍了本次讲座的主题：**Attention Variations（注意力机制的变体）**。这是 UW-Madison CS 639: Foundation Models 课程的一部分，由 Fred Sala 教授讲授。\n\n注意力机制（Attention）是 Transformer 架构的核心组件，而标准的自注意力（self-attention）存在计算复杂度为 $O(n^2)$ 的问题（其中 $n$ 是序列长度）。因此，研究者们提出了各种注意力变体来解决效率、可扩展性等问题。这节课将深入探讨这些变体，包括稀疏注意力（sparse attention）、非 softmax 的替代方案，以及硬件感知的实现（如 FlashAttention）。这些内容对于理解现代大型语言模型（如 GPT-4、LLaMA 等）如何高效处理长序列至关重要。",
+      "keyPoints": [
+        "本讲主题：注意力机制的各种变体",
+        "这些变体旨在解决标准注意力机制的效率和可扩展性问题"
+      ]
+    },
+    {
+      "page": 2,
+      "explanation": "这张幻灯片展示了本次讲座的**大纲（Outline）**，包含三个主要部分：\n\n1. **完成 Decoder-Only 模型的讨论**：延续上节课关于 GPT 系列模型的内容，包括 scaling（规模化）、新的技巧和想法。GPT 系列是 decoder-only Transformer 的代表，理解它们是学习注意力变体的基础。\n\n2. **Attention: Variations（注意力变体）**：这是本讲的核心内容，涵盖：\n   - **Motivation（动机）**：为什么需要改进标准注意力\n   - **Sparse attention（稀疏注意力）**：通过限制注意力的范围来降低复杂度\n   - **Beyond softmax（超越 softmax）**：用其他函数替代 softmax 来计算注意力权重\n   - **Hardware-aware implementations（硬件感知实现）**：如 FlashAttention，利用 GPU 内存层次结构来加速注意力计算\n\n3. **Beyond Attention（超越注意力）**：介绍替代注意力机制的序列建模方法，包括 **S4 序列模型** 和 **Mamba 模型**。这些是状态空间模型（State Space Models），代表了一种与 Transformer 不同的序列处理范式。",
+      "keyPoints": [
+        "讲座分三部分：完成 Decoder-Only 模型、注意力变体、超越注意力的模型",
+        "注意力变体涵盖稀疏注意力、非 softmax 方案和硬件感知实现",
+        "超越注意力部分将介绍 S4 和 Mamba 等状态空间模型"
+      ]
+    },
+    {
+      "page": 3,
+      "explanation": "这张幻灯片与第2页内容相同，是同一个大纲的重复展示（可能是为了在讲座中标记当前进度位置）。内容同上一页的大纲说明。",
+      "keyPoints": [
+        "大纲重复，用于标记讲座进度"
+      ]
+    },
+    {
+      "page": 4,
+      "explanation": "这张幻灯片介绍了 **Decoder-Only 模型：GPT** 的基本概念和命名含义。\n\n首先讨论了去掉 encoder 部分的两个理由：\n1. **输出使用自然语言**（Outputs in natural language）：decoder-only 模型直接生成自然语言文本，不需要 encoder 来处理输入-输出的映射\n2. **与输入紧密对齐**（Tight alignment with input）：在纯语言生成任务中，输出与输入是同一种模态，序列到序列的严格对齐不是必需的\n\n然后逐一解释 **GPT** 这个缩写：\n- **G = Generative（生成式）**：GPT 是一个语言模型，能够生成丰富的内容（文本），这与 BERT 不同。BERT 是 masked language model，主要用于生成表示（representations）或进行分类预测，而不是自由地生成文本。\n- **P = Pretrained（预训练）**：GPT 和 BERT 一样，都采用预训练策略，在大规模无标注语料上先进行预训练，再做下游任务微调。\n- **T = Transformer**：GPT 和 BERT 都基于 Transformer 架构，但 GPT 只使用 decoder 部分（带有 causal mask 的自注意力），而 BERT 使用 encoder 部分（双向自注意力）。\n\n这个对比非常重要：GPT 的自回归（autoregressive）特性使其天然适合文本生成，而 BERT 的双向编码特性使其更适合理解任务。",
+      "keyPoints": [
+        "GPT = Generative Pretrained Transformer，是 decoder-only 架构",
+        "与 BERT 的关键区别：GPT 是生成式的（autoregressive），BERT 是双向编码式的",
+        "两者都采用预训练 + Transformer 架构，但用途和结构不同"
+      ]
+    },
+    {
+      "page": 5,
+      "explanation": "这张幻灯片简要介绍了**语言模型（Language Model）**的基本概念。\n\n**核心思想**：语言模型使用概率模型为一个句子 $W$ 赋予一个概率。具体来说，给定一个词序列 $W = w_1, w_2, \\ldots, w_n$，语言模型的目标是估计联合概率 $P(w_1, w_2, \\ldots, w_n)$。\n\n利用链式法则（chain rule），这可以分解为：\n$$P(W) = P(w_1) \\cdot P(w_2|w_1) \\cdot P(w_3|w_1, w_2) \\cdots P(w_n|w_1, \\ldots, w_{n-1})$$\n\n幻灯片强调我们更关心的是**条件概率**：$P(w_{t+1} | w_1, \\ldots, w_t)$，即给定前文预测下一个词（或 token）的分布。这就是所谓的 **next-token prediction**，也是 GPT 系列模型的核心训练目标。\n\n通过这个条件分布，我们可以逐步**采样（sample）**下一个 token，从而生成完整的文本序列。这就是 autoregressive generation（自回归生成）的本质。\n\n幻灯片还提到这个思想远早于 GPT——**Shannon 的例子**指的是 Claude Shannon 在 1948 年信息论论文中使用 n-gram 语言模型生成英文文本的经典实验。Shannon 展示了随着 n-gram 阶数增加，生成的文本越来越像真正的英语。这表明语言模型的思想有着深厚的理论根基，GPT 本质上是用神经网络（Transformer）来更好地建模这个条件概率分布。",
+      "keyPoints": [
+        "语言模型的核心是为句子赋予概率，关键在于条件概率 $P(w_{t+1}|w_1,...,w_t)$",
+        "GPT 的训练目标就是 next-token prediction，即估计下一个 token 的条件分布",
+        "语言模型思想起源于 Shannon 的信息论，GPT 是用 Transformer 实现的现代版本"
+      ]
+    },
+    {
+      "page": 6,
+      "explanation": "## Decoder-Only Models: GPT\n\n这张幻灯片介绍了 GPT（Generative Pre-trained Transformer）的核心机制——**自回归（autoregressive）下一个 token 预测**。\n\n### 核心机制\n\nGPT 是一个 **decoder-only** 模型，与 BERT 这样的 encoder-only 模型或原始 Transformer 的 encoder-decoder 架构不同。它的工作方式非常直观：\n\n1. **输入当前 token**，模型预测下一个 token\n2. **将预测出的 token 拼接回输入序列**，再预测下一个 token\n3. 如此循环，直到生成完整的序列\n\n数学上，GPT 建模的是条件概率：\n$$P(x_t | x_1, x_2, \\ldots, x_{t-1})$$\n\n整个序列的联合概率被分解为：\n$$P(x_1, x_2, \\ldots, x_T) = \\prod_{t=1}^{T} P(x_t | x_1, \\ldots, x_{t-1})$$\n\n### 为什么是 Decoder-Only？\n\nDecoder-only 架构使用 **causal attention mask（因果注意力掩码）**，确保每个位置只能看到它之前的 token，而看不到未来的 token。这自然地符合自回归生成的需求。\n\n你可以把它想象成一个作家在写文章：每次只写下一个词，这个词的选择基于之前已经写好的所有内容，但不会\"偷看\"后面还没写的部分。\n\n### 在 Foundation Model 领域的重要性\n\n这种 decoder-only 自回归架构已经成为当前大语言模型（LLM）的主流架构，GPT-2、GPT-3、GPT-4、LLaMA、PaLM 等模型都采用这种设计。它的简洁性和强大的扩展能力（scalability）使其成为 foundation model 的基石。",
+      "keyPoints": [
+        "GPT 是 decoder-only 架构，核心是自回归地逐个预测下一个 token",
+        "使用 causal attention mask 确保每个 token 只能关注之前的 token，不能看到未来信息",
+        "这种架构已成为当前主流大语言模型的标准设计范式"
+      ]
+    },
+    {
+      "page": 7,
+      "explanation": "## 从 GPT-2 到 GPT-3：规模化的力量\n\n这张幻灯片展示了从 GPT-2 到 GPT-3 的演进，核心思路非常简单——**把模型变大（scale up）**。\n\n### 关键规格\n\n- **96 个 decoder blocks**：GPT-3 的 Transformer 堆叠了 96 层（GPT-2 最大版本是 48 层），网络变得\"非常高\"（very tall）\n- **Context size: 2048**：模型能处理的最大序列长度为 2048 个 token\n- **175 billion（1750 亿）参数**：模型存储需要约 800GB，这是一个巨大的飞跃（GPT-2 最大版本仅 15 亿参数）\n\n### 为什么要变大？Emergent Behaviors（涌现行为）\n\n幻灯片提到了一个关键概念：**scaling produces emergent behaviors**。当模型规模增大到一定程度时，会突然出现一些在小模型中不存在的能力，比如：\n- 少样本学习（few-shot learning）\n- 思维链推理（chain-of-thought reasoning）\n- 代码生成\n\n这就像水加热到 100°C 时突然沸腾一样——量变引起质变。\n\n### Scaling Laws\n\n这里暗示了 **Scaling Laws**（Kaplan et al., 2020）：模型性能与参数量、数据量、计算量之间存在幂律关系。GPT-3 的成功验证了\"大力出奇迹\"在 NLP 中的有效性。\n\n### 训练数据\n\nGPT-3（Brown et al., 2020）使用了大规模多样化的网络文本数据进行训练，包括 Common Crawl、WebText2、Books 等。",
+      "keyPoints": [
+        "GPT-3 的核心策略是 scaling up：96 层 decoder，1750 亿参数",
+        "规模化带来涌现能力（emergent behaviors），小模型中不存在的能力在大模型中突然出现",
+        "上下文长度为 2048 tokens，这在后续模型中被大幅扩展"
+      ]
+    },
+    {
+      "page": 8,
+      "explanation": "## 开源模型：Llama 3.1\n\n这张幻灯片介绍了 Meta 发布的开源大语言模型 **Llama 3.1**（Dubey et al., 2024），延续了\"把模型变大\"的思路，但同时提供了**多种模型尺寸**供选择。\n\n### 核心理念\n\n与 GPT-3 一样，Llama 3.1 的核心策略仍然是 **scaling**。但一个重要的区别是 Llama 3.1 提供了**多个模型规模**（multiple model sizes），通常包括：\n- **8B**（80 亿参数）\n- **70B**（700 亿参数）\n- **405B**（4050 亿参数）\n\n这种多尺寸策略非常重要，因为不同的应用场景有不同的计算资源约束。小模型可以在消费级 GPU 上运行，大模型则用于需要最强能力的场景。\n\n### 为什么开源很重要？\n\n在 foundation model 领域，GPT 系列是闭源的（closed-source），而 Llama 系列是**开源的**（open-source/open-weight）。这意味着研究者和开发者可以：\n1. 自由下载和使用模型权重\n2. 在自己的数据上进行微调（fine-tuning）\n3. 研究模型内部的工作机制\n4. 构建定制化的应用\n\n开源模型推动了整个生态系统的发展，降低了进入门槛，使更多人可以参与到 foundation model 的研究和应用中。\n\n### 架构基础\n\nLlama 3.1 仍然是基于 **decoder-only Transformer** 架构，但在细节上做了多处改进（后续幻灯片会详细介绍）。",
+      "keyPoints": [
+        "Llama 3.1 是 Meta 发布的开源大语言模型，提供 8B、70B、405B 等多种规模",
+        "延续了 scaling up 的策略，同时通过多尺寸设计满足不同计算资源需求",
+        "开源（open-source）模型对推动 foundation model 生态发展至关重要"
+      ]
+    },
+    {
+      "page": 9,
+      "explanation": "## Llama 3.1 的改进：注意力机制优化\n\n这张幻灯片介绍了 Llama 3.1 在注意力机制方面的两个重要改进。\n\n### 改进 1：跨文档注意力掩码\n\n> \"We use an attention mask that prevents self-attention between different documents within the same sequence\"\n\n在训练时，为了提高效率，多个较短的文档通常会被**拼接（concatenate）在同一个序列**中。但如果不加限制，注意力机制会让一个文档中的 token 关注到另一个完全不相关的文档中的 token，这会引入噪声。\n\nLlama 3.1 使用**文档级别的注意力掩码**，确保自注意力只在同一个文档内部发生。这可以看作是在标准 causal mask 的基础上，额外添加了文档边界的约束：\n\n$$\\text{Mask}(i, j) = \\begin{cases} 1 & \\text{if } j \\leq i \\text{ and } \\text{doc}(i) = \\text{doc}(j) \\\\ 0 & \\text{otherwise} \\end{cases}$$\n\n这类似于在一个教室里，虽然有多组学生，但每组只讨论自己的话题，不会跨组交流。\n\n### 改进 2：Grouped Query Attention (GQA)\n\n> \"grouped query attention (GQA) with 8 key-value heads\"\n\n标准的 Multi-Head Attention（MHA）中，每个 query head 都有对应的独立 key 和 value head。GQA 是一种折中方案：\n\n- **MHA**：$h$ 个 query heads，$h$ 个 KV heads（完全独立）\n- **MQA**（Multi-Query Attention）：$h$ 个 query heads，**1** 个 KV head（共享）\n- **GQA**：$h$ 个 query heads，$g$ 个 KV heads（分组共享，$1 < g < h$）\n\nLlama 3.1 使用 **8 个 KV heads**，多个 query heads 共享同一组 key-value。这大幅减少了推理时的 **KV cache** 内存占用，从而**提高推理速度**，同时保持接近 MHA 的模型质量。\n\n这是一个在模型质量与推理效率之间的精妙权衡。",
+      "keyPoints": [
+        "文档级注意力掩码防止同一训练序列中不同文档之间的注意力交互，减少噪声",
+        "Grouped Query Attention (GQA) 用 8 个 KV heads 在多个 query heads 间共享，显著减少 KV cache 内存并提高推理速度",
+        "GQA 是 MHA 和 MQA 的折中方案，兼顾模型质量和推理效率"
+      ]
+    },
+    {
+      "page": 10,
+      "explanation": "## Llama 3.1 的改进：词汇表扩展\n\n这张幻灯片在前一张的基础上增加了 Llama 3.1 的第三个重要改进——**更大的词汇表（vocabulary）**。\n\n### 改进 3：128K Token 词汇表\n\n> \"We use a vocabulary with 128K tokens. Our token vocabulary combines 100K tokens from the tiktoken3 tokenizer with 28K additional tokens to better support non-English languages\"\n\n#### 词汇表大小的重要性\n\n词汇表（vocabulary）大小是 foundation model 设计中的一个关键超参数。它直接影响：\n\n1. **Tokenization 效率**：更大的词汇表意味着常见的词和子词可以用更少的 token 表示。例如，中文\"你好\"在小词汇表中可能被切成 4-5 个字节级 token，但在大词汇表中可能只需 1 个 token。\n\n2. **序列长度**：同样的文本，tokenization 更高效意味着 token 数更少，可以在有限的 context window 内放入更多内容。\n\n3. **多语言支持**：这是 Llama 3.1 扩展词汇表的主要动机之一。额外的 28K tokens 专门用于**更好地支持非英语语言**。\n\n#### 具体构成\n\n- **100K tokens**：来自 tiktoken3 tokenizer（OpenAI 开发的高效 BPE tokenizer）\n- **28K additional tokens**：专门为非英语语言添加\n- **总计 128K tokens**\n\n#### 权衡\n\n词汇表越大，embedding 层和输出层的参数量也越大（$|V| \\times d_{\\text{model}}$，其中 $|V|$ 是词汇表大小）。所以词汇表大小是在 tokenization 效率和模型参数开销之间的权衡。对于 Llama 3.1 这样的超大模型，embedding 层的额外参数相对于总参数量来说是可以接受的。\n\n#### 与其他模型的对比\n\n- GPT-2：~50K tokens\n- GPT-3/GPT-4 (tiktoken)：~100K tokens\n- Llama 2：~32K tokens\n- Llama 3.1：**128K tokens**\n\n这反映了一个趋势：随着模型面向更多语言和更多样化的应用场景，词汇表也在不断扩大。",
+      "keyPoints": [
+        "Llama 3.1 使用 128K token 的大词汇表，由 100K tiktoken3 tokens + 28K 多语言 tokens 组成",
+        "更大的词汇表提高了 tokenization 效率，尤其改善了对非英语语言的支持",
+        "词汇表大小是 tokenization 效率与 embedding 层参数开销之间的权衡",
+        "词汇表扩大是 foundation model 走向多语言和全球化的重要趋势"
+      ]
+    },
+    {
+      "page": 11,
+      "explanation": "课程行政信息，跳过。",
+      "keyPoints": []
+    },
+    {
+      "page": 12,
+      "explanation": "这是一张大纲/提纲幻灯片，概述了本次讲座的三大主题：\n\n**1. 完成 Decoder-Only 模型的讨论**\n上一次课讲了 GPT 系列模型、scaling laws、以及一些新的 ideas 和 tricks，本次会做收尾。\n\n**2. Attention 的变体（Attention Variations）**\n这是本次课的核心内容。涵盖以下子主题：\n- **动机（Motivation）**：为什么标准的 self-attention 需要改进？\n- **稀疏注意力（Sparse Attention）**：通过减少比较次数来降低复杂度的基本方法。\n- **Beyond Softmax**：探索是否可以替换注意力中的 softmax 操作。\n- **Hardware-aware implementations**：如 FlashAttention 等针对硬件特性优化的实现方式。\n\n**3. Beyond Attention（超越注意力机制）**\n探讨完全不使用注意力的序列建模方法：\n- **基本思路**：为什么要超越 attention？\n- **S4 序列模型**：基于状态空间模型（State Space Model）的方法。\n- **Mamba 模型**：S4 的进一步改进，是近期非常热门的 attention-free 架构。\n\n这三个主题从 \"改进 attention\" 到 \"替代 attention\"，形成了一条清晰的技术演进路线。理解这条路线对于把握 Foundation Model 架构的发展方向至关重要。",
+      "keyPoints": [
+        "本次课三大主题：收尾 Decoder-Only 模型、Attention 变体、超越 Attention 的序列模型",
+        "Attention 变体涵盖稀疏注意力、替代 softmax、硬件感知实现等方向",
+        "Beyond Attention 部分将介绍 S4 和 Mamba 等非注意力架构"
+      ]
+    },
+    {
+      "page": 13,
+      "explanation": "## 动机：计算复杂度问题\n\n这张幻灯片解释了为什么我们需要改进标准的 self-attention 机制，核心原因是**计算复杂度过高**。\n\n### 问题根源\n\n在标准 self-attention 中，每个 token 都需要与序列中的**每一个其他 token** 进行比较（通过 query 和 key 的点积）。对于长度为 $n$ 的序列：\n- 需要计算 $n^2$ 次点积来构建注意力矩阵 $A = QK^T$\n- 注意力矩阵的大小是 $n \\times n$\n- 更糟糕的是，这个 $O(n^2)$ 的计算量是**per-head per-layer** 的！如果有 $h$ 个 head 和 $L$ 层，总的点积数量为 $O(L \\cdot h \\cdot n^2)$\n\n### 为什么这很重要\n\n在实际应用中，我们经常需要处理**很长的序列**：\n- **长文档**：一篇学术论文可能有数万个 token\n- **代码**：一个完整的代码仓库可以非常长\n- **基因序列**：DNA 序列可以包含数百万个碱基对\n\n当 $n$ 很大时，$n^2$ 增长极快。例如，$n = 100,000$ 时，$n^2 = 10^{10}$，这在内存和计算上都是巨大的负担。这就是为什么早期的 Transformer 模型（如 BERT、GPT-2）的 context window 通常限制在 512 或 1024 个 token。\n\n这个 $O(n^2)$ 的瓶颈是推动后续所有 attention 优化工作（稀疏注意力、线性注意力、FlashAttention 等）的根本动机。",
+      "keyPoints": [
+        "标准 self-attention 的时间和空间复杂度为 $O(n^2)$，因为每个 token 都要与所有其他 token 做点积比较",
+        "$O(n^2)$ 的开销是 per-head per-layer 的，总成本非常高",
+        "长文档、代码、基因序列等场景需要大 context window，使得降低复杂度成为迫切需求"
+      ]
+    },
+    {
+      "page": 14,
+      "explanation": "## 动机：归纳偏置（Inductive Biases）\n\n除了计算复杂度之外，这张幻灯片提出了改进注意力机制的**另一个动机**：我们可能希望在注意力中引入特定的**归纳偏置（inductive biases）**。\n\n### 局部性偏置（Locality Bias）\n\n以图像为例：在图像处理中，我们知道**局部性（locality）**非常重要——相邻的像素之间的关系通常比远距离像素更重要。这正是 CNN 成功的原因：卷积核只关注局部区域（感受野）。\n\n然而，标准的 self-attention 是**全局的**——每个 token 平等地关注所有其他 token，没有任何局部性的先验。对于图像等具有强局部结构的数据，这意味着模型需要从数据中自己学习局部性，这既低效又浪费。\n\n### Transformer 用于其他模态\n\n这张幻灯片还引出了一个重要的拓展方向：**将 Transformer 应用到文本以外的数据模态**，如图像。幻灯片右侧提到了 **Image Transformers**（如 Vision Transformer, ViT）。\n\n这不是简单的事情（Not trivial），因为之前我们设计 Transformer 时，大量依赖了文本序列的特性（如 tokenization、位置编码、因果 masking 等）。将其迁移到图像、音频、视频等模态需要重新思考这些设计决策。\n\n通过修改注意力模式（如引入稀疏注意力来模拟局部性），我们可以在 Transformer 中嵌入适合不同数据模态的归纳偏置。",
+      "keyPoints": [
+        "除了复杂度问题，修改注意力机制还可以引入有用的归纳偏置（如图像的局部性）",
+        "标准 self-attention 是全局的，缺乏 CNN 那样的局部性先验",
+        "将 Transformer 扩展到文本以外的模态（如图像）并非 trivial，需要重新设计注意力模式"
+      ]
+    },
+    {
+      "page": 15,
+      "explanation": "## 稀疏注意力机制（Sparse Attention Mechanisms）\n\n这张幻灯片引入了降低注意力复杂度的第一类方法：**稀疏注意力（Sparse Attention）**。\n\n### 稀疏性的基本概念\n\n在数学和计算机科学中，\"稀疏\"指的是一个结构中大部分元素为零：\n- **稀疏向量**：长度为 $n$ 的向量中，非零元素少于 $O(n)$ 个（即只有 $o(n)$ 个非零元素）\n- **稀疏矩阵**：$n \\times m$ 的矩阵中，非零元素少于 $O(n \\times m)$ 个\n\n### 应用到注意力\n\n标准的注意力矩阵 $A \\in \\mathbb{R}^{n \\times n}$ 是稠密的——每个 query 都和每个 key 计算注意力分数，产生 $n^2$ 个非零值。\n\n**稀疏注意力的核心思想**：不让每个 token 关注所有 token，而是只让每个 token 关注**一部分** token。这样注意力矩阵中就有大量的零，减少了需要计算的点积数量。\n\n### 本节的策略\n\n幻灯片明确指出，这里的稀疏化策略是：\n- **只减少比较次数**（即改变哪些 query-key 对需要计算）\n- **保持其他一切不变**，特别是保留 **softmax** 操作\n- 后续课程会回来讨论替换 softmax 的方法\n\n这是一个非常自然且直观的起点：如果 $n^2$ 太大，那就不做全部 $n^2$ 次比较，只做其中的一个子集。关键问题是：**应该选择哪些 token 对来比较？** 这就是各种稀疏注意力模式（如滑动窗口、分块、随机采样等）要解决的问题。\n\n该幻灯片引用了 Zaheer et al. 的工作（即 BigBird 论文），这是稀疏注意力领域的重要文献。",
+      "keyPoints": [
+        "稀疏注意力通过减少 query-key 比较次数来降低 $O(n^2)$ 复杂度",
+        "稀疏性意味着注意力矩阵中大部分元素为零，只计算部分 token 对的注意力分数",
+        "本节先保持 softmax 不变，仅改变比较的模式；替换 softmax 的方法后续讨论",
+        "核心问题是如何选择哪些 token 对需要比较（即设计稀疏注意力模式）"
+      ]
+    },
+    {
+      "page": 16,
+      "explanation": "## Sliding Window Attention（滑动窗口注意力）\n\n这张幻灯片介绍了第一种注意力变体：**Sliding Window Attention**。其核心思想是放弃全注意力（full attention），转而只在当前 token 周围的一个固定窗口内计算注意力。\n\n### 核心思路\n\n在标准 self-attention 中，每个 token 都会和序列中所有其他 token 计算注意力权重，复杂度为 $O(n^2)$。Sliding Window 的做法是：对于位置 $i$ 的 token，只与位置 $[i-w, i+w]$ 范围内的 token 计算注意力，其中 $w$ 是窗口大小。\n\n### 复杂度分析\n\n复杂度从 $O(n^2)$ 降低为 $O(n \\times w)$，其中 $n$ 是序列长度，$w$ 是窗口大小。当 $w \\ll n$ 时，这是一个显著的改进。\n\n### 与 CNN 的联系\n\n幻灯片特别指出，这种方法本质上依赖于**局部性假设（locality）**——即相邻的 token 之间的关系最为重要。这与 CNN 中卷积核在局部区域上滑动的思想非常相似。实际上，如果你把注意力窗口看作一个\"可学习的卷积核\"，sliding window attention 就是一种更灵活的局部特征提取器。\n\n### 缺点\n\n最大的缺点是**可能遗漏重要信息**。在自然语言中，长距离依赖（long-range dependencies）是常见的——比如一个代词可能指代很远处的名词。如果窗口太小，这些远距离的关系就会被忽略。这也是后续变体（如 Local + Global）试图解决的问题。\n\n这种方法在 Mistral 7B 等模型中被实际使用，通过多层堆叠，上层可以间接\"看到\"更远的上下文。",
+      "keyPoints": [
+        "滑动窗口只在当前 token 周围固定大小的窗口内计算注意力，复杂度为 O(n × w)",
+        "本质上依赖局部性假设，与 CNN 的局部感受野思想类似",
+        "主要缺点是可能遗漏长距离依赖中的重要信息"
+      ]
+    },
+    {
+      "page": 17,
+      "explanation": "## Local + Global Attention（局部 + 全局注意力）\n\n这张幻灯片介绍了第二种注意力变体，核心思想是在 Sliding Window（局部注意力）的基础上加入**全局 token**，以弥补纯局部注意力可能遗漏重要信息的缺陷。\n\n### 核心机制\n\n这种方法由 **Longformer**（Beltagy et al., 2020）提出。它的设计包含两个组件：\n\n1. **Local Attention（局部注意力）**：与 Sliding Window 相同，每个 token 只关注周围窗口内的 token。\n2. **Global Attention（全局注意力）**：选取少量特殊的 \"global tokens\"，这些 token 会与序列中**所有**其他 token 计算注意力，同时所有其他 token 也会关注这些 global tokens。\n\n### 直觉理解\n\n可以把 global tokens 想象成\"信息中转站\"或\"广播塔\"。大多数 token 只和邻居交流（local），但少数 global tokens 可以\"广播\"和\"接收\"来自整个序列的信息。这样，即使两个 token 距离很远，它们也可以通过 global token 间接交换信息。\n\n在 Longformer 的实际应用中，global tokens 通常是特殊位置的 token，例如 `[CLS]` token（用于分类任务），或者文档中每个段落的第一个 token。关键是 global tokens 的数量很少（\"we don't use too many\"），所以不会大幅增加计算成本。\n\n### 复杂度\n\n如果有 $g$ 个 global tokens，总复杂度大约为 $O(n \\times w + n \\times g)$，当 $g$ 很小时，仍然近似线性。\n\n这种设计体现了稀疏注意力中的一个核心权衡：如何在计算效率和信息完整性之间找到平衡。",
+      "keyPoints": [
+        "在滑动窗口基础上加入少量全局 token，使其能与所有 token 交互，解决长距离依赖问题",
+        "由 Longformer (Beltagy et al., 2020) 提出，全局 token 数量很少以控制计算开销",
+        "Global tokens 类似信息中转站，使远距离 token 可以间接交换信息"
+      ]
+    },
+    {
+      "page": 18,
+      "explanation": "## Block Attention（块注意力）\n\n这张幻灯片介绍了第三种注意力变体：**Block Attention**。与之前按单个位置进行稀疏化不同，这种方法按**块（block）**为单位进行稀疏化。\n\n### 核心思想\n\n在标准稀疏注意力中，我们讨论的是注意力矩阵中哪些单个 entry（条目）是非零的。Block Attention 的思路不同——它将注意力矩阵划分为若干个**块（block）**，然后决定哪些块需要计算，哪些块可以跳过。\n\n其直觉是：信息通常以**块**的形式聚集。例如，在一段文本中，同一个句子或段落内的 token 往往彼此高度相关，因此可以将它们作为一个整体进行注意力计算。如果一个块被选中，则块内所有的注意力值都会被计算（\"attend to the whole thing\"）。\n\n### 组合设计\n\n幻灯片还指出，Block Attention 可以与其他方法组合使用，例如：\n- **Block + Global + Random**：在块稀疏的基础上，加入全局 token 和随机连接。\n\n这体现了一个重要观点：**注意力模式的设计本身就是一个设计问题（design problem）**。没有唯一最优的稀疏模式，不同任务和数据分布可能需要不同的组合策略。\n\n### 实际应用\n\n这种思想在 BigBird（Zaheer et al., 2020）等模型中被采用，BigBird 正是结合了 block attention、global tokens 和 random attention 三种模式。这些模型在处理长文档（如法律文本、科学论文）时表现出色。\n\n块注意力在硬件实现上也有优势，因为块操作更适合 GPU 的内存访问模式（更好的 cache locality）。",
+      "keyPoints": [
+        "Block Attention 以块为单位进行稀疏化，而非单个条目，假设信息以块的形式聚集",
+        "可与其他稀疏模式（全局、随机）组合，形成如 BigBird 等混合注意力设计",
+        "注意力稀疏模式的选择本身是一个设计问题，没有唯一最优解"
+      ]
+    },
+    {
+      "page": 19,
+      "explanation": "## Learned Attention（学习式注意力）\n\n这张幻灯片介绍了第四种注意力变体：**Learned Attention**，即不预先固定注意力的稀疏模式，而是让模型自己**学习**应该关注哪些位置。\n\n### 核心思想\n\n前面的变体（sliding window、local+global、block）都是人为设计的固定模式。但一个自然的问题是：为什么不让模型自己决定应该关注哪里？Learned Attention 正是这种思路。\n\n### 经典例子：Routing Transformer\n\n**Routing Transformer**（Roy et al., 2020）是这种方法的代表。它使用**在线 k-means 聚类（online k-means clustering）**来决定每个 token 应该关注哪些其他 token。\n\n具体工作流程：\n1. 将所有 token 的表示向量通过在线 k-means 进行聚类\n2. 属于同一个 cluster 的 token 之间计算注意力\n3. 不同 cluster 的 token 之间不计算注意力\n\n直觉上，这就像是先把学生按兴趣分组，然后只在组内进行讨论。这样既减少了计算量，又保证了语义相关的 token 之间能够交互。\n\n### 优缺点\n\n**优点**：\n- 注意力模式是数据驱动的，可以自适应地捕获重要关系\n- 不需要人为设计稀疏模式\n\n**缺点**：\n- 聚类本身有计算开销\n- 在线 k-means 的质量可能不稳定\n- 实现复杂度更高\n\n这种方法代表了从\"手工设计\"到\"端到端学习\"的转变，是注意力机制研究中的一个重要方向。",
+      "keyPoints": [
+        "Learned Attention 通过数据驱动的方式学习注意力的稀疏模式，而非手工设计",
+        "Routing Transformer 使用在线 k-means 聚类决定 token 之间的注意力连接",
+        "优点是自适应，缺点是聚类本身带来额外开销和实现复杂度"
+      ]
+    },
+    {
+      "page": 20,
+      "explanation": "## Beyond Sparsity: Linear Attention（超越稀疏性：线性注意力）\n\n这张幻灯片超越了稀疏注意力的框架，探讨了对注意力机制进行更根本性修改的方向，重点介绍了 **Linear Attention**。\n\n### 问题的根源：Softmax\n\n标准注意力的计算为：\n$$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$\n\nSoftmax 是一个全局操作——计算任意一个 token 的注意力权重都需要知道它与所有其他 token 的相似度。这使得注意力计算**无法真正并行化**（在序列维度上），因为每个 token 的输出都依赖于全局信息。\n\n### Linear Attention 的解决方案\n\nLinear Attention（Katharopoulos et al., 2020）的核心思想是**去掉 softmax**，用其他方式近似非线性交互。\n\n关键洞察在于计算顺序的改变。标准注意力中，我们先计算 $QK^T$（得到 $n \\times n$ 矩阵），再乘以 $V$。如果去掉 softmax，我们可以利用矩阵乘法的结合律，先计算 $K^TV$（得到 $d \\times d$ 矩阵），再用每个 query 去乘：\n\n$$\\text{Standard: } (QK^T)V \\quad \\Rightarrow \\quad \\text{Linear: } Q(K^TV)$$\n\n- 标准方式：$O(n^2 d)$\n- 线性方式：$O(nd^2)$\n\n当 $d \\ll n$（维度远小于序列长度）时，这是一个巨大的加速。\n\n### 直觉理解\n\n可以这样想：有了 softmax，每个 query 和所有 key 的交互是非线性耦合的，必须一起计算。去掉 softmax 后，$K^TV$ 可以看作一个全局的\"摘要矩阵\"，每个 query 只需要与这个摘要交互即可。\n\n这种思想后来影响了许多后续工作，包括 State Space Models (S4, Mamba) 等，它们进一步探索了如何在保持表达能力的同时实现线性或近线性复杂度。",
+      "keyPoints": [
+        "Softmax 是标准注意力无法真正并行化的根本原因，因为它是一个全局归一化操作",
+        "Linear Attention 去掉 softmax，利用矩阵结合律将 (QK^T)V 变为 Q(K^TV)，复杂度从 O(n²d) 降为 O(nd²)",
+        "核心直觉：去掉 softmax 后，K^TV 成为全局摘要矩阵，每个 query 独立与之交互",
+        "这一思想影响了后续的 State Space Models 等线性复杂度序列建模方法"
+      ]
+    },
+    {
+      "page": 21,
+      "explanation": "## 硬件考量：从计算复杂度到实际实现\n\n这张幻灯片标志着讨论从**理论计算复杂度**转向**实际硬件实现**的重要转折点。前面的slides讨论了各种注意力变体如何降低 $O(n^2)$ 的计算复杂度（如线性注意力等），但在实际部署中，计算复杂度并不是唯一的瓶颈。\n\n### 核心问题：GPU 内存层级\n\n现代 GPU 有不同层级的内存：\n- **快速内存（SRAM）**：容量很小，但访问速度极快\n- **较慢内存（HBM, High Bandwidth Memory）**：容量很大，但访问速度相对较慢\n\n这就像你的书桌（小但方便取用）和书架（大但需要走过去拿）的关系。标准的注意力实现会频繁地在快速内存和慢速内存之间来回搬运数据，造成严重的 **I/O 瓶颈（memory-bound）**。即使计算量本身不大，大量的内存读写也会拖慢整体速度。\n\n### 引出 FlashAttention\n\n这引出了 Dao et al. 2022 年提出的 FlashAttention 的核心动机：我们能否在保持**精确计算**（而非近似）的前提下，通过**硬件感知（hardware-aware）**的算法设计来减少对慢速内存的访问？这是一个非常务实的研究方向，它不改变注意力的数学定义，而是优化其在 GPU 上的实现方式。\n\n这一思路在大模型训练和推理中至关重要，因为现实中的加速往往来自于对硬件瓶颈的深入理解。",
+      "keyPoints": [
+        "注意力机制的实际性能不仅取决于计算复杂度，还取决于硬件内存访问模式",
+        "GPU 具有少量快速内存（SRAM）和大量较慢内存（HBM），频繁的内存搬运是性能瓶颈",
+        "FlashAttention（Dao et al. 2022）的动机：在保持精确注意力的前提下减少慢速内存访问"
+      ]
+    },
+    {
+      "page": 22,
+      "explanation": "## FlashAttention 的核心思想：硬件感知的精确注意力\n\n这张幻灯片详细介绍了 FlashAttention 所针对的 GPU 内存层级结构，并明确了优化目标。\n\n### GPU 内存的两个层级\n\n以 NVIDIA A100 GPU 为例：\n\n1. **On-chip SRAM（片上静态随机存取内存）**：\n   - 速度极快（带宽约 19TB/s）\n   - 但容量极小：每个 streaming multiprocessor (SM) 约 192KB，A100 有约 108 个 SM，总计约 **20MB**\n   - 这相当于你口袋里的便签纸——方便但空间有限\n\n2. **HBM（高带宽内存）**：\n   - 速度相对较慢（带宽约 1.5-2TB/s）\n   - 但容量很大：A100 有 **40-80GB**\n   - 这相当于你的大书柜——容量大但取用需要时间\n\n### 优化目标\n\nFlashAttention 的目标非常明确：**尽可能多地使用 SRAM 计算，避免频繁地将中间结果写入/读取 HBM**。\n\n在标准注意力实现中，我们需要存储完整的 $N \\times N$ 注意力矩阵 $S = QK^T$ 和 softmax 后的矩阵 $P$，这些都需要写入 HBM 再读回来。当 $N$ 很大时，这些中间矩阵甚至无法放入 SRAM，必须反复与 HBM 交互。\n\n关键洞察是：注意力计算是 **memory-bound** 而非 **compute-bound** 的——瓶颈在于数据搬运而非算术运算本身。",
+      "keyPoints": [
+        "A100 GPU 的 SRAM 约 20MB（极快），HBM 约 40-80GB（较慢）",
+        "标准注意力需要存储 N×N 的中间矩阵到 HBM，造成大量内存读写",
+        "FlashAttention 的目标：最大化 SRAM 使用，最小化 HBM 访问次数"
+      ]
+    },
+    {
+      "page": 23,
+      "explanation": "## FlashAttention 基本思路：Tiling 与 Recomputing\n\n这张幻灯片引入了 FlashAttention 的两个核心技巧，并回顾了标准注意力为何需要大量 HBM 读写。\n\n### 两大技巧预告\n\n1. **Tiling（分块计算）**：将大矩阵分成小块，在 SRAM 中逐块处理\n2. **Recomputing（重计算）**：在反向传播时不存储中间结果，而是重新计算\n\n### 标准注意力的内存访问问题\n\n回顾标准注意力的计算步骤：\n\n$$S = QK^T \\in \\mathbb{R}^{N \\times N}$$\n$$P = \\text{softmax}(S) \\in \\mathbb{R}^{N \\times N}$$\n$$O = PV \\in \\mathbb{R}^{N \\times d}$$\n\n在标准实现中，每一步都涉及 HBM 的读写：\n1. 从 HBM 读取 $Q, K$，计算 $S$，将 $S$ **写入 HBM**\n2. 从 HBM **读取** $S$，计算 softmax 得到 $P$，将 $P$ **写入 HBM**\n3. 从 HBM **读取** $P$ 和 $V$，计算输出 $O$，将 $O$ **写入 HBM**\n\n这意味着中间矩阵 $S$ 和 $P$（每个大小为 $N \\times N$）都需要在 HBM 中 materialized（具体化存储）。对于长序列（如 $N = 4096$），这些矩阵非常大，导致大量的 HBM 读写操作。\n\n这就是为什么即使 GPU 的计算能力很强，标准注意力的实际速度仍然受到内存带宽的限制。FlashAttention 要解决的就是这个问题。",
+      "keyPoints": [
+        "FlashAttention 使用两个核心技巧：Tiling（分块）和 Recomputing（重计算）",
+        "标准注意力需要将 N×N 的中间矩阵 S 和 P 反复读写到 HBM",
+        "这些频繁的 HBM 读写是标准注意力实现的主要性能瓶颈"
+      ]
+    },
+    {
+      "page": 24,
+      "explanation": "## FlashAttention 核心技巧一：Tiling（分块计算）\n\n这张幻灯片详细解释了 FlashAttention 的第一个关键技巧——Tiling。\n\n### 问题回顾\n\n标准注意力需要将完整的 $N \\times N$ 矩阵写入 HBM。如何避免这些昂贵的内存操作？\n\n### Tiling 的核心思想\n\n**不要一次性加载整个矩阵，而是将其分成小块（tiles），每次只在 SRAM 中处理一小块。**\n\n具体来说：\n- 将 $Q, K, V$ 矩阵沿序列维度分成若干小块\n- 每次只将一小块 $Q_i, K_j, V_j$ 加载到 SRAM 中\n- 在 SRAM 中完成该块的所有计算（$Q_iK_j^T$、softmax、乘以 $V_j$）\n- 将结果累积到输出中\n\n### Tiling 的挑战：Softmax 的全局性\n\n分块计算的一个关键困难是 **softmax 是一个全局操作**。标准 softmax 需要知道整行的所有值：\n\n$$\\text{softmax}(x_i) = \\frac{e^{x_i}}{\\sum_j e^{x_j}}$$\n\n但如果我们只看一个 tile，我们不知道分母应该是多少！FlashAttention 使用了 **online softmax** 的技巧：维护一个 running maximum 和 running sum，随着处理每个新 tile 来逐步更新 softmax 的归一化因子。这类似于 numerically stable softmax 的在线版本。\n\n### 两种版本的对比\n\n- **标准版本**：完整计算 $S = QK^T$，完整 softmax，再乘 $V$\n- **Tiling 版本**：分块计算，在 SRAM 中完成所有操作，只需保存小块的中间统计量（max 值和 sum 值）\n\n这样，中间的 $N \\times N$ 矩阵永远不需要在 HBM 中 materialized！",
+      "keyPoints": [
+        "Tiling 将 Q、K、V 分成小块，在 SRAM 中逐块处理，避免 N×N 矩阵写入 HBM",
+        "Softmax 的全局性质是分块计算的主要挑战，通过 online softmax 技巧（维护 running max/sum）解决",
+        "Tiling 使中间矩阵 S 和 P 永远不需要在 HBM 中完整存储"
+      ]
+    },
+    {
+      "page": 25,
+      "explanation": "## FlashAttention 核心技巧二：Recomputing（重计算）\n\n这张幻灯片介绍了 FlashAttention 的第二个关键技巧——在反向传播中重新计算中间结果，而不是存储它们。\n\n### Tiling 的整体效果\n\n幻灯片引用了 FlashAttention 论文的原文，清楚地总结了 tiling 的效果：\n\n> \"Tiling enables us to implement our algorithm in **one CUDA kernel**, loading input from HBM, performing **all the computation steps** (matrix multiply, softmax, optionally masking and dropout, matrix multiply), then write the result back to HBM.\"\n\n这意味着整个注意力计算被融合成**一个 CUDA kernel**（kernel fusion），输入从 HBM 加载一次，所有中间计算在 SRAM 中完成，最终结果写回 HBM 一次。相比标准实现的多次 HBM 读写，这极大地减少了内存访问。\n\n### 反向传播的挑战\n\n在训练深度学习模型时，反向传播（backpropagation）通常需要前向传播中的中间结果（如 $S = QK^T$ 和 $P = \\text{softmax}(S)$）来计算梯度。标准实现会将这些 $N \\times N$ 矩阵存储在 HBM 中以备反向传播使用。\n\n### Recomputing 的解决方案\n\n FlashAttention 的关键洞察是：**不需要存储完整的 $S$ 和 $P$ 矩阵！** 在反向传播时，可以从 $Q, K, V$ 和输出 $O$（以及 softmax 的归一化统计量）重新计算 $S$ 和 $P$。\n\n这是一个**用计算换内存**的经典 trade-off：\n- 额外的计算成本：需要重新做一次矩阵乘法\n- 节省的内存：不需要存储 $O(N^2)$ 的中间矩阵\n- 实际效果：由于减少了 HBM 访问，即使增加了计算量，**总的 wall-clock time 反而更短**\n\n这个思想其实与 gradient checkpointing 类似，但 FlashAttention 将其与 tiling 巧妙结合，在注意力的特定结构上实现了最优效果。在实践中，FlashAttention 可以带来 2-4 倍的速度提升，同时显著减少内存使用，使得更长的序列训练成为可能。",
+      "keyPoints": [
+        "Tiling 使整个注意力计算融合为一个 CUDA kernel，最小化 HBM 读写次数",
+        "反向传播时不存储中间矩阵 S 和 P，而是从 Q、K、V 重新计算（用计算换内存）",
+        "虽然增加了重计算的计算量，但减少 HBM 访问使总时间反而更短",
+        "FlashAttention 在实践中带来 2-4 倍速度提升，支持更长序列的训练"
+      ]
+    },
+    {
+      "page": 26,
+      "explanation": "这张幻灯片揭示了 Flash Attention 的一个核心洞察：**看似存在的 tradeoff 实际上并不存在**。\n\nFlash Attention 使用两个关键技巧：**Tiling（分块）** 和 **Re-computing（重计算）**。\n\n传统思维中，这两个技巧意味着一个经典的 tradeoff：\n- **Tiling**：将大矩阵分成小块逐块处理，减少内存占用，但可能增加计算开销\n- **Re-computing**：前向传播时不保存中间结果，反向传播时重新计算，节省内存但增加计算量\n\n按照常规逻辑，这是**用速度换内存**（trade speed for memory）。但 Flash Attention 的精妙之处在于：通过减少内存消耗，所有数据都可以驻留在 GPU 的**快速内存（SRAM）** 中，完全避免了对慢速 HBM（High Bandwidth Memory）的访问。\n\n这就好比：你本来需要频繁跑到仓库（HBM）搬货物，现在通过把货物切小块（tiling），每次只需要在柜台（SRAM）上处理一小部分，虽然你要多算几次（re-computing），但省去了跑仓库的时间。由于跑仓库的时间远大于多算几次的时间，**整体反而更快了**。\n\n所以结论是：**实际上没有 tradeoff**！唯一的\"代价\"是需要编写 **custom CUDA kernels**——即需要底层 GPU 编程来实现这些优化，这对普通用户来说有一定的工程门槛。这也是为什么 Flash Attention 的论文是一个系统+算法的交叉贡献。\n\n这个思路体现了一个重要的系统优化原则：**算法设计必须考虑硬件特性**（hardware-aware algorithm design），这在现代大模型训练中至关重要。",
+      "keyPoints": [
+        "Flash Attention 通过 Tiling 和 Re-computing 两个技巧，将数据保持在 GPU 快速内存（SRAM）中",
+        "表面上是用计算换内存，但因为避免了慢速 HBM 访问，整体速度反而更快",
+        "实际上没有 tradeoff，唯一代价是需要编写自定义 CUDA 内核"
+      ]
+    },
+    {
+      "page": 27,
+      "explanation": "这张幻灯片展示了 Flash Attention 的**实验结果**，验证了前一张幻灯片提出的\"没有 tradeoff\"的论断。\n\n虽然具体的结果图表在幻灯片中没有详细文字描述，但根据 Flash Attention 论文（Dao et al., 2022），其核心实验结果通常包括：\n\n1. **速度提升**：Flash Attention 相比标准 attention 实现显著的加速。在长序列（如序列长度 1K-4K）上，Flash Attention 可以达到 2-4 倍的 wall-clock 加速。\n\n2. **内存节省**：内存使用从 $O(N^2)$ 降低到 $O(N)$，其中 $N$ 是序列长度。这使得在相同 GPU 内存下可以处理更长的序列。\n\n3. **精确性**：Flash Attention 的输出与标准 attention **数学上完全等价**（exact attention），不是近似方法。这与之前讨论的 sparse attention 等近似方法不同。\n\n4. **训练效果**：由于能处理更长序列，模型在下游任务上的性能也可能更好（例如长文档理解）。\n\n这些结果表明，hardware-aware 的算法设计在实际中产生了巨大的影响。Flash Attention 已经成为现代 Transformer 训练的标准组件，被集成到 PyTorch、Hugging Face 等主流框架中。",
+      "keyPoints": [
+        "Flash Attention 在速度和内存上均优于标准 attention 实现",
+        "它是精确的（exact）attention 计算，不是近似方法",
+        "已成为现代大模型训练的标准组件"
+      ]
+    },
+    {
+      "page": 28,
+      "explanation": "课程行政信息，跳过。",
+      "keyPoints": []
+    },
+    {
+      "page": 29,
+      "explanation": "这张幻灯片是课程大纲/提纲页，标记了当前讲座的进度和即将覆盖的内容。\n\n从大纲可以看出本次讲座的三大模块：\n\n1. **完成 Decoder-Only 模型**：包括 GPT 系列模型、scaling laws、新技巧等。这部分承接上一次课的内容。\n\n2. **Attention 的变体**：这是本讲座的核心部分，涵盖了：\n   - **动机**：为什么需要改进标准 attention（$O(N^2)$ 复杂度）\n   - **稀疏注意力的基本形式**（Sparse Attention）：如 local、strided、固定 pattern 等\n   - **超越 softmax**：探索 softmax 之外的注意力函数，如线性注意力（linear attention）\n   - **硬件感知的实现**：即 Flash Attention 等\n\n3. **超越 Attention**：这是下一个重要主题，标志着课程从 Transformer 架构向**替代架构**的转变：\n   - 基本思想：摆脱 attention 的二次复杂度\n   - **S4（Structured State Space）序列模型**：基于状态空间模型的新方法\n   - **Mamba 模型**：选择性状态空间模型，是当前最受关注的 Transformer 替代方案之一\n\n这个提纲反映了 foundation models 领域的一个重要趋势：从 Transformer 的主导地位，到探索更高效的序列建模架构。",
+      "keyPoints": [
+        "本讲座覆盖三大主题：Decoder-Only 模型收尾、Attention 变体、超越 Attention 的新架构",
+        "课程正从 Transformer 内部优化过渡到探索全新的替代架构（S4、Mamba 等）"
+      ]
+    },
+    {
+      "page": 30,
+      "explanation": "这张幻灯片开启了一个全新的重要主题：**完全摆脱 Attention 机制**，探索 sub-quadratic（亚二次）复杂度的序列模型。\n\n**为什么要替代 Attention？**\n\n标准 self-attention 的计算和内存复杂度都是 $O(N^2)$，其中 $N$ 是序列长度。尽管 Flash Attention 等技术优化了常数因子，但二次复杂度的根本问题仍然存在。当序列长度增长到数万甚至数十万 token 时，即使有 Flash Attention 也会面临瓶颈。\n\n**Sub-quadratic Models（亚二次模型）**：\n\n这类模型的目标是实现 $O(N)$ 或 $O(N \\log N)$ 的序列建模，同时保持与 Transformer 相当的建模能力。\n\n**灵感来源：连续时间模型（Continuous Models）**\n\n幻灯片提到第一步是从**类 RNN 的模型**中获取灵感，具体是从**连续时间动力系统**出发。这指的是 **State Space Models (SSMs)**，其核心思想来自控制理论中的状态空间表示：\n\n$$\\frac{dx(t)}{dt} = Ax(t) + Bu(t)$$\n$$y(t) = Cx(t) + Du(t)$$\n\n其中 $x(t)$ 是隐藏状态，$u(t)$ 是输入，$y(t)$ 是输出，$A, B, C, D$ 是可学习的参数矩阵。\n\n这个连续时间 ODE 可以被离散化，从而得到一个类似 RNN 的递推关系，但具有特殊的结构，使得它可以被高效地并行计算（通过卷积的视角）。\n\n这种方法的核心优势：\n- **训练时**：可以像 CNN 一样并行计算（通过卷积）\n- **推理时**：可以像 RNN 一样逐步递推，具有常数内存和线性时间复杂度\n\n这为后续的 S4 和 Mamba 模型奠定了基础。",
+      "keyPoints": [
+        "Attention 的 $O(N^2)$ 复杂度是根本瓶颈，sub-quadratic 模型旨在完全替代 attention",
+        "灵感来自连续时间动力系统（State Space Models），基于控制理论的状态空间表示",
+        "SSM 的优势：训练时可并行（卷积视角），推理时可递推（RNN 视角），兼具两者优点"
+      ]
+    },
+    {
+      "page": 31,
+      "explanation": "## State-Space Model (SSM) 的基本形式\n\n这张幻灯片引入了 **State-Space Model (状态空间模型)**，这是一种受 RNN 启发但从连续系统出发的序列建模方法。SSM 是近年来挑战 Transformer 在长序列建模上地位的重要架构（如 S4、Mamba 等）。\n\n### 连续形式\n\nSSM 的连续形式来自控制论/信号处理中的经典状态空间表示：\n\n$$h'(t) = A h(t) + B x(t)$$\n$$y(t) = C h(t) + D x(t)$$\n\n其中：\n- $x(t)$ 是 **输入信号**（1维）\n- $h(t)$ 是 **隐状态**（高维，维度为 $N$）\n- $y(t)$ 是 **输出信号**（1维）\n- $A \\in \\mathbb{R}^{N \\times N}$ 是状态转移矩阵\n- $B \\in \\mathbb{R}^{N \\times 1}$ 是输入映射矩阵\n- $C \\in \\mathbb{R}^{1 \\times N}$ 是输出映射矩阵\n- $D$ 项可以看作 **skip connection（跳跃连接）**，幻灯片说可以忽略它\n\n### 关键直觉\n\n这个模型目前是 **完全线性的**——没有非线性激活函数。输入和输出都是一维的，但隐状态是高维的。这与 RNN 的结构非常相似：都有一个隐状态随时间演化，接收输入并产生输出。不同的是，这里从连续时间的微分方程出发，这为后续的离散化和高效计算奠定了数学基础。\n\n### 为什么重要\n\nSSM 试图结合 RNN 的线性时间推理效率和 Transformer 的并行训练能力，成为了 Foundation Model 领域中 attention 替代方案的核心思想。",
+      "keyPoints": [
+        "SSM 从连续时间微分方程出发，定义了输入→隐状态→输出的线性映射关系",
+        "D 项相当于 skip connection，可以忽略；模型核心是 A、B、C 三个矩阵",
+        "输入输出是1维，隐状态是高维的，结构类似线性版 RNN"
+      ]
+    },
+    {
+      "page": 32,
+      "explanation": "## SSM 的离散化形式\n\n这张幻灯片将上一张的连续 SSM 转化为 **离散时间** 的递推形式，使其可以在数字计算机上实际运行。\n\n### 离散化过程\n\n将连续的微分方程通过某种离散化方法（如零阶保持 ZOH、双线性变换等）转化为差分方程：\n\n$$h_k = \\bar{A} h_{k-1} + \\bar{B} x_k$$\n$$y_k = \\bar{C} h_k$$\n\n其中 $\\bar{A}, \\bar{B}, \\bar{C}$ 是通过离散化从连续参数 $A, B, C$ 得到的近似矩阵。注意这里忽略了 $D$ 项。\n\n### 与 RNN 的关系\n\n这个离散形式 **看起来与 RNN 几乎一模一样**！RNN 的标准形式是：\n$$h_k = f(W_h h_{k-1} + W_x x_k)$$\n$$y_k = W_y h_k$$\n\nSSM 的离散形式就是 RNN 的 **线性版本**（去掉了非线性激活函数 $f$）。这意味着：\n- **推理时**：可以像 RNN 一样逐步递推，时间复杂度为 $O(L)$（$L$ 为序列长度），每步只需常数时间\n- 但线性性也带来了额外的好处——可以展开为卷积形式（下一张幻灯片），从而实现并行训练\n\n### 核心思想\n\n离散化是 SSM 方法论的关键步骤：它将优美的连续数学理论（可以利用大量已知的矩阵理论，如 HiPPO 初始化）桥接到实际可计算的离散序列处理中。",
+      "keyPoints": [
+        "通过离散化将连续 SSM 转化为递推形式：$h_k = \\bar{A}h_{k-1} + \\bar{B}x_k$",
+        "离散 SSM 本质上是线性版的 RNN，具有 O(L) 的逐步推理复杂度",
+        "离散化后的 $\\bar{A}, \\bar{B}, \\bar{C}$ 是连续参数的近似，可通过 ZOH 等方法获得"
+      ]
+    },
+    {
+      "page": 33,
+      "explanation": "## SSM 的卷积形式\n\n这张幻灯片展示了 SSM 的第三种等价视角——**卷积形式**，通过展开递推关系得到。\n\n### 展开递推\n\n从离散形式出发：\n$$h_k = \\bar{A} h_{k-1} + \\bar{B} x_k$$\n$$y_k = \\bar{C} h_k$$\n\n逐步展开：\n- $h_0 = \\bar{B} x_0$（假设初始状态为零）\n- $h_1 = \\bar{A}\\bar{B} x_0 + \\bar{B} x_1$\n- $h_2 = \\bar{A}^2 \\bar{B} x_0 + \\bar{A}\\bar{B} x_1 + \\bar{B} x_2$\n\n因此输出为：\n$$y_k = \\bar{C} h_k = \\sum_{j=0}^{k} \\bar{C} \\bar{A}^{k-j} \\bar{B} \\cdot x_j$$\n\n一般地：\n$$y_k = \\sum_{j=0}^{k} \\bar{C} \\bar{A}^{k-j} \\bar{B} \\cdot x_j$$\n\n这正是 **卷积** 的形式！定义卷积核 $\\bar{K}_i = \\bar{C} \\bar{A}^i \\bar{B}$，则：\n$$y = \\bar{K} * x$$\n\n### 为什么这很重要\n\n线性性使得递推可以被完全展开为卷积，这意味着 **训练时不需要逐步递推**，可以利用卷积的并行性。这是 SSM 相比传统 RNN 的关键优势：RNN 因为非线性激活函数无法展开为卷积，必须串行计算；而线性 SSM 可以。\n\n这给了 SSM **双重身份**：推理时用 RNN 形式（$O(1)$ 每步），训练时用卷积形式（可并行化）。",
+      "keyPoints": [
+        "展开 SSM 递推后得到卷积形式：$y = \\bar{K} * x$，其中卷积核 $\\bar{K}_i = \\bar{C}\\bar{A}^i\\bar{B}$",
+        "线性性是展开为卷积的关键前提，非线性 RNN 无法做到",
+        "SSM 具有双重计算模式：推理用 RNN 形式，训练用卷积形式"
+      ]
+    },
+    {
+      "page": 34,
+      "explanation": "## SSM 卷积形式的问题\n\n这张幻灯片指出了将 SSM 直接用卷积形式计算时遇到的 **效率问题**。\n\n### 长卷积的挑战\n\n虽然 SSM 可以写成卷积 $y = \\bar{K} * x$，但这个卷积有一个特殊性质：**卷积核的长度等于输入序列的长度 $L$**。\n\n具体来说，卷积核为：\n$$\\bar{K} = (\\bar{C}\\bar{B}, \\ \\bar{C}\\bar{A}\\bar{B}, \\ \\bar{C}\\bar{A}^2\\bar{B}, \\ \\ldots, \\ \\bar{C}\\bar{A}^{L-1}\\bar{B})$$\n\n这不像 CNN 中使用的短卷积核（如 $3 \\times 3$），而是一个与序列等长的全局卷积核。\n\n### 朴素计算复杂度\n\n在时域中直接计算长度为 $L$ 的卷积，复杂度为 $O(L^2)$。这与 attention 的 $O(L^2)$ 复杂度一样！所以如果朴素地实现，SSM 的卷积形式并没有比 attention 更好。\n\n### 引出解决方案\n\n幻灯片最后暗示 \"Let's do something else instead\"——需要一种更高效的方式来计算这个长卷积。这就引出了下一张幻灯片中利用 **频域变换（FFT）** 来加速卷积的方法。\n\n这个问题的解决是 S4 模型成功的关键技术之一。朴素卷积 $O(L^2)$ 与 attention $O(L^2)$ 持平，但通过 FFT 可以将卷积降到 $O(L \\log L)$，这是 SSM 相对于标准 attention 在长序列上的核心效率优势。",
+      "keyPoints": [
+        "SSM 的卷积核长度等于序列长度 $L$，是全局长卷积而非局部短卷积",
+        "时域中直接计算长卷积复杂度为 $O(L^2)$，与标准 attention 持平",
+        "需要更高效的计算方法（FFT）来发挥 SSM 卷积形式的优势"
+      ]
+    },
+    {
+      "page": 35,
+      "explanation": "## 利用 FFT 加速长卷积\n\n这张幻灯片回到信号与系统的经典知识，介绍如何用 **快速傅里叶变换（FFT）** 将长卷积的计算从 $O(L^2)$ 降到 $O(L \\log L)$。\n\n### 卷积定理\n\n信号处理中的一个核心定理：\n\n$$\\text{时域卷积} \\Leftrightarrow \\text{频域逐元素乘法}$$\n\n即：\n$$y = K * x \\quad \\Leftrightarrow \\quad Y(f) = K(f) \\cdot X(f)$$\n\n其中 $X(f), K(f), Y(f)$ 分别是 $x, K, y$ 的傅里叶变换。\n\n### 频域计算的优势\n\n- 时域卷积：$O(L^2)$（两个长度为 $L$ 的序列卷积）\n- 频域逐元素乘法：$O(L)$（只需对应位置相乘）\n\n但需要在时域和频域之间转换！\n\n### FFT 的复杂度\n\n- **FFT（快速傅里叶变换）**：将时域信号转换到频域，复杂度 $O(L \\log L)$\n- **iFFT（逆快速傅里叶变换）**：将频域信号转回时域，复杂度也是 $O(L \\log L)$\n\n### 总体流程\n\n1. 对输入 $x$ 和卷积核 $\\bar{K}$ 分别做 FFT → $O(L \\log L)$\n2. 在频域做逐元素乘法 → $O(L)$\n3. 对结果做 iFFT 得到输出 $y$ → $O(L \\log L)$\n\n**总复杂度：$O(L \\log L)$**，远优于 attention 的 $O(L^2)$！\n\n### 在 SSM 中的应用\n\n这意味着在 **训练时**，SSM 可以先预计算卷积核 $\\bar{K}$，然后通过 FFT 高效地计算卷积。推理时仍然用 RNN 递推形式。这种训练用卷积（FFT 加速）+ 推理用递推的双模式，是 S4 等 SSM 模型的核心设计理念，使其在长序列任务上同时具备训练效率和推理效率。",
+      "keyPoints": [
+        "卷积定理：时域卷积等价于频域逐元素乘法，复杂度从 $O(L^2)$ 降到 $O(L)$",
+        "FFT 和 iFFT 的复杂度均为 $O(L \\log L)$，总体卷积计算为 $O(L \\log L)$",
+        "SSM 训练时用 FFT 加速的卷积形式，推理时用 RNN 递推形式，兼顾训练和推理效率"
+      ]
+    },
+    {
+      "page": 36,
+      "explanation": "这张幻灯片回到了状态空间模型（SSM）的核心公式，讨论了直接将所有参数设为可训练参数所面临的问题，以及S4模型提出的解决方案。\n\n**核心问题：** 在SSM的递推公式 $h_t = \\bar{A} h_{t-1} + \\bar{B} x_t$ 中，如果直接让 $\\bar{A}$、$\\bar{B}$、$C$、$D$ 全部作为自由的可训练参数，模型的训练效果并不好。这与RNN面临的问题类似——梯度爆炸（gradient explosion）或梯度消失（gradient vanishing）。当状态转移矩阵 $A$ 的特征值大于1时，随着序列长度增加，隐状态的值会指数级增长（\"stuff blowing up\"）；当特征值小于1时，信息又会快速衰减。\n\n**S4的解决方案：** S4（Structured State Space Models，Gu et al., 2022）提出了两个关键创新：\n\n1. **特殊的固定转移矩阵 $A$：** S4使用一种称为HiPPO（High-order Polynomial Projection Operator）的特殊矩阵来初始化 $A$。HiPPO矩阵的设计目标是最优地记忆（memorize）输入序列的历史信息。具体来说，它将连续信号投影到正交多项式基上，从而在有限维状态中尽可能保留完整的历史信息。\n\n2. **特定的离散化参数化：** 从连续SSM到离散SSM的转换（discretization）需要通过步长 $\\Delta$ 等参数。S4对这些参数的选择和参数化方式进行了精心设计，确保离散化后的矩阵 $\\bar{A}$、$\\bar{B}$ 仍然保持良好的数值性质。\n\n这种\"结构化\"的方法——不是让所有参数自由学习，而是施加结构约束——是S4名字中\"Structured\"一词的由来，也是它能够处理长序列的关键。",
+      "keyPoints": [
+        "直接将SSM的所有参数设为可训练参数会导致类似RNN的梯度爆炸/消失问题",
+        "S4使用HiPPO特殊固定转移矩阵A，专门优化长期记忆能力",
+        "S4通过特定的参数化方式进行离散化，确保数值稳定性"
+      ]
+    },
+    {
+      "page": 37,
+      "explanation": "这张幻灯片讨论了如何将S4作为神经网络中的一个层（layer）来实际使用，类似于卷积层或注意力层的使用方式。\n\n**从公式到实际层：** S4定义了特殊的状态转移矩阵 $A$ 和特定的可训练参数参数化方式，但仅有这些还不够——我们需要将其封装成一个可以在深度网络中堆叠使用的标准层。\n\n**层的构建方式：**\n\n1. **多头堆叠（Stacking H copies）：** 类似于多头注意力（multi-head attention）或多个卷积核（conv filters），S4层会并行运行 $H$ 个独立的SSM实例。每个实例可以学习捕捉序列中不同方面的模式，就像多头注意力中不同的头关注不同的关系一样。这里 $H$ 类似于卷积的通道数或注意力的头数。\n\n2. **与线性层混合（Mix with linear layer）：** 将 $H$ 个SSM的输出通过线性变换进行混合，类似于多头注意力之后的输出投影矩阵 $W_O$。这一步允许不同SSM实例之间的信息交互。\n\n3. **激活函数（Activation function）：** 在最后放置非线性激活函数（如GELU、ReLU等），为模型引入非线性表达能力。\n\n这种设计模式——\"并行子模块 → 线性混合 → 非线性激活\"——是深度学习中非常经典的模块化设计范式。它使得S4可以像Transformer block一样被多层堆叠，构建深度序列模型。",
+      "keyPoints": [
+        "S4层通过堆叠H个并行SSM实例来增加表达能力，类似多头注意力或多通道卷积",
+        "SSM输出通过线性层混合，再加激活函数形成完整的网络层",
+        "模块化设计使S4层可以像Transformer block一样灵活堆叠"
+      ]
+    },
+    {
+      "page": 38,
+      "explanation": "这张幻灯片总结了S4模型的优势和局限性。\n\n**优势——处理超长序列：** S4在处理极长序列方面表现出色。幻灯片特别提到了Path-X任务，这是一个极具挑战性的长程依赖（Long-Range Dependencies, LRDs）基准测试。该任务要求模型在长度为16384的序列上进行推理——在S4之前，所有模型（包括Transformer）都在这个任务上失败了。\n\nPath-X任务的具体设置是：给定一张图片（被展平为像素序列），模型需要判断图中两个标记点之间是否通过一条路径相连。当图片被展平后，序列长度达到16384，这要求模型能够捕捉跨越整个序列的长距离依赖关系。S4之所以能解决这个问题，正是因为HiPPO矩阵赋予了它优秀的长期记忆能力，加上卷积形式的高效并行计算。\n\n**局限性——\"选择性\"任务（Selective Tasks）：** S4在需要\"选择性\"处理信息的任务上表现不佳。所谓\"选择性\"任务，是指模型需要根据上下文动态决定哪些信息应该被记住、哪些应该被忽略的场景。例如，在自然语言处理中，模型需要根据当前的查询来选择性地关注输入中的相关部分。\n\n这个局限的根本原因在于S4的参数（$\\bar{A}$、$\\bar{B}$、$C$）在训练完成后是固定的，不随输入变化。这意味着S4以完全相同的方式处理每个输入token，缺乏Attention那样的动态、输入依赖的信息选择能力。",
+      "keyPoints": [
+        "S4成功解决了Path-X任务（序列长度16384），是首个突破该基准的模型",
+        "S4的核心优势在于高效处理超长序列的长程依赖关系",
+        "S4的局限在于缺乏选择性——参数固定，不能根据输入动态调整信息处理方式"
+      ]
+    },
+    {
+      "page": 39,
+      "explanation": "这张幻灯片引出了Mamba模型，作为解决S4选择性任务局限性的方案。\n\n**问题回顾：** 上一张幻灯片指出S4在\"选择性\"任务上表现不佳。根本原因是S4的状态转移矩阵 $\\bar{A}$ 和输入矩阵 $\\bar{B}$ 在推理时是固定的（input-independent），无法根据当前输入的内容动态调整。这就像是一个固定的滤波器——无论输入什么信号，滤波器的行为都是一样的。\n\n**解决方案——上下文感知（Context-Aware）：** 需要一种方法让SSM的参数能够根据输入内容动态变化。这就是Mamba的核心创新。\n\n**Mamba模型（Gu and Dao, 2023）：** Mamba的全称体现了其核心特点：\"Linear-Time Sequence Modeling with Selective State Spaces\"——选择性状态空间。Mamba的关键思想是让SSM的参数（特别是 $B$、$C$ 和步长 $\\Delta$）成为输入的函数：\n\n$$B_t = f_B(x_t), \\quad C_t = f_C(x_t), \\quad \\Delta_t = f_\\Delta(x_t)$$\n\n这样，模型可以根据当前输入token动态决定：应该记住多少新信息（通过 $B_t$）、应该输出什么（通过 $C_t$）、以及时间步长应该多大（通过 $\\Delta_t$，间接控制遗忘程度）。\n\n然而，参数的输入依赖性带来了一个计算挑战：S4原本可以通过卷积进行高效并行计算（因为参数是固定的），但Mamba的参数随输入变化，不能直接使用卷积。Mamba通过硬件感知的扫描算法（hardware-aware scan algorithm）解决了这个问题，仍然保持了线性时间复杂度。\n\nMamba的出现标志着SSM家族模型在能力上的重大飞跃，使其在许多任务上能与Transformer竞争。",
+      "keyPoints": [
+        "Mamba通过让SSM参数（B、C、Δ）依赖于输入来实现选择性信息处理",
+        "选择性机制使Mamba能根据上下文动态决定记忆和遗忘，弥补了S4的核心缺陷",
+        "Mamba保持线性时间复杂度，通过硬件感知的扫描算法实现高效计算"
+      ]
+    },
+    {
+      "page": 40,
+      "explanation": "课程行政信息，跳过。",
+      "keyPoints": []
+    }
+  ]
+}
