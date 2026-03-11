@@ -849,6 +849,7 @@ const examNextBtn = document.getElementById('exam-next');
 
 document.getElementById('btn-exam').addEventListener('click', () => {
   location.hash = 'exam';
+  enterExam();
 });
 document.getElementById('exam-back').addEventListener('click', exitExam);
 document.getElementById('exam-back-lectures').addEventListener('click', exitExam);
@@ -893,7 +894,7 @@ function exitExam() {
   examMode = false;
   examView.classList.add('hidden');
   document.getElementById('split-view').style.display = '';
-  location.hash = '';
+  history.pushState(null, '', location.pathname);
 }
 
 function examGoTo(idx) {
@@ -975,7 +976,7 @@ function renderExamQuestion() {
   }
 
   examPrevBtn.disabled = examCurrentIdx <= 0;
-  examNextBtn.textContent = examCurrentIdx >= totalQ - 1 ? 'Finish' : 'Next →';
+  examNextBtn.innerHTML = examCurrentIdx >= totalQ - 1 ? 'Finish' : 'Next &rarr;';
 
   examBody.querySelector('#exam-question-area')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -1055,12 +1056,23 @@ function renderKatex(el) {
 
 init();
 
-// Add exam entry to TOC (after init populates the list)
-(function addExamToToc() {
+// Add exam + cheatsheet entries to TOC (after init populates the list)
+(function addExtrasToc() {
+  const divLi = document.createElement('li');
+  divLi.style.borderTop = '1px solid var(--border)';
+  divLi.style.marginTop = '8px';
+  divLi.style.paddingTop = '8px';
+
+  const csA = document.createElement('a');
+  csA.href = 'cheatsheet.html';
+  csA.target = '_blank';
+  csA.textContent = 'Midterm Cheat Sheet';
+  csA.style.color = '#059669';
+  csA.style.fontWeight = '600';
+  divLi.appendChild(csA);
+  tocList.appendChild(divLi);
+
   const examLi = document.createElement('li');
-  examLi.style.borderTop = '1px solid var(--border)';
-  examLi.style.marginTop = '8px';
-  examLi.style.paddingTop = '8px';
   const examA = document.createElement('a');
   examA.href = '#exam';
   examA.textContent = 'Sample Exams';

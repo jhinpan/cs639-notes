@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS639 Midterm Cheat Sheet</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+@page { size: A4; margin: 10mm 8mm 10mm 8mm; }
+@media print {
+  body { font-size: 7pt !important; }
+  .page-break { page-break-before: always; }
+  .no-print { display: none !important; }
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', 'Noto Sans SC', -apple-system, sans-serif;
+  font-size: 7.5pt;
+  line-height: 1.32;
+  color: #111;
+  background: #fff;
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 8mm;
+}
+h1 { font-size: 11pt; text-align: center; margin-bottom: 4px; border-bottom: 1.5px solid #000; padding-bottom: 2px; }
+h2 { font-size: 8.5pt; margin: 5px 0 2px; color: #1a1a8a; border-bottom: 0.5px solid #999; padding-bottom: 1px; }
+h3 { font-size: 7.5pt; font-weight: 700; margin: 3px 0 1px; color: #333; }
+.cols { display: flex; gap: 6px; }
+.col { flex: 1; min-width: 0; }
+p { margin: 1px 0; }
+ul { margin: 0 0 0 10px; padding: 0; }
+li { margin: 0.5px 0; }
+code { font-family: 'Consolas', 'JetBrains Mono', monospace; font-size: 6.5pt; background: #f0f0f0; padding: 0 2px; border-radius: 1px; }
+.box { border: 0.5px solid #ccc; border-radius: 3px; padding: 3px 4px; margin: 2px 0; background: #fafafa; }
+.box-blue { border-color: #88b; background: #f0f0ff; }
+.box-green { border-color: #8b8; background: #f0fff0; }
+.box-amber { border-color: #ba8; background: #fffbf0; }
+.formula { text-align: center; margin: 2px 0; }
+.katex { font-size: 0.92em !important; }
+.katex-display { margin: 2px 0 !important; }
+.tag { display: inline-block; font-size: 6pt; font-weight: 700; padding: 0 3px; border-radius: 2px; color: #fff; vertical-align: middle; }
+.tag-enc { background: #2563eb; }
+.tag-dec { background: #dc2626; }
+.tag-both { background: #7c3aed; }
+table { border-collapse: collapse; width: 100%; font-size: 7pt; margin: 2px 0; }
+th, td { border: 0.5px solid #bbb; padding: 1.5px 3px; text-align: left; }
+th { background: #eee; font-weight: 700; }
+.tiny { font-size: 6pt; color: #666; }
+.no-print { position: fixed; top: 10px; right: 10px; z-index: 100; }
+.no-print button { padding: 8px 16px; font-size: 13px; background: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin-left: 6px; }
+.no-print a { padding: 8px 16px; font-size: 13px; background: #374151; color: #fff; border-radius: 6px; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="no-print">
+  <a href="index.html">← Back</a>
+  <button onclick="window.print()">Print / Save PDF</button>
+</div>
+
+<h1>CS 639 Foundation Models — Midterm Cheat Sheet</h1>
+
+<div class="cols">
+<div class="col">
+
+<h2>1. ML Fundamentals</h2>
+<ul>
+<li><b>Supervised learning</b>: input <span class="katex-inline">$\mathcal{X}$</span>, labels <span class="katex-inline">$\mathcal{Y}$</span>, hypothesis <span class="katex-inline">$h \in \mathcal{H}$</span>, minimize empirical risk <span class="katex-inline">$\frac{1}{n}\sum_i \ell(h(x_i), y_i)$</span></li>
+<li><b>Bias-Variance</b>: <span class="katex-inline">$\text{Error} = \text{Bias}^2 + \text{Variance} + \text{Noise}$</span>. ↑ complexity → ↓ bias, ↑ variance</li>
+<li><b>Regularization</b>: L1 (sparsity), L2/weight decay (small weights), Dropout (randomly zero activations)</li>
+<li><b>Logistic regression</b>: <span class="katex-inline">$\sigma(z) = \frac{1}{1+e^{-z}}$</span>, cross-entropy loss: <span class="katex-inline">$-[y\log\hat{y} + (1-y)\log(1-\hat{y})]$</span></li>
+</ul>
+
+<h2>2. Deep Learning</h2>
+<h3>MLP / Perceptron</h3>
+<ul>
+<li><span class="katex-inline">$\mathbf{h} = \sigma(W^{(1)}\mathbf{x} + \mathbf{b}^{(1)})$</span>, output: <span class="katex-inline">$\hat{y} = W^{(2)}\mathbf{h} + \mathbf{b}^{(2)}$</span></li>
+<li>Activations: ReLU <span class="katex-inline">$\max(0,x)$</span>, GELU <span class="katex-inline">$x\Phi(x)$</span>, Tanh, Sigmoid</li>
+<li>XOR: not linearly separable → need hidden layers</li>
+</ul>
+<h3>CNN</h3>
+<ul>
+<li>Output size: <span class="katex-inline">$(n_h - k_h + 2p + 1) \times (n_w - k_w + 2p + 1)$</span> with stride 1, padding <span class="katex-inline">$p$</span></li>
+<li>Properties: local connectivity, weight sharing, translation equivariance</li>
+</ul>
+<h3>RNN / LSTM</h3>
+<ul>
+<li>RNN: <span class="katex-inline">$s^{(t)} = \tanh(Ws^{(t-1)} + Ux^{(t)} + b)$</span></li>
+<li>Problem: vanishing/exploding gradients for long sequences</li>
+<li>LSTM: forget gate <span class="katex-inline">$f_t = \sigma(W_f[h_{t-1},x_t]+b_f)$</span>, input gate <span class="katex-inline">$i_t$</span>, output gate <span class="katex-inline">$o_t$</span>, cell state <span class="katex-inline">$c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t$</span></li>
+</ul>
+<h3>Training</h3>
+<ul>
+<li><b>Backprop</b>: chain rule through comp. graph. <span class="katex-inline">$\frac{\partial L}{\partial w} = \frac{\partial L}{\partial z}\frac{\partial z}{\partial w}$</span></li>
+<li><b>SGD</b>: <span class="katex-inline">$w \leftarrow w - \eta \nabla_w L$</span>; Adam: adaptive LR + momentum</li>
+<li><b>Residual connection</b>: <span class="katex-inline">$y = F(x) + x$</span> (gradient highway, enables deep nets)</li>
+<li><b>BatchNorm</b>: normalize across batch dim; <b>LayerNorm</b>: normalize across feature dim (used in Transformers)</li>
+</ul>
+
+<h2>3. Self-Supervised Learning</h2>
+<div class="box box-blue">
+<b>Core idea</b>: Create supervision from unlabeled data via pretext tasks. No human labels needed.
+</div>
+<h3>Masking (BERT-style)</h3>
+<ul>
+<li>Mask ~15% tokens: 80% → [MASK], 10% → random, 10% → unchanged</li>
+<li>Loss: <span class="katex-inline">$\mathcal{L}_{\text{MLM}} = -\sum_{i \in \mathcal{M}} \log P(x_i \mid x_{\setminus\mathcal{M}})$</span></li>
+<li>Bidirectional context → good for understanding tasks</li>
+</ul>
+<h3>Autoregressive (GPT-style)</h3>
+<ul>
+<li>Next-token prediction: <span class="katex-inline">$P(w_1,...,w_n) = \prod_i P(w_i \mid w_{<i})$</span></li>
+<li>Unidirectional (causal) → good for generation</li>
+</ul>
+<h3>Contrastive Learning</h3>
+<ul>
+<li>Pull positive pairs close, push negatives apart</li>
+<li><b>InfoNCE</b>: <span class="katex-inline">$\mathcal{L} = -\log\frac{\exp(\text{sim}(z_i,z_j)/\tau)}{\sum_{k\neq i}\exp(\text{sim}(z_i,z_k)/\tau)}$</span></li>
+<li>SimCLR: augment → encode → project → contrastive loss. Needs large batch.</li>
+<li>MoCo: momentum encoder + queue of negatives</li>
+</ul>
+<h3>Student-Teacher</h3>
+<ul>
+<li>BYOL, DINO: teacher = EMA of student: <span class="katex-inline">$\theta_T \leftarrow \alpha\theta_T + (1-\alpha)\theta_S$</span></li>
+<li>No negative samples needed; avoids collapse via EMA + centering</li>
+</ul>
+
+</div>
+<div class="col">
+
+<h2>4. Attention & Transformers</h2>
+<div class="box box-green">
+<b>Core formula</b>: <span class="katex-inline">$\text{Attention}(Q,K,V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V$</span>
+</div>
+<ul>
+<li><b>QKV</b>: <span class="katex-inline">$Q = XW_Q$</span>, <span class="katex-inline">$K = XW_K$</span>, <span class="katex-inline">$V = XW_V$</span>; <span class="katex-inline">$W_Q, W_K \in \mathbb{R}^{d \times d_k}$</span></li>
+<li><b>Why scale by <span class="katex-inline">$\sqrt{d_k}$</span>?</b> Dot products grow with <span class="katex-inline">$d_k$</span> → softmax saturates → tiny gradients</li>
+<li><b>Multi-head</b>: <span class="katex-inline">$\text{MHA}(Q,K,V) = \text{Concat}(\text{head}_1,...,\text{head}_h)W^O$</span>, each head dim = <span class="katex-inline">$d_k = d_{\text{model}}/h$</span></li>
+<li><b>Self-attention</b>: Q, K, V all from same sequence → permutation-invariant!</li>
+<li><b>Cross-attention</b>: Q from decoder, K/V from encoder</li>
+</ul>
+<h3>Positional Encoding</h3>
+<ul>
+<li>Needed because self-attention is permutation-invariant</li>
+<li><b>Sinusoidal (original)</b>: <span class="katex-inline">$PE_{(pos,2i)} = \sin(pos/10000^{2i/d})$</span>, <span class="katex-inline">$PE_{(pos,2i+1)} = \cos(pos/10000^{2i/d})$</span></li>
+<li><b>Learned (BERT)</b>: trainable embedding per position</li>
+<li><b>RoPE</b>: rotate Q,K by position angle → dot product encodes <i>relative</i> position <span class="katex-inline">$m-n$</span></li>
+</ul>
+<h3>Transformer Block</h3>
+<div class="box">
+<span class="katex-inline">$x' = \text{LayerNorm}(x + \text{MHA}(x))$</span><br>
+<span class="katex-inline">$\text{output} = \text{LayerNorm}(x' + \text{FFN}(x'))$</span><br>
+<span class="katex-inline">$\text{FFN}(x) = W_2 \cdot \text{GELU}(W_1 x + b_1) + b_2$</span>, typically <span class="katex-inline">$d_{ff} = 4d_{\text{model}}$</span><br>
+<span class="katex-inline">$\text{LayerNorm}(x) = \gamma \frac{x - \mu}{\sqrt{\sigma^2 + \epsilon}} + \beta$</span> (per-sample, across features)
+</div>
+
+<h2>5. Architectures: BERT vs GPT</h2>
+<table>
+<tr><th></th><th><span class="tag tag-enc">BERT</span> Encoder-only</th><th><span class="tag tag-dec">GPT</span> Decoder-only</th><th><span class="tag tag-both">T5</span> Enc-Dec</th></tr>
+<tr><td>Masking</td><td>No causal mask (bidirectional)</td><td>Causal mask (unidirectional)</td><td>Enc: bidir; Dec: causal</td></tr>
+<tr><td>Pre-train</td><td>MLM + NSP</td><td>Next-token prediction</td><td>Span corruption</td></tr>
+<tr><td>Strength</td><td>Understanding (NER, QA)</td><td>Generation (text, code)</td><td>Seq2seq (translate, summ.)</td></tr>
+<tr><td>Cross-attn</td><td>None</td><td>None</td><td>Dec attends to Enc output</td></tr>
+</table>
+<div class="box box-amber">
+<b>Causal mask</b>: lower-triangular matrix. Row <span class="katex-inline">$i$</span>: non-negative, sums to 1, upper triangle = 0. Token <span class="katex-inline">$i$</span> only sees tokens <span class="katex-inline">$\leq i$</span>.
+</div>
+
+<h2>6. Attention Variants</h2>
+<ul>
+<li><b>Standard</b>: <span class="katex-inline">$O(n^2)$</span> time and memory for sequence length <span class="katex-inline">$n$</span></li>
+<li><b>Sparse attention</b>: local window + global tokens (Longformer, BigBird). Global tokens = info hub for long-range.</li>
+<li><b>Linear attention</b>: kernel trick <span class="katex-inline">$\phi(Q)\cdot[\phi(K)^\top V]$</span> → <span class="katex-inline">$O(n)$</span>. Compute KV first, avoid <span class="katex-inline">$n\times n$</span> matrix.</li>
+<li><b>GQA</b>: group query heads share K/V heads → smaller KV cache for inference</li>
+<li><b>Flash Attention</b>: IO-aware tiling. Exact attention (not approximate). Tiles Q,K,V blocks in SRAM; avoids materializing full <span class="katex-inline">$n\times n$</span> in HBM. Online softmax trick.</li>
+<li><b>State Space Models (S4/Mamba)</b>: <span class="katex-inline">$h'(t)=Ah(t)+Bx(t)$</span>, <span class="katex-inline">$y(t)=Ch(t)$</span>. Linear recurrence → efficient for long sequences.</li>
+</ul>
+
+</div>
+</div>
+
+<!-- ===================== PAGE 2 ===================== -->
+<div class="page-break"></div>
+<h1>CS 639 Midterm Cheat Sheet — Page 2</h1>
+
+<div class="cols">
+<div class="col">
+
+<h2>7. Multimodal Models</h2>
+<h3>Vision Transformer (ViT)</h3>
+<ul>
+<li>Image → fixed-size patches (e.g. 16×16) → linear projection → patch embeddings</li>
+<li>Prepend [CLS] token + add position embeddings → standard Transformer encoder</li>
+<li>"An image is worth 16×16 words"</li>
+</ul>
+<h3>CLIP (Contrastive Language-Image Pre-training)</h3>
+<div class="box box-blue">
+<ul>
+<li>Dual encoder: image encoder + text encoder → shared embedding space</li>
+<li>Contrastive loss on <span class="katex-inline">$N\times N$</span> similarity matrix: diagonal = positives, off-diagonal = negatives</li>
+<li>Zero-shot classification: encode text prompts ("a photo of a {class}") + image → cosine similarity</li>
+<li>Trained on 400M image-text pairs from the web</li>
+</ul>
+</div>
+<h3>Multimodal Fusion Approaches</h3>
+<table>
+<tr><th>Model</th><th>Architecture</th><th>Key Idea</th></tr>
+<tr><td>VisualBERT</td><td>Single-stream</td><td>Image regions + text tokens → shared BERT</td></tr>
+<tr><td>ViLT</td><td>Single-stream</td><td>Image patches + text → shared Transformer (no CNN)</td></tr>
+<tr><td>CLIP</td><td>Dual-stream</td><td>Separate encoders + contrastive alignment</td></tr>
+<tr><td>Flamingo</td><td>Cross-attn</td><td>Frozen LM + gated xattn layers for visual tokens</td></tr>
+<tr><td>LLaVA</td><td>Projection</td><td>Vision encoder → linear proj → LLM input</td></tr>
+</table>
+<h3>Flamingo Details</h3>
+<ul>
+<li>Perceiver Resampler: compress variable visual tokens → fixed number</li>
+<li>Gated cross-attention inserted between frozen LM layers</li>
+<li>Only trains new cross-attention params + resampler (LM stays frozen)</li>
+<li>Enables few-shot multimodal ICL with interleaved image-text</li>
+</ul>
+
+<h2>8. Prompting & In-Context Learning</h2>
+<h3>Prompting Basics</h3>
+<table>
+<tr><th>Type</th><th>Description</th></tr>
+<tr><td><b>Zero-shot</b></td><td>Task instruction only, no examples</td></tr>
+<tr><td><b>One-shot</b></td><td>1 input-output example + test input</td></tr>
+<tr><td><b>Few-shot</b></td><td>K examples (K=2-5 typical) + test input</td></tr>
+</table>
+<ul>
+<li><b>Prompt sensitivity</b>: format, example choice, example ORDER all significantly affect performance</li>
+<li><b>ICL</b>: model "learns" from in-prompt examples without parameter updates. Emergent ability at scale.</li>
+</ul>
+
+</div>
+<div class="col">
+
+<h3>Advanced Prompting</h3>
+<div class="box box-green">
+<b>Chain-of-Thought (CoT)</b>: Include step-by-step reasoning in examples. Model generates intermediate reasoning steps before answer. Dramatically improves math/logic tasks. More "thinking time" = better reasoning.
+</div>
+<ul>
+<li><b>Zero-shot CoT</b>: Just add "Let's think step by step" to the prompt</li>
+<li><b>Self-consistency</b>: sample K reasoning paths → majority vote on final answer</li>
+</ul>
+<h3>Soft Prompts / Prompt Tuning</h3>
+<ul>
+<li>Replace discrete text prompts with <b>continuous learnable vectors</b> in embedding space</li>
+<li>Only optimize prompt embeddings via gradient descent; model params frozen</li>
+<li><b>Prefix-Tuning</b>: prepend trainable prefix vectors to K,V at every layer</li>
+<li>Advantages: continuous search space; tiny params; task-specific "adapters"</li>
+</ul>
+
+<h2>9. Key Formulas Quick Reference</h2>
+<div class="box">
+<table>
+<tr><th>Name</th><th>Formula</th></tr>
+<tr><td>Attention</td><td><span class="katex-inline">$\text{softmax}(QK^\top / \sqrt{d_k}) \cdot V$</span></td></tr>
+<tr><td>Multi-Head</td><td><span class="katex-inline">$\text{Concat}(\text{head}_1,...,\text{head}_h) W^O$</span>, head dim = <span class="katex-inline">$d/h$</span></td></tr>
+<tr><td>FFN</td><td><span class="katex-inline">$W_2 \cdot \text{GELU}(W_1 x + b_1) + b_2$</span></td></tr>
+<tr><td>LayerNorm</td><td><span class="katex-inline">$\gamma \frac{x-\mu}{\sqrt{\sigma^2+\epsilon}} + \beta$</span></td></tr>
+<tr><td>Residual</td><td><span class="katex-inline">$y = F(x) + x$</span></td></tr>
+<tr><td>InfoNCE</td><td><span class="katex-inline">$-\log\frac{\exp(\text{sim}(z_i,z_j)/\tau)}{\sum_k \exp(\text{sim}(z_i,z_k)/\tau)}$</span></td></tr>
+<tr><td>MLM Loss</td><td><span class="katex-inline">$-\sum_{i \in \mathcal{M}} \log P(x_i \mid x_{\setminus\mathcal{M}})$</span></td></tr>
+<tr><td>Autoregressive</td><td><span class="katex-inline">$P(w_1...w_n) = \prod_i P(w_i \mid w_{<i})$</span></td></tr>
+<tr><td>EMA (teacher)</td><td><span class="katex-inline">$\theta_T \leftarrow \alpha\theta_T + (1-\alpha)\theta_S$</span></td></tr>
+<tr><td>RNN</td><td><span class="katex-inline">$s_t = \tanh(Ws_{t-1} + Ux_t + b)$</span></td></tr>
+<tr><td>Sinusoidal PE</td><td><span class="katex-inline">$\sin(pos/10000^{2i/d})$</span>, <span class="katex-inline">$\cos(pos/10000^{2i/d})$</span></td></tr>
+</table>
+</div>
+
+<h2>10. Common Exam Traps</h2>
+<div class="box box-amber">
+<ul>
+<li><b>BERT ≠ decoder</b>: BERT is encoder-only, no causal mask, no cross-attention</li>
+<li><b>GPT ≠ encoder</b>: GPT is decoder-only with causal mask</li>
+<li><b>Positional encoding ≠ causal mask</b>: PE gives position info; causal mask prevents future tokens</li>
+<li><b>Scale factor</b>: divide by <span class="katex-inline">$\sqrt{d_k}$</span> (not <span class="katex-inline">$d_k$</span>, not <span class="katex-inline">$d_{\text{model}}$</span>)</li>
+<li><b>Causal attention matrix</b>: lower triangular + non-negative + rows sum to 1</li>
+<li><b>Cross-attn</b>: Q from decoder, K/V from encoder (not the reverse!)</li>
+<li><b>CLIP</b>: contrastive (not generative), dual encoder (not single stream)</li>
+<li><b>Flash Attention</b>: exact (not approximate), IO optimization (not algorithmic change)</li>
+<li><b>Linear Attention</b>: kernel replaces softmax → reorder matmul → avoid <span class="katex-inline">$n^2$</span></li>
+<li><b>ICL</b>: no parameter updates during inference; learning happens via forward pass</li>
+<li><b>Soft prompts</b>: continuous vectors, optimized by gradient descent (not text search)</li>
+<li><b>Foundation Model</b>: pretrained at scale + adaptable to downstream tasks</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  renderMathInElement(document.body, {
+    delimiters: [
+      { left: '$$', right: '$$', display: true },
+      { left: '$', right: '$', display: false },
+    ],
+    throwOnError: false,
+  });
+});
+</script>
+</body>
+</html>

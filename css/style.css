@@ -1008,12 +1008,17 @@ mark[data-hl-id].has-note { border-bottom: 2px dashed var(--accent); }
   border-color: var(--accent) !important;
 }
 
-/* Exam button highlight in nav */
+/* Exam & Cheat Sheet button highlights in nav */
 #btn-exam {
   background: #7c3aed !important;
   border-color: #7c3aed !important;
 }
 #btn-exam:hover { background: #6d28d9 !important; }
+#btn-cheatsheet {
+  background: #059669 !important;
+  border-color: #059669 !important;
+}
+#btn-cheatsheet:hover { background: #047857 !important; }
 
 @media (max-width: 768px) {
   #exam-container { padding: 16px 12px 40px; }
