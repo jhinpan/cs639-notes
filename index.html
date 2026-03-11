@@ -21,6 +21,7 @@
       <button id="btn-next" title="Next slide">&rarr;</button>
     </div>
     <div class="nav-right">
+      <button id="btn-exam" title="Sample exam questions">Exam</button>
       <button id="btn-qa" title="Ask questions about this slide">Q&A</button>
       <button id="btn-annotations" title="My annotations">Notes</button>
       <button id="btn-toc" title="Table of contents">TOC</button>
@@ -53,6 +54,48 @@
       </form>
     </section>
   </main>
+
+  <section id="exam-view" class="hidden">
+    <div id="exam-container">
+      <div id="exam-header">
+        <div class="exam-progress-wrap">
+          <div class="exam-progress-bar"><div id="exam-progress-fill"></div></div>
+          <span id="exam-progress-text">0 / 32</span>
+        </div>
+        <div class="exam-score-wrap">
+          <span id="exam-score-display"></span>
+          <button id="exam-back" title="Back to lectures">&larr; Back</button>
+        </div>
+      </div>
+      <div id="exam-body">
+        <div id="exam-question-area">
+          <span id="exam-topic-tag"></span>
+          <div id="exam-question-text"></div>
+          <div id="exam-options"></div>
+          <div id="exam-actions">
+            <button id="exam-submit" disabled>Submit</button>
+          </div>
+          <div id="exam-feedback" class="hidden"></div>
+        </div>
+        <div id="exam-nav">
+          <button id="exam-prev" disabled>&larr; Previous</button>
+          <button id="exam-next">Next &rarr;</button>
+        </div>
+      </div>
+      <div id="exam-summary" class="hidden">
+        <div class="exam-summary-card">
+          <h2>Exam Complete!</h2>
+          <div id="exam-summary-score"></div>
+          <div id="exam-summary-breakdown"></div>
+          <div class="exam-summary-actions">
+            <button id="exam-retry">Retry All</button>
+            <button id="exam-retry-wrong">Retry Wrong Only</button>
+            <button id="exam-back-lectures">Back to Lectures</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <div id="context-menu" class="hidden">
     <button id="ctx-highlight" data-color="yellow">Highlight</button>

@@ -1,0 +1,485 @@
+{
+  "title": "CS 639 Sample Midterm",
+  "description": "32 道选择题，涵盖 Transformer、Attention、Self-Supervised Learning、Architectures、Multimodal、Prompting & ICL 等核心主题。",
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Transformer Architecture",
+      "source": "practice",
+      "question": "In an encoder–decoder Transformer, the decoder contains a cross-attention sublayer. Which statement correctly describes where the query $Q$ and key/value ($K$, $V$) come from in this cross-attention?",
+      "options": [
+        {"label": "A", "text": "$Q$, $K$, $V$ all come from the decoder hidden states at the current layer."},
+        {"label": "B", "text": "$Q$ comes from the decoder hidden states, while $K$ and $V$ come from the encoder outputs."},
+        {"label": "C", "text": "$Q$ comes from the encoder outputs, while $K$ and $V$ come from the decoder hidden states."},
+        {"label": "D", "text": "$Q$, $K$, $V$ all come from the encoder outputs; the decoder is not used in cross-attention."},
+        {"label": "E", "text": "Cross-attention does not use $Q$, $K$, $V$ projections; it directly matches tokens by cosine similarity."}
+      ],
+      "answer": "B",
+      "explanation": "在 encoder-decoder Transformer 的 cross-attention 中，**Query 来自 decoder 当前层的隐藏状态**，而 **Key 和 Value 来自 encoder 的输出**。\n\n直觉上，decoder 的 Query 代表「我正在生成什么，需要什么信息」，而 encoder 的 Key/Value 代表「源序列中有哪些信息可以提供」。这种设计让 decoder 每一步都能动态地「回头看」整个源序列。\n\n- (A) 描述的是 self-attention，不是 cross-attention\n- (C) 把 Q 和 K/V 的来源搞反了\n- (D) 完全忽略了 decoder 的参与\n- (E) cross-attention 确实使用 QKV 投影，不是简单的 cosine similarity"
+    },
+    {
+      "id": 2,
+      "topic": "Attention Mechanism",
+      "source": "practice",
+      "question": "Consider a single attention head. Given:\n$$\\mathbf{q} = \\begin{pmatrix} 2 \\\\ 0 \\end{pmatrix}, \\quad \\mathbf{k}_1 = \\begin{pmatrix} 1 \\\\ 1 \\end{pmatrix}, \\quad \\mathbf{k}_2 = \\begin{pmatrix} 0 \\\\ 3 \\end{pmatrix}, \\quad \\mathbf{k}_3 = \\begin{pmatrix} -1 \\\\ 0 \\end{pmatrix}$$\nWhat are the scaled attention scores $\\frac{\\mathbf{q}^\\top \\mathbf{k}_i}{\\sqrt{d_k}}$ for keys $\\mathbf{k}_1, \\mathbf{k}_2, \\mathbf{k}_3$?",
+      "options": [
+        {"label": "A", "text": "$\\sqrt{2},\\ 0,\\ -\\sqrt{2}$"},
+        {"label": "B", "text": "$1,\\ 0,\\ -1$"},
+        {"label": "C", "text": "$2,\\ 0,\\ -2$"},
+        {"label": "D", "text": "$\\sqrt{2},\\ 3\\sqrt{2},\\ -\\sqrt{2}$"},
+        {"label": "E", "text": "$1,\\ 3,\\ -1$"}
+      ],
+      "answer": "A",
+      "explanation": "计算步骤：\n1. $d_k = 2$（向量维度），所以 $\\sqrt{d_k} = \\sqrt{2}$\n2. $\\mathbf{q}^\\top \\mathbf{k}_1 = 2 \\times 1 + 0 \\times 1 = 2$，scaled = $2/\\sqrt{2} = \\sqrt{2}$\n3. $\\mathbf{q}^\\top \\mathbf{k}_2 = 2 \\times 0 + 0 \\times 3 = 0$，scaled = $0/\\sqrt{2} = 0$\n4. $\\mathbf{q}^\\top \\mathbf{k}_3 = 2 \\times (-1) + 0 \\times 0 = -2$，scaled = $-2/\\sqrt{2} = -\\sqrt{2}$\n\n答案是 $(\\sqrt{2}, 0, -\\sqrt{2})$。\n\n- (B) 忘记了除以 $\\sqrt{d_k}$ 后再计算（实际上这是把 dot product 直接除了 2 而不是 $\\sqrt{2}$）\n- (C) 完全没有做 scaling\n- (D) 和 (E) 对 $\\mathbf{k}_2$ 的 dot product 计算错误（$0 \\times 3 \\neq 3$）"
+    },
+    {
+      "id": 3,
+      "topic": "BERT",
+      "source": "practice",
+      "question": "In BERT, what does **bidirectional** mean?",
+      "options": [
+        {"label": "A", "text": "BERT is bidirectional because it uses two separate decoders, one left-to-right and one right-to-left."},
+        {"label": "B", "text": "BERT is bidirectional because it does not use a causal mask, so a token can attend to both left and right context within self-attention."},
+        {"label": "C", "text": "BERT is bidirectional because it always attends only to the immediate previous token and the immediate next token."},
+        {"label": "D", "text": "BERT is bidirectional because it uses cross-attention from the encoder into the decoder."},
+        {"label": "E", "text": "BERT is bidirectional because it uses Rotary Positional Embeddings (RoPE) instead of learned positional embeddings."}
+      ],
+      "answer": "B",
+      "explanation": "BERT 的「双向」(bidirectional) 指的是它**不使用 causal mask**，因此在 self-attention 中，每个 token 可以同时关注其左侧和右侧的所有 token。\n\n这与 GPT 等 autoregressive 模型形成对比——GPT 使用 causal mask，每个 token 只能看到它之前（左侧）的 token。\n\n- (A) BERT 不使用两个单独的 decoder，它是一个 encoder-only 架构\n- (C) BERT 的 attention 可以看到序列中的所有 token，不只是相邻的\n- (D) BERT 是 encoder-only 模型，没有 decoder，也就没有 cross-attention\n- (E) RoPE 是一种位置编码方式，与 bidirectional 的概念无关；BERT 使用的是 learned positional embeddings"
+    },
+    {
+      "id": 4,
+      "topic": "Causal Masking",
+      "source": "practice",
+      "question": "In a causal (autoregressive) language model with a sequence of 4 tokens, the attention weight matrix after masking and softmax has shape $4 \\times 4$. Which of the following is a valid attention weight matrix?\n\n(A) $\\begin{pmatrix} 1 & 0 & 0 & 0 \\\\ 0.5 & 0.5 & 0 & 0 \\\\ 0.3 & 0.3 & 0.4 & 0 \\\\ 0.2 & 0.2 & 0.3 & 0.3 \\end{pmatrix}$\n\n(B) $\\begin{pmatrix} 0.25 & 0.25 & 0.25 & 0.25 \\\\ 0.5 & 0.5 & 0 & 0 \\\\ 0.3 & 0.3 & 0.4 & 0 \\\\ 0.2 & 0.2 & 0.3 & 0.3 \\end{pmatrix}$\n\n(C) $\\begin{pmatrix} 1 & 0 & 0 & 0 \\\\ 0.5 & 0.5 & 0 & 0 \\\\ 0.3 & 0.3 & 0.4 & 0 \\\\ 0.2 & 0.2 & 0.2 & 0.3 \\end{pmatrix}$",
+      "options": [
+        {"label": "A", "text": "Matrix (A)"},
+        {"label": "B", "text": "Matrix (B)"},
+        {"label": "C", "text": "Matrix (C)"},
+        {"label": "D", "text": "None of the above are valid."}
+      ],
+      "answer": "A",
+      "explanation": "Causal attention weight matrix 必须满足三个条件：\n1. **下三角**（lower triangular）：token $i$ 只能 attend to token $j$ where $j \\leq i$，即上三角元素为 0\n2. **非负**：所有元素 $\\geq 0$（softmax 输出）\n3. **每行和为 1**：因为 softmax 输出是概率分布\n\n**Matrix (A)** ✅：下三角、非负、每行和 = 1（1, 0.5+0.5, 0.3+0.3+0.4, 0.2+0.2+0.3+0.3 = 1）\n\n**Matrix (B)** ❌：第一行 $0.25 \\times 4 = 1$ 但有上三角非零元素（token 1 attend to token 2,3,4），违反 causality\n\n**Matrix (C)** ❌：第四行 $0.2+0.2+0.2+0.3 = 0.9 \\neq 1$，不是合法的概率分布"
+    },
+    {
+      "id": 5,
+      "topic": "Attention Variants",
+      "source": "practice",
+      "question": "Two common sparse attention ideas are:\n- **Sliding-window attention**: each token attends only to tokens in a local window.\n- **Global tokens**: a small set of special tokens can attend broadly to help share information across long distances.\n\nWhich option best explains why adding global tokens can help compared to using only sliding-window attention?",
+      "options": [
+        {"label": "A", "text": "Sliding-window attention already allows any token to directly attend to every other token in one layer, so global tokens do not help."},
+        {"label": "B", "text": "Sliding-window attention can miss long-range interactions in a single layer, while global tokens provide a direct communication path across the whole sequence."},
+        {"label": "C", "text": "Global tokens help because they eliminate the need for positional encodings."},
+        {"label": "D", "text": "Global tokens help because they increase the number of parameters in $W_Q$, $W_K$, $W_V$."},
+        {"label": "E", "text": "Global tokens help because they replace softmax with a simpler normalization."}
+      ],
+      "answer": "B",
+      "explanation": "Sliding-window attention 的局限在于每个 token 只能看到局部窗口内的 token。虽然通过多层堆叠可以间接传播长距离信息，但在**单层**中无法直接捕获长距离依赖。\n\n**Global tokens**（如 Longformer 中的 \\[CLS\\] token）可以 attend to 整个序列，充当「信息中转站」，让远距离的 token 通过 global token 间接通信。\n\n- (A) 错误：sliding-window 恰恰限制了每个 token 的 attention 范围\n- (C) global tokens 与位置编码无关\n- (D) global tokens 不改变 QKV 投影矩阵的参数量\n- (E) global tokens 不改变 softmax 的计算方式"
+    },
+    {
+      "id": 6,
+      "topic": "Positional Encodings",
+      "source": "practice",
+      "question": "Why do we need positional encodings in vanilla Transformers?",
+      "options": [
+        {"label": "A", "text": "To make attention invariant to token identity."},
+        {"label": "B", "text": "Because attention is otherwise permutation-invariant over positions."},
+        {"label": "C", "text": "To ensure gradients don't vanish."},
+        {"label": "D", "text": "To reduce memory from $O(n^2)$ to $O(n)$."},
+        {"label": "E", "text": "To enforce causality in the encoder."}
+      ],
+      "answer": "B",
+      "explanation": "Self-attention 的核心操作 $\\text{softmax}(QK^T/\\sqrt{d_k})V$ 本质上是**置换不变的**（permutation-invariant）——如果你打乱输入 token 的顺序，attention 的计算结果只是相应地打乱，模型无法区分不同的 token 排列。\n\n但语言是有顺序的！「猫追狗」和「狗追猫」意思完全不同。因此需要位置编码来注入位置信息。\n\n- (A) 恰好说反了——我们需要的是让模型对位置敏感，而不是不变\n- (C) 梯度消失是通过残差连接和 LayerNorm 解决的，与位置编码无关\n- (D) 位置编码不影响 attention 的内存复杂度\n- (E) causality 是通过 causal mask 实现的，不是位置编码"
+    },
+    {
+      "id": 7,
+      "topic": "Multimodal / CLIP",
+      "source": "practice",
+      "question": "CLIP-style models typically train by:",
+      "options": [
+        {"label": "A", "text": "Predicting next word given the image (similar to training for an autoregressive language model)."},
+        {"label": "B", "text": "Learning separate image/text encoders with a contrastive loss (InfoNCE-style)."},
+        {"label": "C", "text": "Pixel-level reconstruction from text embeddings."},
+        {"label": "D", "text": "Reinforcement learning from human feedback."},
+        {"label": "E", "text": "Training only on labeled ImageNet classes."}
+      ],
+      "answer": "B",
+      "explanation": "CLIP（Contrastive Language-Image Pre-training）使用**双编码器架构**：一个 image encoder 和一个 text encoder，通过 **contrastive loss（对比损失，InfoNCE 风格）** 进行训练。\n\n训练目标是：在一个 batch 中，正确的图文配对的 embedding 相似度应该高，不匹配的图文配对相似度应该低。\n\n- (A) 这描述的更像是 Flamingo 或 BLIP-2 等生成式多模态模型\n- (C) 这更接近图像生成模型（如 DALL-E 的某些变体）\n- (D) RLHF 用于语言模型对齐（如 ChatGPT），不是 CLIP 的训练方式\n- (E) CLIP 的一大优势恰恰是不限于 ImageNet 类别，而是在大规模图文对上训练"
+    },
+    {
+      "id": 8,
+      "topic": "Foundation Models",
+      "source": "generated",
+      "question": "Which of the following best captures the defining characteristic of a **Foundation Model**?",
+      "options": [
+        {"label": "A", "text": "A model trained on a single curated dataset for one specific task with high accuracy."},
+        {"label": "B", "text": "A model pre-trained on broad data at scale that can be adapted to a wide range of downstream tasks."},
+        {"label": "C", "text": "Any neural network with more than 1 billion parameters."},
+        {"label": "D", "text": "A model that exclusively uses reinforcement learning for training."},
+        {"label": "E", "text": "A model that requires no training data and relies solely on hand-crafted rules."}
+      ],
+      "answer": "B",
+      "explanation": "Foundation Model 的核心定义（由 Stanford HAI 在 2021 年提出）是：**在大规模数据上预训练，可以被适配到多种下游任务的模型**。\n\n关键特征包括：(1) 大规模预训练（scale），(2) 广泛的数据来源（broad data），(3) 可适配性（adaptability）。GPT、BERT、CLIP 等都是典型的 Foundation Models。\n\n- (A) 这描述的是传统的 task-specific 模型，与 Foundation Model 的「广泛适配」理念相反\n- (C) 参数量大不是定义特征，一个 2B 参数的专用模型不一定是 Foundation Model\n- (D) Foundation Models 主要使用自监督学习，不是强化学习\n- (E) Foundation Models 是数据驱动的，不是规则驱动的"
+    },
+    {
+      "id": 9,
+      "topic": "Foundation Models",
+      "source": "generated",
+      "question": "Which phenomenon describes the appearance of capabilities in large language models that are **not present in smaller models** and seem to arise suddenly at a certain scale?",
+      "options": [
+        {"label": "A", "text": "Transfer learning"},
+        {"label": "B", "text": "Catastrophic forgetting"},
+        {"label": "C", "text": "Emergent abilities"},
+        {"label": "D", "text": "Mode collapse"},
+        {"label": "E", "text": "Gradient saturation"}
+      ],
+      "answer": "C",
+      "explanation": "**Emergent abilities（涌现能力）** 是指在模型规模（参数量、训练数据量、计算量）达到某个阈值后突然出现的能力，在较小规模时几乎不存在。例如，few-shot in-context learning、chain-of-thought reasoning 等能力在小模型中几乎不起作用，但在大模型中表现优异。\n\n- (A) Transfer learning 是指将一个任务上学到的知识迁移到另一个任务\n- (B) Catastrophic forgetting 是指模型在学习新任务时忘记旧任务\n- (D) Mode collapse 是 GAN 训练中的问题\n- (E) Gradient saturation 是激活函数饱和导致的梯度问题"
+    },
+    {
+      "id": 10,
+      "topic": "Machine Learning Review",
+      "source": "generated",
+      "question": "In the bias-variance tradeoff, increasing model complexity typically:",
+      "options": [
+        {"label": "A", "text": "Increases both bias and variance."},
+        {"label": "B", "text": "Decreases bias but increases variance."},
+        {"label": "C", "text": "Decreases both bias and variance."},
+        {"label": "D", "text": "Increases bias but decreases variance."},
+        {"label": "E", "text": "Has no effect on either bias or variance."}
+      ],
+      "answer": "B",
+      "explanation": "这是经典的 bias-variance tradeoff：\n- **Bias（偏差）** 衡量模型对真实函数的近似能力。更复杂的模型能更好地拟合数据，所以 bias 降低。\n- **Variance（方差）** 衡量模型对训练集变化的敏感性。更复杂的模型更容易 overfit，所以 variance 增加。\n\n最优的模型复杂度是在 bias 和 variance 之间找到平衡点，使得总误差最小。\n\n- (A)/(C) 不可能同时增加/减少两者（在经典理论中）\n- (D) 恰好把方向搞反了\n- (E) 模型复杂度对 bias 和 variance 有显著影响"
+    },
+    {
+      "id": 11,
+      "topic": "Machine Learning Review",
+      "source": "generated",
+      "question": "Which regularization technique randomly sets hidden unit activations to zero during training?",
+      "options": [
+        {"label": "A", "text": "$L_1$ regularization (Lasso)"},
+        {"label": "B", "text": "$L_2$ regularization (Ridge / weight decay)"},
+        {"label": "C", "text": "Dropout"},
+        {"label": "D", "text": "Batch normalization"},
+        {"label": "E", "text": "Early stopping"}
+      ],
+      "answer": "C",
+      "explanation": "**Dropout** 在训练时以概率 $p$ 随机将隐藏层神经元的激活值置零，迫使网络不能过度依赖某些特定神经元，从而起到正则化效果。在推理时，所有神经元都激活，但输出按 $(1-p)$ 缩放。\n\n- (A) $L_1$ 正则化在损失函数中加入权重绝对值之和，促进稀疏性\n- (B) $L_2$ 正则化加入权重平方和，防止权重过大\n- (D) Batch normalization 是归一化技术，虽有轻微正则化效果但不是其主要目的\n- (E) Early stopping 是在验证集性能不再改善时停止训练"
+    },
+    {
+      "id": 12,
+      "topic": "Deep Learning",
+      "source": "generated",
+      "question": "During backpropagation, the gradient of the loss with respect to each parameter is computed by applying:",
+      "options": [
+        {"label": "A", "text": "The power rule repeatedly."},
+        {"label": "B", "text": "The chain rule of calculus through the computational graph."},
+        {"label": "C", "text": "Random sampling of gradients from a prior distribution."},
+        {"label": "D", "text": "Finite differences on each parameter independently."},
+        {"label": "E", "text": "The Bayes rule to update parameter posteriors."}
+      ],
+      "answer": "B",
+      "explanation": "Backpropagation 的数学基础是**微积分的链式法则（chain rule）**。通过计算图从输出到输入反向传播梯度，每一层的梯度等于后一层传回的梯度乘以当前层的局部梯度。\n\n$$\\frac{\\partial L}{\\partial w} = \\frac{\\partial L}{\\partial z} \\cdot \\frac{\\partial z}{\\partial w}$$\n\n- (A) power rule 是求导的一个特殊规则，不是 backpropagation 的核心\n- (C) 随机采样梯度不是 backpropagation 的工作方式\n- (D) 有限差分法可以近似梯度，但计算成本太高（每个参数需要一次前向传播）\n- (E) Bayes rule 用于概率推断，不是梯度计算"
+    },
+    {
+      "id": 13,
+      "topic": "Deep Learning",
+      "source": "generated",
+      "question": "What is the primary purpose of **residual connections** (skip connections) in deep neural networks?",
+      "options": [
+        {"label": "A", "text": "To double the number of parameters in each layer."},
+        {"label": "B", "text": "To allow gradients to flow directly through the network, mitigating the vanishing gradient problem."},
+        {"label": "C", "text": "To replace the need for activation functions."},
+        {"label": "D", "text": "To reduce the model's memory footprint during inference."},
+        {"label": "E", "text": "To enforce weight sharing between layers."}
+      ],
+      "answer": "B",
+      "explanation": "Residual connection 的核心公式是 $y = F(x) + x$，即将层的输入直接加到输出上。\n\n主要作用是**让梯度可以通过跳跃连接直接回传**，缓解深层网络中的梯度消失问题。在反向传播时，梯度有一条「高速公路」可以直接传到浅层，不需要经过所有中间层的变换。\n\n这也是 Transformer 能堆叠几十甚至上百层的关键原因之一。\n\n- (A) skip connection 不增加参数，只是加法操作\n- (C) 激活函数仍然需要，skip connection 不能替代它\n- (D) skip connection 不减少内存，甚至可能略微增加\n- (E) weight sharing 是不同的概念（如 RNN 中的参数共享）"
+    },
+    {
+      "id": 14,
+      "topic": "Self-Supervised Learning",
+      "source": "generated",
+      "question": "In BERT's pre-training, the **Masked Language Modeling (MLM)** objective works by:",
+      "options": [
+        {"label": "A", "text": "Predicting the next token in the sequence autoregressively."},
+        {"label": "B", "text": "Randomly masking ~15% of input tokens and training the model to predict them from context."},
+        {"label": "C", "text": "Reconstructing the entire input sequence from a compressed latent representation."},
+        {"label": "D", "text": "Classifying whether two sentences are from the same document."},
+        {"label": "E", "text": "Translating the input from one language to another."}
+      ],
+      "answer": "B",
+      "explanation": "BERT 的 MLM 目标是**随机遮盖（mask）输入序列中约 15% 的 token，然后让模型根据上下文预测这些被遮盖的 token**。\n\n具体来说，被选中的 15% token 中：80% 替换为 [MASK]，10% 替换为随机 token，10% 保持不变。这种设计让模型学会利用双向上下文。\n\n- (A) 这是 GPT 系列的 autoregressive language modeling，不是 MLM\n- (C) 这更接近 autoencoder 的工作方式\n- (D) 这描述的是 BERT 的另一个预训练任务 NSP（Next Sentence Prediction），不是 MLM\n- (E) 这是机器翻译任务，不是 BERT 的预训练方式"
+    },
+    {
+      "id": 15,
+      "topic": "Self-Supervised Learning",
+      "source": "generated",
+      "question": "In contrastive learning (e.g., SimCLR), what does the **InfoNCE loss** encourage?",
+      "options": [
+        {"label": "A", "text": "Maximize the similarity between all pairs of samples in a batch."},
+        {"label": "B", "text": "Maximize the similarity between positive pairs while minimizing the similarity between negative pairs."},
+        {"label": "C", "text": "Minimize the reconstruction error of the input."},
+        {"label": "D", "text": "Maximize the entropy of the learned representations."},
+        {"label": "E", "text": "Match the distribution of representations to a fixed Gaussian prior."}
+      ],
+      "answer": "B",
+      "explanation": "**InfoNCE loss** 的核心目标是「拉近正样本对，推远负样本对」：\n\n$$\\mathcal{L} = -\\log \\frac{\\exp(\\text{sim}(z_i, z_j) / \\tau)}{\\sum_{k \\neq i} \\exp(\\text{sim}(z_i, z_k) / \\tau)}$$\n\n其中 $(z_i, z_j)$ 是正样本对（同一图片的两个不同 augmentation），分母包含所有负样本对。温度参数 $\\tau$ 控制分布的锐度。\n\n- (A) 如果拉近所有样本对，会导致 representation collapse（所有表示坍塌到同一点）\n- (C) 这是 autoencoder 的目标\n- (D) 最大化熵不是 InfoNCE 的直接目标\n- (E) 这更像是 VAE 的 KL divergence 项"
+    },
+    {
+      "id": 16,
+      "topic": "Self-Supervised Learning",
+      "source": "generated",
+      "question": "In the **student-teacher** framework (e.g., BYOL, DINO), the teacher network's parameters are typically updated by:",
+      "options": [
+        {"label": "A", "text": "Standard backpropagation with the same loss as the student."},
+        {"label": "B", "text": "Exponential moving average (EMA) of the student's parameters."},
+        {"label": "C", "text": "Random re-initialization every epoch."},
+        {"label": "D", "text": "Training on a separate labeled dataset."},
+        {"label": "E", "text": "Freezing at initialization and never updating."}
+      ],
+      "answer": "B",
+      "explanation": "在 BYOL、DINO 等 student-teacher 框架中，**teacher 的参数不通过梯度更新，而是通过 student 参数的指数移动平均（EMA）** 来更新：\n\n$$\\theta_{\\text{teacher}} \\leftarrow \\alpha \\cdot \\theta_{\\text{teacher}} + (1 - \\alpha) \\cdot \\theta_{\\text{student}}$$\n\n其中 $\\alpha$ 通常很接近 1（如 0.996-0.999），使得 teacher 是 student 的「慢速移动版本」。这种设计提供了稳定的学习目标，避免了训练坍塌。\n\n- (A) 如果 teacher 也做 backprop，两个网络会很快收敛到同一点\n- (C) 随机重新初始化会破坏学习的连续性\n- (D) student-teacher 框架是自监督的，不需要标注数据\n- (E) 如果 teacher 完全不更新，它无法跟上 student 的学习进度"
+    },
+    {
+      "id": 17,
+      "topic": "Transformers & Attention",
+      "source": "generated",
+      "question": "In multi-head attention with $h$ heads, if the model dimension is $d_{\\text{model}}$, what is the typical dimension of each head's query, key, and value?",
+      "options": [
+        {"label": "A", "text": "$d_{\\text{model}}$"},
+        {"label": "B", "text": "$d_{\\text{model}} / h$"},
+        {"label": "C", "text": "$d_{\\text{model}} \\times h$"},
+        {"label": "D", "text": "$h$"},
+        {"label": "E", "text": "$\\sqrt{d_{\\text{model}}}$"}
+      ],
+      "answer": "B",
+      "explanation": "在多头注意力中，总维度 $d_{\\text{model}}$ 被均分到 $h$ 个 head 中，**每个 head 的维度为 $d_k = d_{\\text{model}} / h$**。\n\n例如，如果 $d_{\\text{model}} = 768$，$h = 12$，则每个 head 的维度为 $768/12 = 64$。\n\n这样设计的好处是：多个 head 并行计算的**总计算量**与使用单个全维度 attention 相同，但每个 head 可以学习到不同的 attention pattern（如一些 head 关注语法关系，另一些关注语义关系）。\n\n- (A) 这意味着每个 head 都使用全维度，计算量会增加 $h$ 倍\n- (C) 这会使总维度变成 $d_{\\text{model}} \\times h^2$\n- (D) $h$ 通常是 head 的数量，不是维度\n- (E) $\\sqrt{d_{\\text{model}}}$ 与 multi-head 的维度划分无关"
+    },
+    {
+      "id": 18,
+      "topic": "Transformers & Attention",
+      "source": "generated",
+      "question": "In the scaled dot-product attention formula $\\text{Attention}(Q,K,V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$, why do we divide by $\\sqrt{d_k}$?",
+      "options": [
+        {"label": "A", "text": "To make the computation numerically cheaper."},
+        {"label": "B", "text": "To ensure that the dot products don't grow too large, which would push softmax into regions with extremely small gradients."},
+        {"label": "C", "text": "To normalize the output vectors to unit length."},
+        {"label": "D", "text": "To convert the attention scores into probabilities."},
+        {"label": "E", "text": "To compensate for the bias introduced by positional encodings."}
+      ],
+      "answer": "B",
+      "explanation": "当 $d_k$ 较大时，$q \\cdot k$ 的方差会随着 $d_k$ 增大而增大。如果 dot product 的值过大，softmax 的输出会集中在某个 key 上（接近 one-hot），导致梯度极小（softmax 饱和）。\n\n除以 $\\sqrt{d_k}$ 可以让 dot product 的方差保持在约 1 的水平，使 softmax 的输出更加平滑，梯度更大，训练更稳定。\n\n- (A) 除以 $\\sqrt{d_k}$ 是一个简单的标量除法，不影响计算成本\n- (C) scaling 不是为了归一化输出向量，而是为了控制 softmax 的输入\n- (D) 概率化是 softmax 的作用，不是 scaling 的作用\n- (E) 与位置编码无关"
+    },
+    {
+      "id": 19,
+      "topic": "Transformers & Attention",
+      "source": "generated",
+      "question": "In a standard Transformer block, what is the order of operations?",
+      "options": [
+        {"label": "A", "text": "Self-Attention → Feed-Forward → Add & LayerNorm (after each)"},
+        {"label": "B", "text": "Feed-Forward → Self-Attention → Dropout"},
+        {"label": "C", "text": "LayerNorm → Pooling → Feed-Forward"},
+        {"label": "D", "text": "Convolution → Self-Attention → BatchNorm"},
+        {"label": "E", "text": "Self-Attention → ReLU → MaxPooling → Feed-Forward"}
+      ],
+      "answer": "A",
+      "explanation": "标准 Transformer block 包含两个 sub-layer，每个都有残差连接和 LayerNorm：\n\n1. **Multi-Head Self-Attention** + Add & LayerNorm\n2. **Position-wise Feed-Forward Network** + Add & LayerNorm\n\n即：$\\text{output}_1 = \\text{LayerNorm}(x + \\text{MultiHeadAttn}(x))$，$\\text{output}_2 = \\text{LayerNorm}(\\text{output}_1 + \\text{FFN}(\\text{output}_1))$\n\n- (B) Feed-Forward 在 Self-Attention 之后，不是之前\n- (C) Transformer 不使用 Pooling 层\n- (D) Transformer 不使用 Convolution 或 BatchNorm\n- (E) Transformer 的 FFN 使用 GELU/ReLU，但没有 MaxPooling"
+    },
+    {
+      "id": 20,
+      "topic": "Architectures",
+      "source": "generated",
+      "question": "GPT-style models use which type of Transformer architecture?",
+      "options": [
+        {"label": "A", "text": "Encoder-only (like BERT)"},
+        {"label": "B", "text": "Encoder-Decoder (like the original Transformer)"},
+        {"label": "C", "text": "Decoder-only with causal masking"},
+        {"label": "D", "text": "A hybrid of CNN and Transformer layers"},
+        {"label": "E", "text": "An attention-free recurrent architecture"}
+      ],
+      "answer": "C",
+      "explanation": "GPT（Generative Pre-trained Transformer）使用 **decoder-only 架构**，配合 **causal masking**（因果掩码）进行自回归生成。\n\n- **Decoder-only**：只有 Transformer decoder 块（没有 encoder），也没有 cross-attention\n- **Causal masking**：每个 token 只能 attend to 它自己和之前的 token，确保生成时不会「偷看」未来\n\n这三种架构各有适用场景：\n- **Encoder-only（BERT）**：适合理解任务（分类、NER 等）\n- **Decoder-only（GPT）**：适合生成任务\n- **Encoder-Decoder（T5、原始 Transformer）**：适合 seq2seq 任务（翻译、摘要等）\n\n- (A) BERT 是 encoder-only\n- (B) T5 是 encoder-decoder\n- (D)/(E) GPT 是纯 Transformer，不用 CNN 或 RNN"
+    },
+    {
+      "id": 21,
+      "topic": "Architectures",
+      "source": "generated",
+      "question": "Which of the following is a key advantage of **Layer Normalization** over **Batch Normalization** in Transformer models?",
+      "options": [
+        {"label": "A", "text": "Layer Normalization always produces better accuracy on image classification tasks."},
+        {"label": "B", "text": "Layer Normalization normalizes across the feature dimension of a single sample, making it independent of batch size and suitable for variable-length sequences."},
+        {"label": "C", "text": "Layer Normalization eliminates the need for residual connections."},
+        {"label": "D", "text": "Layer Normalization requires less memory than Batch Normalization."},
+        {"label": "E", "text": "Layer Normalization applies only during inference, not during training."}
+      ],
+      "answer": "B",
+      "explanation": "**Layer Normalization** 对单个样本的**特征维度**进行归一化，而 Batch Normalization 跨 **batch 维度**进行归一化。\n\nLayerNorm 的优势在 Transformer 中尤为关键：\n1. **不依赖 batch size**：batch 大小不影响归一化统计量\n2. **适合变长序列**：NLP 中序列长度不同，BatchNorm 的统计量不稳定\n3. **推理时与训练时行为一致**：BatchNorm 需要维护 running mean/variance\n\n- (A) BatchNorm 在 CNN/图像任务中通常更好\n- (C) LayerNorm 和残差连接是独立的技术，两者都需要\n- (D) 内存使用差异不是主要区别\n- (E) LayerNorm 在训练和推理时都工作"
+    },
+    {
+      "id": 22,
+      "topic": "Architectures",
+      "source": "generated",
+      "question": "The **Feed-Forward Network (FFN)** in each Transformer block typically consists of:",
+      "options": [
+        {"label": "A", "text": "A single linear layer."},
+        {"label": "B", "text": "Two linear layers with a non-linear activation (e.g., ReLU or GELU) in between."},
+        {"label": "C", "text": "A convolutional layer followed by max pooling."},
+        {"label": "D", "text": "A recurrent layer (LSTM or GRU)."},
+        {"label": "E", "text": "An attention mechanism applied to external memory."}
+      ],
+      "answer": "B",
+      "explanation": "Transformer FFN 的标准结构是两层线性变换，中间加一个非线性激活函数：\n\n$$\\text{FFN}(x) = W_2 \\cdot \\text{activation}(W_1 x + b_1) + b_2$$\n\n通常 $W_1$ 将维度从 $d_{\\text{model}}$ 扩展到 $4 \\times d_{\\text{model}}$（或其他扩展比），$W_2$ 再降回 $d_{\\text{model}}$。原始 Transformer 使用 ReLU，现代模型（如 GPT-2+）多使用 GELU。\n\n- (A) 单层线性变换表达能力不够\n- (C) Transformer 的 FFN 不使用卷积\n- (D) Transformer 是为了替代 RNN 而设计的\n- (E) 外部记忆注意力是某些特殊模型的设计"
+    },
+    {
+      "id": 23,
+      "topic": "Attention Variants",
+      "source": "generated",
+      "question": "Standard self-attention has $O(n^2)$ time and memory complexity with respect to sequence length $n$. **Linear attention** achieves $O(n)$ complexity by:",
+      "options": [
+        {"label": "A", "text": "Dropping half the tokens before computing attention."},
+        {"label": "B", "text": "Replacing softmax with a kernel function and reordering the matrix multiplications to avoid forming the $n \\times n$ attention matrix."},
+        {"label": "C", "text": "Using a smaller hidden dimension $d_k$."},
+        {"label": "D", "text": "Computing attention only on even-numbered positions."},
+        {"label": "E", "text": "Applying batch normalization instead of softmax."}
+      ],
+      "answer": "B",
+      "explanation": "**Linear attention** 的关键洞察是：如果用核函数 $\\phi$ 替代 softmax，attention 可以重写为：\n\n$$\\text{Attn}(q_i) = \\frac{\\phi(q_i)^T \\sum_j \\phi(k_j) v_j^T}{\\phi(q_i)^T \\sum_j \\phi(k_j)}$$\n\n通过先计算 $\\sum_j \\phi(k_j) v_j^T$（与 $n$ 线性相关），再与每个 query 相乘，避免了显式构建 $n \\times n$ 的 attention matrix，从而实现 $O(n)$ 复杂度。\n\n- (A) 丢弃 token 会损失信息，不是 linear attention 的做法\n- (C) 减小 $d_k$ 不改变 $n^2$ 的复杂度\n- (D) 只计算偶数位置是一种稀疏化但不是 linear attention\n- (E) BatchNorm 替代 softmax 不能实现线性复杂度"
+    },
+    {
+      "id": 24,
+      "topic": "Attention Variants",
+      "source": "generated",
+      "question": "**Rotary Positional Embeddings (RoPE)** encode position information by:",
+      "options": [
+        {"label": "A", "text": "Adding a fixed sinusoidal vector to the input embeddings before attention."},
+        {"label": "B", "text": "Applying rotation matrices to query and key vectors so that the dot product naturally encodes relative position."},
+        {"label": "C", "text": "Learning a separate position embedding matrix and concatenating it with token embeddings."},
+        {"label": "D", "text": "Using absolute position IDs as additional input features."},
+        {"label": "E", "text": "Replacing self-attention with convolutions that have positional awareness."}
+      ],
+      "answer": "B",
+      "explanation": "**RoPE** 的核心思想是对 query 和 key 向量应用与位置相关的**旋转矩阵**。位置 $m$ 的 query 被旋转 $m\\theta$ 角度，位置 $n$ 的 key 被旋转 $n\\theta$ 角度。\n\n这样做的巧妙之处在于：$q_m^T k_n$ 的结果只取决于相对位置 $m - n$，自然编码了相对位置信息。\n\n与其他位置编码相比：\n- **(A) 原始 Transformer 的 sinusoidal PE** 是加法式的 absolute PE\n- **(C) BERT 的 learned PE** 是加法式的可学习 absolute PE\n- RoPE 是乘法式（旋转），且天然编码相对位置\n\n- (D) 绝对位置 ID 不能很好地泛化到训练中未见过的长度\n- (E) RoPE 不涉及卷积"
+    },
+    {
+      "id": 25,
+      "topic": "Attention Variants",
+      "source": "generated",
+      "question": "**Flash Attention** is an optimization technique that speeds up attention computation primarily by:",
+      "options": [
+        {"label": "A", "text": "Reducing the number of attention heads."},
+        {"label": "B", "text": "Approximating the attention matrix with a low-rank decomposition."},
+        {"label": "C", "text": "Tiling the computation and using IO-aware algorithms to minimize memory reads/writes between GPU HBM and SRAM."},
+        {"label": "D", "text": "Replacing softmax with a ReLU activation."},
+        {"label": "E", "text": "Computing attention in half precision (FP16) instead of full precision (FP32)."}
+      ],
+      "answer": "C",
+      "explanation": "**Flash Attention** 的核心创新是**IO-aware 的 tiling 算法**。它通过将 $Q$、$K$、$V$ 矩阵分块（tiling），在 GPU 的快速 SRAM（on-chip memory）中完成尽可能多的计算，减少对慢速 HBM（off-chip memory）的读写次数。\n\n关键点是 Flash Attention **不近似** attention——它计算的是精确的 attention，只是通过巧妙的计算顺序和在线 softmax 算法来避免材料化完整的 $n \\times n$ attention matrix。\n\n- (A) 减少 head 数量会改变模型架构\n- (B) Flash Attention 是精确计算，不是低秩近似\n- (D) 激活函数替换是另一种方法（如 linear attention），不是 Flash Attention\n- (E) 混合精度训练是独立的优化，Flash Attention 关注的是内存访问模式"
+    },
+    {
+      "id": 26,
+      "topic": "Multimodal",
+      "source": "generated",
+      "question": "The **Vision Transformer (ViT)** processes images by:",
+      "options": [
+        {"label": "A", "text": "Applying convolutional filters at multiple scales and pooling the results."},
+        {"label": "B", "text": "Splitting the image into fixed-size patches, linearly embedding each patch, and processing the sequence of patch embeddings with a standard Transformer encoder."},
+        {"label": "C", "text": "Converting the image to text using OCR, then processing with a language model."},
+        {"label": "D", "text": "Using a GAN to generate feature maps that are then classified."},
+        {"label": "E", "text": "Applying self-attention to individual pixels, treating each pixel as a token."}
+      ],
+      "answer": "B",
+      "explanation": "**ViT** 的做法是「an image is worth 16x16 words」：\n1. 将图像切分为固定大小的 patch（如 16×16 像素）\n2. 每个 patch 通过线性投影映射为一个 embedding 向量\n3. 加上位置编码和一个可学习的 [CLS] token\n4. 送入标准的 Transformer encoder\n\n这种设计直接将 NLP 中成熟的 Transformer 架构应用于视觉领域。\n\n- (A) 这描述的是传统 CNN（如 ResNet）的工作方式\n- (C) ViT 直接处理像素，不需要 OCR\n- (D) GAN 是生成模型，与 ViT 无关\n- (E) 对每个像素做 attention 计算量太大（一张 224×224 的图有 50176 个像素），所以 ViT 用 patch 来减少序列长度"
+    },
+    {
+      "id": 27,
+      "topic": "Multimodal",
+      "source": "generated",
+      "question": "In CLIP's training, a batch of $N$ image-text pairs produces an $N \\times N$ similarity matrix. The contrastive loss treats which pairs as positives?",
+      "options": [
+        {"label": "A", "text": "All pairs in the batch are treated as positives."},
+        {"label": "B", "text": "The $N$ diagonal entries (matching image-text pairs) are positives; the $N^2 - N$ off-diagonal entries are negatives."},
+        {"label": "C", "text": "Random half of the pairs are positives, the other half are negatives."},
+        {"label": "D", "text": "Only the pair with the highest similarity is treated as positive."},
+        {"label": "E", "text": "Pairs are classified as positive or negative by a separate classifier network."}
+      ],
+      "answer": "B",
+      "explanation": "CLIP 的 contrastive loss 使用 batch 内的配对关系：\n- **正样本对**（$N$ 个）：对角线上的 $(\\text{image}_i, \\text{text}_i)$ 是真实匹配的\n- **负样本对**（$N^2 - N$ 个）：非对角线的 $(\\text{image}_i, \\text{text}_j)$ 其中 $i \\neq j$\n\n损失函数分两部分：image-to-text 和 text-to-image 的 cross-entropy loss，优化目标是让对角线的相似度最高。batch size 越大，负样本越多，对比学习效果越好。\n\n- (A) 如果所有配对都是正样本，就没有对比学习的效果了\n- (C) 正负样本不是随机分配的，而是基于实际匹配关系\n- (D) 每个 image 和 text 都恰好有一个正样本配对\n- (E) CLIP 不需要额外的分类器"
+    },
+    {
+      "id": 28,
+      "topic": "Multimodal",
+      "source": "generated",
+      "question": "Which approach does **Flamingo** use to enable a frozen language model to understand visual inputs?",
+      "options": [
+        {"label": "A", "text": "Fine-tuning all parameters of the language model on image-text data."},
+        {"label": "B", "text": "Inserting cross-attention layers (gated xattn-dense blocks) between frozen LM layers, allowing visual tokens from a vision encoder to be attended to."},
+        {"label": "C", "text": "Converting images to text descriptions using a separate captioning model, then feeding text to the LM."},
+        {"label": "D", "text": "Replacing the language model's embedding layer with a vision encoder."},
+        {"label": "E", "text": "Training the language model from scratch on a multimodal dataset."}
+      ],
+      "answer": "B",
+      "explanation": "**Flamingo** 的设计理念是保持大语言模型（LM）的参数冻结，通过插入新的 **gated cross-attention layers** 来连接视觉和语言模态：\n1. 使用 vision encoder 提取图像特征\n2. 通过 Perceiver Resampler 将可变数量的视觉 token 压缩为固定数量\n3. 在 frozen LM 的层之间插入 cross-attention 层，让 LM 的 hidden states 可以 attend to 视觉特征\n4. 只训练新增的 cross-attention 层和 Perceiver Resampler\n\n- (A)/(E) Flamingo 的核心优势是不需要微调整个 LM\n- (C) 文本中转会损失大量视觉信息\n- (D) 不是替换 embedding 层，而是添加 cross-attention"
+    },
+    {
+      "id": 29,
+      "topic": "Prompting & ICL",
+      "source": "generated",
+      "question": "In **zero-shot** prompting, the model is given:",
+      "options": [
+        {"label": "A", "text": "No task description and no examples; it must infer everything from the input alone."},
+        {"label": "B", "text": "A task description or instruction but no labeled examples."},
+        {"label": "C", "text": "One labeled example followed by the test input."},
+        {"label": "D", "text": "Hundreds of labeled examples to learn from."},
+        {"label": "E", "text": "A gradient update on a small labeled dataset before inference."}
+      ],
+      "answer": "B",
+      "explanation": "**Zero-shot prompting** 是指给模型一个**任务描述/指令**，但**不提供任何示例**，让模型直接完成任务。\n\n例如：「Classify the following review as positive or negative: 'This movie was amazing!'」\n\n模型需要仅凭预训练中学到的知识和给出的指令来完成任务。\n\n- (A) zero-shot 仍然会给任务描述，不是完全没有信息\n- (C) 一个示例是 one-shot\n- (D) 大量示例是传统的 supervised learning（如果做 fine-tuning）或 many-shot ICL\n- (E) 梯度更新是 fine-tuning，不是 prompting"
+    },
+    {
+      "id": 30,
+      "topic": "Prompting & ICL",
+      "source": "generated",
+      "question": "**In-context learning (ICL)** refers to the ability of large language models to:",
+      "options": [
+        {"label": "A", "text": "Update their weights during inference based on the provided examples."},
+        {"label": "B", "text": "Learn to perform a new task from a few examples provided in the prompt, without any parameter updates."},
+        {"label": "C", "text": "Memorize the entire training dataset and retrieve relevant examples."},
+        {"label": "D", "text": "Fine-tune on a small dataset before each inference call."},
+        {"label": "E", "text": "Use reinforcement learning to adapt to new tasks."}
+      ],
+      "answer": "B",
+      "explanation": "**In-context learning (ICL)** 是 LLM 的核心涌现能力之一：在 prompt 中提供少量 input-output 示例，模型就能「学会」完成新任务，**无需更新任何参数**。\n\n这是 GPT-3 论文中展示的关键能力。理论上，ICL 可以理解为模型在 forward pass 中隐式地执行了某种形式的学习（有研究表明 Transformer 可以在上下文中隐式实现梯度下降）。\n\n- (A) ICL 的关键特点就是**不更新参数**\n- (C) 虽然 LLM 可能记住训练数据，但 ICL 不是检索\n- (D) 这描述的是 fine-tuning，不是 ICL\n- (E) ICL 不使用强化学习"
+    },
+    {
+      "id": 31,
+      "topic": "Prompting & ICL",
+      "source": "generated",
+      "question": "**Chain-of-thought (CoT) prompting** improves reasoning by:",
+      "options": [
+        {"label": "A", "text": "Reducing the number of tokens in the prompt to focus the model."},
+        {"label": "B", "text": "Encouraging the model to generate intermediate reasoning steps before arriving at the final answer."},
+        {"label": "C", "text": "Training a separate reasoning module that runs before the language model."},
+        {"label": "D", "text": "Using reinforcement learning to reward correct reasoning chains."},
+        {"label": "E", "text": "Replacing the softmax attention with a hard attention mechanism."}
+      ],
+      "answer": "B",
+      "explanation": "**Chain-of-thought prompting** 通过在 prompt 中展示逐步推理的示例，引导模型在回答问题时先生成**中间推理步骤**，而不是直接跳到最终答案。\n\n例如，对于数学问题，CoT prompt 会展示：「问题 → 步骤1 → 步骤2 → ... → 答案」的模式，模型学会这种模式后也会生成推理链。\n\n这对复杂推理任务（数学、逻辑、常识推理等）有显著提升，可能是因为中间步骤为模型提供了更多的「计算空间」。\n\n- (A) CoT 实际上增加了 token 数量（因为要生成推理步骤）\n- (C) CoT 不需要单独的模块，纯粹是 prompting 策略\n- (D) RLHF 是对齐技术，与 CoT 是不同的概念\n- (E) CoT 与 attention 机制无关"
+    },
+    {
+      "id": 32,
+      "topic": "Prompting & ICL",
+      "source": "generated",
+      "question": "**Soft prompts** (as in prompt tuning) differ from traditional text prompts because:",
+      "options": [
+        {"label": "A", "text": "They are written in a simpler language to make them easier for the model to understand."},
+        {"label": "B", "text": "They are continuous vectors in the embedding space, optimized through gradient descent, rather than discrete tokens."},
+        {"label": "C", "text": "They are automatically generated by a separate language model."},
+        {"label": "D", "text": "They are stored in an external database and retrieved at inference time."},
+        {"label": "E", "text": "They require retraining the entire model from scratch."}
+      ],
+      "answer": "B",
+      "explanation": "**Soft prompts / Prompt Tuning** 不使用离散的文本 token 作为 prompt，而是在 embedding 空间中引入**可学习的连续向量**，通过梯度下降来优化这些向量，同时保持模型参数冻结。\n\n优点：\n1. 搜索空间是连续的，优化更高效\n2. 可以找到人类无法表达的 prompt\n3. 参数量极小（只有 prompt 向量），存储成本低\n\n- (A) 「简单语言」不是 soft prompts 的含义\n- (C) 自动生成 prompt 是 prompt search/optimization，不一定是 soft prompts\n- (D) 检索增强是 RAG，不是 prompt tuning\n- (E) prompt tuning 的优势之一就是不需要重新训练整个模型"
+    }
+  ]
+}

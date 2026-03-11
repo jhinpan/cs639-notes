@@ -103,6 +103,25 @@ function bindEvents() {
 
 function handleKeys(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+
+  if (examMode) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); examGoTo(examCurrentIdx - 1); }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); examGoTo(examCurrentIdx + 1); }
+    if (e.key === 'Enter') { e.preventDefault(); submitExamAnswer(); }
+    if (e.key === 'Escape') { exitExam(); }
+    if (e.key >= '1' && e.key <= '5') {
+      const labels = ['A','B','C','D','E'];
+      const label = labels[parseInt(e.key) - 1];
+      const q = examQuestions[examCurrentIdx];
+      const state = examAnswers[q.id];
+      if (!(state && state.submitted)) {
+        const optEl = examOptions.querySelector(`[data-label="${label}"]`);
+        if (optEl) optEl.click();
+      }
+    }
+    return;
+  }
+
   if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); goToPage(currentPage - 1); }
   if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); goToPage(currentPage + 1); }
   if (e.key === 'Escape') { contextMenu.classList.add('hidden'); noteEditor.classList.add('hidden'); dismissNotePopover(); }
@@ -110,6 +129,20 @@ function handleKeys(e) {
 
 function handleHashChange() {
   const hash = location.hash.slice(1);
+
+  if (hash === 'exam' || hash.startsWith('exam=')) {
+    const match = hash.match(/exam=(\d+)/);
+    if (match) examCurrentIdx = parseInt(match[1]) - 1;
+    enterExam();
+    return;
+  }
+
+  if (examMode) {
+    examMode = false;
+    examView.classList.add('hidden');
+    document.getElementById('split-view').style.display = '';
+  }
+
   const params = new URLSearchParams(hash);
   const lecId = parseInt(params.get('lecture'));
   const page = parseInt(params.get('page')) || 1;
@@ -790,4 +823,249 @@ ${slideCtx}`;
   }
 }
 
+// ============================================================================
+// Exam Mode
+// ============================================================================
+
+let examData = null;
+let examQuestions = [];
+let examCurrentIdx = 0;
+let examAnswers = {};
+let examMode = false;
+
+const examView = document.getElementById('exam-view');
+const examBody = document.getElementById('exam-body');
+const examSummary = document.getElementById('exam-summary');
+const examProgressFill = document.getElementById('exam-progress-fill');
+const examProgressText = document.getElementById('exam-progress-text');
+const examScoreDisplay = document.getElementById('exam-score-display');
+const examTopicTag = document.getElementById('exam-topic-tag');
+const examQuestionText = document.getElementById('exam-question-text');
+const examOptions = document.getElementById('exam-options');
+const examSubmitBtn = document.getElementById('exam-submit');
+const examFeedback = document.getElementById('exam-feedback');
+const examPrevBtn = document.getElementById('exam-prev');
+const examNextBtn = document.getElementById('exam-next');
+
+document.getElementById('btn-exam').addEventListener('click', () => {
+  location.hash = 'exam';
+});
+document.getElementById('exam-back').addEventListener('click', exitExam);
+document.getElementById('exam-back-lectures').addEventListener('click', exitExam);
+examSubmitBtn.addEventListener('click', submitExamAnswer);
+examPrevBtn.addEventListener('click', () => examGoTo(examCurrentIdx - 1));
+examNextBtn.addEventListener('click', () => {
+  if (examCurrentIdx >= examQuestions.length - 1) {
+    showExamSummary();
+  } else {
+    examGoTo(examCurrentIdx + 1);
+  }
+});
+document.getElementById('exam-retry').addEventListener('click', () => retryExam(false));
+document.getElementById('exam-retry-wrong').addEventListener('click', () => retryExam(true));
+
+async function enterExam() {
+  if (!examData) {
+    try {
+      const resp = await fetch('data/exam.json');
+      examData = await resp.json();
+    } catch (e) {
+      console.error('Failed to load exam data:', e);
+      return;
+    }
+  }
+
+  if (!examQuestions.length) {
+    examQuestions = examData.questions;
+    examAnswers = {};
+    examCurrentIdx = 0;
+  }
+
+  examMode = true;
+  examView.classList.remove('hidden');
+  document.getElementById('split-view').style.display = 'none';
+  examSummary.classList.add('hidden');
+  examBody.style.display = '';
+  renderExamQuestion();
+}
+
+function exitExam() {
+  examMode = false;
+  examView.classList.add('hidden');
+  document.getElementById('split-view').style.display = '';
+  location.hash = '';
+}
+
+function examGoTo(idx) {
+  if (idx < 0 || idx >= examQuestions.length) return;
+  examCurrentIdx = idx;
+  location.hash = `exam=${idx + 1}`;
+  renderExamQuestion();
+}
+
+function renderExamQuestion() {
+  const q = examQuestions[examCurrentIdx];
+  const state = examAnswers[q.id];
+  const answered = state && state.submitted;
+  const totalQ = examQuestions.length;
+  const answeredCount = Object.values(examAnswers).filter(a => a.submitted).length;
+
+  examProgressFill.style.width = `${(answeredCount / totalQ) * 100}%`;
+  examProgressText.textContent = `${answeredCount} / ${totalQ}`;
+
+  const correctCount = Object.values(examAnswers).filter(a => a.submitted && a.correct).length;
+  if (answeredCount > 0) {
+    examScoreDisplay.textContent = `Score: ${correctCount}/${answeredCount}`;
+  } else {
+    examScoreDisplay.textContent = '';
+  }
+
+  examTopicTag.textContent = q.topic;
+  examQuestionText.innerHTML = marked.parse(q.question);
+  renderKatex(examQuestionText);
+
+  let optionsHtml = '';
+  for (const opt of q.options) {
+    const selectedClass = (state && state.selected === opt.label) ? 'selected' : '';
+    let resultClass = '';
+    if (answered) {
+      if (opt.label === q.answer) resultClass = 'correct';
+      else if (state.selected === opt.label) resultClass = 'wrong';
+      if (opt.label === q.answer && state.selected !== opt.label) resultClass = 'show-correct';
+    }
+    const lockedClass = answered ? 'locked' : '';
+    optionsHtml += `<div class="exam-option ${selectedClass} ${resultClass} ${lockedClass}" data-label="${opt.label}">
+      <span class="exam-option-label">${opt.label}</span>
+      <span class="exam-option-text">${opt.text}</span>
+    </div>`;
+  }
+  examOptions.innerHTML = optionsHtml;
+
+  examOptions.querySelectorAll('.exam-option-text').forEach(el => renderKatex(el));
+
+  if (!answered) {
+    examOptions.querySelectorAll('.exam-option').forEach(optEl => {
+      optEl.addEventListener('click', () => {
+        examOptions.querySelectorAll('.exam-option').forEach(o => o.classList.remove('selected'));
+        optEl.classList.add('selected');
+        if (!examAnswers[q.id]) examAnswers[q.id] = {};
+        examAnswers[q.id].selected = optEl.dataset.label;
+        examSubmitBtn.disabled = false;
+      });
+    });
+    examSubmitBtn.style.display = '';
+    examSubmitBtn.disabled = !(state && state.selected);
+  } else {
+    examSubmitBtn.style.display = 'none';
+  }
+
+  if (answered) {
+    examFeedback.classList.remove('hidden', 'feedback-correct', 'feedback-wrong');
+    if (state.correct) {
+      examFeedback.classList.add('feedback-correct');
+      examFeedback.innerHTML = `<div class="feedback-header correct-header">Correct!</div><div class="feedback-body">${marked.parse(q.explanation)}</div>`;
+    } else {
+      examFeedback.classList.add('feedback-wrong');
+      examFeedback.innerHTML = `<div class="feedback-header wrong-header">Incorrect — you chose (${state.selected}), correct answer is (${q.answer})</div><div class="feedback-body">${marked.parse(q.explanation)}</div>`;
+    }
+    renderKatex(examFeedback);
+  } else {
+    examFeedback.classList.add('hidden');
+    examFeedback.classList.remove('feedback-correct', 'feedback-wrong');
+  }
+
+  examPrevBtn.disabled = examCurrentIdx <= 0;
+  examNextBtn.textContent = examCurrentIdx >= totalQ - 1 ? 'Finish' : 'Next →';
+
+  examBody.querySelector('#exam-question-area')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function submitExamAnswer() {
+  const q = examQuestions[examCurrentIdx];
+  const state = examAnswers[q.id];
+  if (!state || !state.selected) return;
+  state.submitted = true;
+  state.correct = state.selected === q.answer;
+  renderExamQuestion();
+}
+
+function showExamSummary() {
+  examBody.style.display = 'none';
+  examSummary.classList.remove('hidden');
+
+  const total = examQuestions.length;
+  const answered = Object.values(examAnswers).filter(a => a.submitted).length;
+  const correct = Object.values(examAnswers).filter(a => a.submitted && a.correct).length;
+  const wrong = answered - correct;
+  const unanswered = total - answered;
+  const pct = answered > 0 ? Math.round((correct / total) * 100) : 0;
+
+  let scoreClass = 'score-low';
+  if (pct >= 80) scoreClass = 'score-good';
+  else if (pct >= 50) scoreClass = 'score-mid';
+
+  document.getElementById('exam-summary-score').innerHTML =
+    `<span class="${scoreClass}">${correct} / ${total}</span><br><span style="font-size:0.35em;color:var(--text-muted)">${pct}% correct</span>`;
+
+  let breakdownHtml = `<span class="breakdown-tag tag-correct">✓ ${correct} correct</span>`;
+  if (wrong > 0) breakdownHtml += `<span class="breakdown-tag tag-wrong">✗ ${wrong} wrong</span>`;
+  if (unanswered > 0) breakdownHtml += `<span class="breakdown-tag tag-unanswered">○ ${unanswered} skipped</span>`;
+  document.getElementById('exam-summary-breakdown').innerHTML = breakdownHtml;
+
+  examProgressFill.style.width = '100%';
+  examProgressText.textContent = `${answered} / ${total}`;
+}
+
+function retryExam(wrongOnly) {
+  if (wrongOnly) {
+    const wrongIds = new Set();
+    for (const [id, state] of Object.entries(examAnswers)) {
+      if (state.submitted && !state.correct) wrongIds.add(parseInt(id));
+    }
+    const unansweredIds = new Set(
+      examQuestions.filter(q => !examAnswers[q.id]?.submitted).map(q => q.id)
+    );
+    examQuestions = examData.questions.filter(q => wrongIds.has(q.id) || unansweredIds.has(q.id));
+    if (examQuestions.length === 0) {
+      examQuestions = examData.questions;
+    }
+  } else {
+    examQuestions = examData.questions;
+  }
+  examAnswers = {};
+  examCurrentIdx = 0;
+  examSummary.classList.add('hidden');
+  examBody.style.display = '';
+  renderExamQuestion();
+}
+
+function renderKatex(el) {
+  if (window.renderMathInElement) {
+    renderMathInElement(el, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\[', right: '\\]', display: true },
+        { left: '\\(', right: '\\)', display: false },
+      ],
+      throwOnError: false,
+    });
+  }
+}
+
 init();
+
+// Add exam entry to TOC (after init populates the list)
+(function addExamToToc() {
+  const examLi = document.createElement('li');
+  examLi.style.borderTop = '1px solid var(--border)';
+  examLi.style.marginTop = '8px';
+  examLi.style.paddingTop = '8px';
+  const examA = document.createElement('a');
+  examA.href = '#exam';
+  examA.textContent = 'Sample Exams';
+  examA.style.color = '#7c3aed';
+  examA.style.fontWeight = '600';
+  examLi.appendChild(examA);
+  tocList.appendChild(examLi);
+})();
