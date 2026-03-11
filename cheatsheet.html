@@ -109,7 +109,7 @@ th { background: #eee; font-weight: 700; }
 </ul>
 <h3>Autoregressive (GPT-style)</h3>
 <ul>
-<li>Next-token prediction: <span class="katex-inline">$P(w_1,...,w_n) = \prod_i P(w_i \mid w_{<i})$</span></li>
+<li>Next-token prediction: <span class="katex-inline">$P(w_1,...,w_n) = \prod_i P(w_i \mid w_1,...,w_{i-1})$</span></li>
 <li>Unidirectional (causal) → good for generation</li>
 </ul>
 <h3>Contrastive Learning</h3>
@@ -262,7 +262,7 @@ th { background: #eee; font-weight: 700; }
 <tr><td>Residual</td><td><span class="katex-inline">$y = F(x) + x$</span></td></tr>
 <tr><td>InfoNCE</td><td><span class="katex-inline">$-\log\frac{\exp(\text{sim}(z_i,z_j)/\tau)}{\sum_k \exp(\text{sim}(z_i,z_k)/\tau)}$</span></td></tr>
 <tr><td>MLM Loss</td><td><span class="katex-inline">$-\sum_{i \in \mathcal{M}} \log P(x_i \mid x_{\setminus\mathcal{M}})$</span></td></tr>
-<tr><td>Autoregressive</td><td><span class="katex-inline">$P(w_1...w_n) = \prod_i P(w_i \mid w_{<i})$</span></td></tr>
+<tr><td>Autoregressive</td><td><span class="katex-inline">$P(w_1...w_n) = \prod_i P(w_i \mid w_1,...,w_{i-1})$</span></td></tr>
 <tr><td>EMA (teacher)</td><td><span class="katex-inline">$\theta_T \leftarrow \alpha\theta_T + (1-\alpha)\theta_S$</span></td></tr>
 <tr><td>RNN</td><td><span class="katex-inline">$s_t = \tanh(Ws_{t-1} + Ux_t + b)$</span></td></tr>
 <tr><td>Sinusoidal PE</td><td><span class="katex-inline">$\sin(pos/10000^{2i/d})$</span>, <span class="katex-inline">$\cos(pos/10000^{2i/d})$</span></td></tr>
